@@ -21,6 +21,7 @@ Chinese Chess Group Project of Sustech CS109 2025 Fall.
          1. 声音——Advance
          2. 提示栏——Advance——Advance
    3. 用户信息储存（针对2.1.2, 2.1.3）：数据库——Basic
+      1. 密码方面：哈希值
    4. 棋盘信息储存：需要棋盘段反馈：数据库——Basic
 
 
