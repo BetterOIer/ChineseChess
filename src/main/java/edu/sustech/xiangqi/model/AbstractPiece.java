@@ -5,12 +5,23 @@ public abstract class AbstractPiece {
     private final boolean isRed;
     private int row;
     private int col;
+    private int id;
+    private static int idCnt;
 
     public AbstractPiece(String name, int row, int col, boolean isRed) {
         this.name = name;
         this.row = row;
         this.col = col;
         this.isRed = isRed;
+        this.id = ++idCnt;
+    }
+
+    public int getId(){
+        return this.id;
+    }
+
+    public void resetId(){
+        idCnt=0;
     }
 
     public String getName() {
