@@ -22,6 +22,9 @@ public class ChessBoardModel {
         pieces.add(new SoldierPiece("卒", 3, 4, false));
         pieces.add(new SoldierPiece("卒", 3, 6, false));
         pieces.add(new SoldierPiece("卒", 3, 8, false));
+        pieces.add(new HorsePiece("马", 0, 6, false));
+        pieces.add(new HorsePiece("马", 0, 2, false));
+
 
         // 红方棋子
         pieces.add(new GeneralPiece("帅", 9, 4, true));
@@ -30,6 +33,8 @@ public class ChessBoardModel {
         pieces.add(new SoldierPiece("兵", 6, 4, true));
         pieces.add(new SoldierPiece("兵", 6, 6, true));
         pieces.add(new SoldierPiece("兵", 6, 8, true));
+        pieces.add(new HorsePiece("马", 9, 6, false));
+        pieces.add(new HorsePiece("马", 9, 2, false));
     }
 
     public List<AbstractPiece> getPieces() {
