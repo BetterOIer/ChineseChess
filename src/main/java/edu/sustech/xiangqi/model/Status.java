@@ -7,7 +7,7 @@ public class Status {
     private final List<Step> steps;
     private static final int ROWS = 10;
     private static final int COLS = 9;
-    private int[][] boardStatus = new int[10][9];
+    private int[][] boardStatus = new int[ROWS][COLS];
 
     public Status(List<AbstractPiece> pieces){
         steps = new ArrayList<>();
@@ -21,6 +21,7 @@ public class Status {
     }
 
     private boolean checkValid(int tarRow, int tarCol,int num){
+        //TODO update condition for set status.
         return true;
     }
 
@@ -41,5 +42,9 @@ public class Status {
 
     public int[][] getBoardNow(){
         return boardStatus;
+    }
+
+    public List<Step> getPlayBackStatus(){
+        return steps;
     }
 }
