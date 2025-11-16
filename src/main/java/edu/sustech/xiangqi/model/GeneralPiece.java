@@ -24,10 +24,21 @@ public class GeneralPiece extends AbstractPiece {
         // 2.不得对面见将
 
         if (isRed()) {
-            return targetRow >= 0 && targetRow <= 10 && Math.abs(rowDiff) == 1 && colDiff == 0;
+            if (targetRow >= 7 && targetRow <= 9 && targetCol >= 3 && targetCol <= 5) {
+                if(Math.abs(rowDiff) == 1 && Math.abs(colDiff) == 0){
+                    return true;
+                }
+                return Math.abs(rowDiff) == 0 && Math.abs(colDiff) == 1;
+            }
         }
         else {
-            return targetRow >= 0 && targetRow <= 10 && Math.abs(rowDiff) == 1 && colDiff == 0;
+            if (targetRow >= 0 && targetRow <= 2 && targetCol >= 3 && targetCol <= 5) {
+                if(Math.abs(rowDiff) == 1 && Math.abs(colDiff) == 0){
+                    return true;
+                }
+                return Math.abs(rowDiff) == 0 && Math.abs(colDiff) == 1;
+            }
         }
+        return false;
     }
 }
