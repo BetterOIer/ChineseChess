@@ -3,6 +3,8 @@ package edu.sustech.xiangqi.ui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
 
@@ -32,15 +34,12 @@ public class WelcomePage {
     }
 
     private void switchToArchMgr(){
-        JFrame frame = new JFrame("中国象棋");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        ArchiveManager boardPanel = new ArchiveManager();
-        frame.add(boardPanel);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
+        List<ChessBoardModel> archives = new ArrayList<>();//TODO:以后是从数据库导入
+        archives.add(new ChessBoardModel());
+        archives.add(new ChessBoardModel("test"));
+        ArchiveManager archiveManager = new ArchiveManager(archives);
         frameWelcome.setVisible(false);
-        frame.setVisible(true);
+        archiveManager.setVisible(true);
     }
 
     public WelcomePage(){
@@ -98,8 +97,7 @@ public class WelcomePage {
         });
         frameWelcome.add(boardOnlyButton);
         boardOnlyButton.addActionListener(e1->{
-            //TODO: this is a temp function. 
-            switchToLoginPage();
+            switchToArchMgr();
         });
 
         remoteGameButton = new JButton("联机游戏");

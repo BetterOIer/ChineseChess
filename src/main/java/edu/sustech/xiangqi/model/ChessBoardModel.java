@@ -1,5 +1,6 @@
 package edu.sustech.xiangqi.model;
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,8 +9,18 @@ public class ChessBoardModel {
     private final List<AbstractPiece> pieces;
     private static final int ROWS = 10;
     private static final int COLS = 9;
+    private String name;
+    private String lastModTimeTime;
 
     public ChessBoardModel() {
+        this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        this.lastModTimeTime = this.name;
+        pieces = new ArrayList<>();
+        initializePieces();
+    }
+    public ChessBoardModel(String name) {
+        this.name = name;
+        this.lastModTimeTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         pieces = new ArrayList<>();
         initializePieces();
     }
@@ -74,4 +85,17 @@ public class ChessBoardModel {
     public static int getCols() {
         return COLS;
     }
+
+    public String getLastModTime(){
+        return this.lastModTimeTime;
+    }
+
+    public String getName(){
+        return this.name;
+    }
+
+    public void setName(String name){
+        this.name = name;
+    }
+
 }
