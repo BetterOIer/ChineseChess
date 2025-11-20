@@ -29,3 +29,6 @@ replay_pid*
 # vscode files
 .vscode
 .vscode/*
+
+# database files
+*.db
