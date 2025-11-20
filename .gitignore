@@ -25,3 +25,7 @@ replay_pid*
 
 # backup files
 *.back
+
+# vscode files
+.vscode
+.vscode/*

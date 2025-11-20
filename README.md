@@ -27,8 +27,40 @@ Chinese Chess Group Project of Sustech CS109 2025 Fall.
 
 ## Schedule
 
-### 11.10 - 11.16
+### 11.10 - 11.23
 
-### 11.17 - 11.23
+1. ui代码已重构，确保每一个文件格式如下
+   ```java
+   public class frameName extends JFrame{
+      
+      //some subcomponent
+      //basically just thoses very complex component like JPanel 
+      private final panelNamePanel panelName;
+
+      public frameName(what-you-need){
+         setTitle("...");
+         //......
+      }
+
+   }
+
+   //if needed:
+   class panelNamePanel extends JPanel{
+      public panelNamePanel(){
+         //......
+      }
+   }
+   ```
+   这样，在一个窗口切换到另一个窗口时，代码可以几行解决不会显得冗长。
+   ```java
+   setVisible(false); //Hide this window
+   ChessBoardModel model = this.archives.get(Idx);//
+   ChessBoard chessBoard = new ChessBoard(model);//init next window
+   chessBoard.setVisible(true); //show next window
+   ```
+
+2. 数据库已接入
+   请注意更新你的IDE的项目配置（应该会自动更新的来着。。。）
+   
 
 

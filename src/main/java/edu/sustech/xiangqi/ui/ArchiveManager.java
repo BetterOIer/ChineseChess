@@ -47,23 +47,11 @@ public class ArchiveManager extends JFrame{
             archivePanel.setSelectedIdx(Idx);
             repaint();
         }
-        //TODO:以下是temp
-        this.setVisible(false);
-
-        JFrame frame = new JFrame("中国象棋");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+        setVisible(false);
 
         ChessBoardModel model = this.archives.get(Idx);
-        ChessBoardPanel boardPanel = new ChessBoardPanel(model);
-
-        frame.add(boardPanel);
-            
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        
-        frame.setVisible(true);
-        //TODO:以上是temp
+        ChessBoard chessBoard = new ChessBoard(model);
+        chessBoard.setVisible(true);
     }
 }
 
@@ -77,36 +65,6 @@ class ArchivePanel extends JPanel{
         this.archives = archives;
         setBackground(new Color(220, 179, 92));
         setPreferredSize(new Dimension(400, archives.size() * archiveHeight));
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                handleMouseClick(e.getX(), e.getY());
-            }
-        });
-    }
-
-    private void handleMouseClick(int x, int y){
-        int Idx = y / archiveHeight;
-        if (Idx >= 0 && Idx < archives.size()) {
-            selectedIdx = Idx;
-            repaint();
-        }
-        //TODO:以下是temp
-        JFrame frame = new JFrame("中国象棋");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-
-        ChessBoardModel model = this.archives.get(Idx);
-        ChessBoardPanel boardPanel = new ChessBoardPanel(model);
-
-        frame.add(boardPanel);
-            
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        
-        frame.setVisible(true);
-
-        //TODO:以上是temp
     }
 
     @Override

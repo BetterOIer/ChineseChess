@@ -8,6 +8,7 @@ public class Step {
     private int toCol;
     private int stepId;
     private int mode; //0 for move, 1 for eat.
+    //If is mode 1, Please write toRow=toCol=-1;
 
     private static int stepIdCnt;
 

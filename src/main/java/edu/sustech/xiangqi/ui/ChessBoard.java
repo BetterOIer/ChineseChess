@@ -8,7 +8,22 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class ChessBoardPanel extends JPanel {
+public class ChessBoard extends JFrame {
+
+    private final ChessBoardPanel chessBoardPanel;
+
+    public ChessBoard(ChessBoardModel model){
+        setTitle("中国象棋-"+model.getName());
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.chessBoardPanel =  new ChessBoardPanel(model);
+        add(chessBoardPanel);
+        pack();
+        setLocationRelativeTo(null);
+    }
+    
+}
+
+class ChessBoardPanel extends JPanel {
     private final ChessBoardModel model;
 
     /**
