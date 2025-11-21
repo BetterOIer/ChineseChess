@@ -6,23 +6,56 @@ import java.util.List;
 
 public class ChessBoardModel {
     // 储存棋盘上所有的棋子，要实现吃子的话，直接通过pieces.remove(被吃掉的棋子)删除就可以
-    private final List<AbstractPiece> pieces;
+    private List<AbstractPiece> pieces;
     private static final int ROWS = 10;
     private static final int COLS = 9;
     private String name;
-    private String lastModTimeTime;
+    private String lastModTime;
+    private Status status;
+    private int id;
+    private int boardType;
+    //采用位运算叠加
+    //xxx 仅棋盘1 远程2 AI4
+    private int description;
+    //预留，同boardType,位运算；
 
-    public ChessBoardModel() {
+    public ChessBoardModel(int id, int boardType) {
+        this.id=id;
+        this.boardType = boardType;
         this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        this.lastModTimeTime = this.name;
+        this.lastModTime = this.name;
         pieces = new ArrayList<>();
         initializePieces();
+        this.status = new Status(pieces);
     }
-    public ChessBoardModel(String name) {
+    public ChessBoardModel(int id, int boardType, String name) {
+        this.id=id;
+        this.boardType = boardType;
         this.name = name;
-        this.lastModTimeTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         pieces = new ArrayList<>();
         initializePieces();
+        this.status = new Status(pieces);
+    }
+    public ChessBoardModel(int id, int boardType, int description) {
+        this.id=id;
+        this.description = description;
+        this.boardType = boardType;
+        this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        this.lastModTime = this.name;
+        pieces = new ArrayList<>();
+        initializePieces();
+        this.status = new Status(pieces);
+    }
+    public ChessBoardModel(int id, int boardType, String name, int description) {
+        this.id=id;
+        this.description = description;
+        this.boardType = boardType;
+        this.name = name;
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        pieces = new ArrayList<>();
+        initializePieces();
+        this.status = new Status(pieces);
     }
 
     private void initializePieces() {
@@ -48,8 +81,18 @@ public class ChessBoardModel {
         pieces.add(new HorsePiece("马", 9, 2, false));
     }
 
+    public int getId(){
+        return this.id;
+    }
+    public void setId(int id){
+        this.id=id;
+    }
+
     public List<AbstractPiece> getPieces() {
         return pieces;
+    }
+    public void setPieces(List<AbstractPiece> pieces) {
+        this.pieces = pieces;
     }
 
     public AbstractPiece getPieceAt(int row, int col) {
@@ -87,7 +130,10 @@ public class ChessBoardModel {
     }
 
     public String getLastModTime(){
-        return this.lastModTimeTime;
+        return this.lastModTime;
+    }
+    public void setLastModTime(String lastModTime){
+        this.lastModTime=lastModTime;
     }
 
     public String getName(){
@@ -97,5 +143,19 @@ public class ChessBoardModel {
     public void setName(String name){
         this.name = name;
     }
-
+    public Status getStatus(){
+        return this.status;
+    }
+    public void setStatus(Status status){
+        this.status=status;
+    }
+    public int getType(){
+        return this.boardType;
+    }
+    public int getDescription(){
+        return this.description;
+    }
+    public void setDescription(int description){
+        this.description = description;
+    }
 }

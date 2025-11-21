@@ -3,26 +3,23 @@ package edu.sustech.xiangqi.ui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.List;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
+import edu.sustech.xiangqi.model.DBOperation;
 
 public class WelcomePage extends JFrame{
 
     private void switchToLoginPage(){
             setVisible(false);
-            ChessBoardModel model = new ChessBoardModel();
-            ChessBoard chessBoard = new ChessBoard(model);
-            chessBoard.setVisible(true);
+            //TODO:To write login page
     }
 
-    private void switchToArchMgr(){
-        List<ChessBoardModel> archives = new ArrayList<>();//TODO:以后是从数据库导入
-        //Temp line below
-        archives.add(new ChessBoardModel());
-        archives.add(new ChessBoardModel("test"));
-        //temp line above
+    private void switchToArchMgr() throws SQLException{
+        DBOperation.createTable();
+        List<ChessBoardModel> archives = DBOperation.getAllBoards();//TODO:以后是从数据库导入
+        archives.add(new ChessBoardModel(1, 1));//Templine
         ArchiveManager archiveManager = new ArchiveManager(archives);
         setVisible(false);
         archiveManager.setVisible(true);
@@ -72,7 +69,11 @@ public class WelcomePage extends JFrame{
         });
         add(boardOnlyButton);
         boardOnlyButton.addActionListener(e1->{
-            switchToArchMgr();
+            try{
+                switchToArchMgr();
+            }catch (SQLException e){
+                System.out.println("Database error.");
+            }
         });
 
         JButton remoteGameButton = new JButton("联机游戏");
