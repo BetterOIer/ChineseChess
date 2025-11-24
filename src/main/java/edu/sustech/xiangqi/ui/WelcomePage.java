@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
@@ -18,7 +19,7 @@ public class WelcomePage extends JFrame{
 
     private void switchToArchMgr() throws SQLException{
         DBOperation.createTable();
-        List<ChessBoardModel> archives = DBOperation.getAllBoards();//TODO:以后是从数据库导入
+        List<ChessBoardModel> archives = new ArrayList<>();//TODO:以后是从数据库导入
         archives.add(new ChessBoardModel(1, 1));//Templine
         ArchiveManager archiveManager = new ArchiveManager(archives);
         setVisible(false);
@@ -72,7 +73,8 @@ public class WelcomePage extends JFrame{
             try{
                 switchToArchMgr();
             }catch (SQLException e){
-                System.out.println("Database error.");
+                //System.out.println("Database error.");
+                e.printStackTrace();
             }
         });
 

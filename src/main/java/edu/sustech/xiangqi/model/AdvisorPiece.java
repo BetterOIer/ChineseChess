@@ -1,7 +1,7 @@
 package edu.sustech.xiangqi.model;
 
-public class GeneralPiece extends AbstractPiece {
-    public GeneralPiece(String name, int row, int col, boolean isRed) {
+public class AdvisorPiece extends AbstractPiece{
+    public AdvisorPiece(String name, int row, int col, boolean isRed) {
         super(name, row, col, isRed);
     }
 
@@ -17,24 +17,18 @@ public class GeneralPiece extends AbstractPiece {
         int rowDiff = Math.abs(targetRow - currentRow);
         int colDiff = Math.abs(targetCol - currentCol);
 
-        // 兵/卒的移动规则：
-        // 1.九宫内走一格直线；
-        // 2.不得对面见将
+        // 仕/士的移动规则：
+        // 1.九宫内走斜线一格（对角线）;
 
         if (isRed()) {
+            //红方
             if (targetRow >= 7 && targetRow <= 9 && targetCol >= 3 && targetCol <= 5) {
-                if(rowDiff == 1 && colDiff == 0){
-                    return true;
-                }
-                return rowDiff == 0 && colDiff == 1;
+                return rowDiff == 1 && colDiff == 1;
             }
-        }
-        else {
+        } else {
+            //黑方
             if (targetRow >= 0 && targetRow <= 2 && targetCol >= 3 && targetCol <= 5) {
-                if(rowDiff == 1 && colDiff == 0){
-                    return true;
-                }
-                return rowDiff == 0 && colDiff == 1;
+                return rowDiff == 1 && colDiff == 1;
             }
         }
         return false;
