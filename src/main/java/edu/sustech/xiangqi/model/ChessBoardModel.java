@@ -5,60 +5,109 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChessBoardModel {
-    // 储存棋盘上所有的棋子，要实现吃子的话，直接通过pieces.remove(被吃掉的棋子)删除就可以
-    private List<AbstractPiece> pieces;
+    //棋盘信息
+    private String name; //棋盘的名字
+    private String lastModTime; //棋盘最后修改的时间
     private static final int ROWS = 10;
     private static final int COLS = 9;
-    private String name;
-    private String lastModTime;
-    private Status status;
     private int id;
     private int boardType;
     //采用位运算叠加
-    //xxx 仅棋盘1 远程2 AI4
-    private int description;
-    //预留，同boardType,位运算；
+    //xxx 仅棋盘1 远程2 AI4 已终结8
+    private String description;
+    //预留；
+
+
+    //棋子信息
+    private List<AbstractPiece> pieces;//这里存所有的棋子
+
+    //过程信息
+    private List<Step> steps;
+    private int[][] boardStatus = new int[ROWS][COLS];
+
 
     public ChessBoardModel(int id, int boardType) {
         this.id=id;
         this.boardType = boardType;
         this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.lastModTime = this.name;
-        pieces = new ArrayList<>();
-        initializePieces();
-        this.status = new Status(pieces);
+        this.pieces = new ArrayList<>();
+        initPieces();
+        this.steps = new ArrayList<>();
+        initBoardStatus(pieces);
     }
-    public ChessBoardModel(int id, int boardType, String name) {
+    public ChessBoardModel(int id, String name, int boardType) {
         this.id=id;
         this.boardType = boardType;
         this.name = name;
         this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        pieces = new ArrayList<>();
-        initializePieces();
-        this.status = new Status(pieces);
+        this.pieces = new ArrayList<>();
+        initPieces();
+        this.steps = new ArrayList<>();
+        initBoardStatus(pieces);
     }
-    public ChessBoardModel(int id, int boardType, int description) {
+    public ChessBoardModel(int id, int boardType, String description) {
         this.id=id;
         this.description = description;
         this.boardType = boardType;
         this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.lastModTime = this.name;
-        pieces = new ArrayList<>();
-        initializePieces();
-        this.status = new Status(pieces);
+        this.pieces = new ArrayList<>();
+        initPieces();
+        this.steps = new ArrayList<>();
+        initBoardStatus(pieces);
     }
-    public ChessBoardModel(int id, int boardType, String name, int description) {
+    public ChessBoardModel(int id, String name, int boardType, String description) {
         this.id=id;
         this.description = description;
         this.boardType = boardType;
         this.name = name;
         this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        pieces = new ArrayList<>();
-        initializePieces();
-        this.status = new Status(pieces);
+        this.pieces = new ArrayList<>();
+        initPieces();
+        this.steps = new ArrayList<>();
+        initBoardStatus(pieces);
+    }
+    public ChessBoardModel(int id, int boardType, List<AbstractPiece> pieces, List<Step> steps) {
+        this.id=id;
+        this.boardType = boardType;
+        this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        this.lastModTime = this.name;
+        this.pieces = pieces;
+        this.steps = steps;
+        initBoardStatus(pieces);
+    }
+    public ChessBoardModel(int id, String name, int boardType, List<AbstractPiece> pieces, List<Step> steps) {
+        this.id=id;
+        this.boardType = boardType;
+        this.name = name;
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        this.pieces = pieces;
+        this.steps = steps;
+        initBoardStatus(pieces);
+    }
+    public ChessBoardModel(int id, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps) {
+        this.id=id;
+        this.description = description;
+        this.boardType = boardType;
+        this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        this.lastModTime = this.name;
+        this.pieces = pieces;
+        this.steps = steps;
+        initBoardStatus(pieces);
+    }
+    public ChessBoardModel(int id, String name, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps) {
+        this.id=id;
+        this.description = description;
+        this.boardType = boardType;
+        this.name = name;
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        this.pieces = pieces;
+        this.steps = steps;
+        initBoardStatus(pieces);
     }
 
-    private void initializePieces() {
+    private void initPieces() {
         // 黑方棋子
         pieces.add(new GeneralPiece(7, 0, 4, false));
         pieces.add(new SoldierPiece(6, 3, 0, false));
@@ -76,7 +125,6 @@ public class ChessBoardModel {
         pieces.add(new RookPiece(1, 0, 8, false));
         pieces.add(new CannonPiece(3, 2, 1, false));
         pieces.add(new CannonPiece(3, 2, 7, false));
-
         // 红方棋子
         pieces.add(new GeneralPiece(7, 9, 4, true));
         pieces.add(new SoldierPiece(6, 6, 0, true));
@@ -96,6 +144,39 @@ public class ChessBoardModel {
         pieces.add(new CannonPiece(3, 7, 7, true));
     }
 
+    private boolean checkValid(int tarRow, int tarCol,int num){
+        //TODO update condition for set status.
+        return true;
+    }
+
+    private void initBoardStatus(List<AbstractPiece> pieces){
+        for(AbstractPiece piece:pieces){
+            setStatus(piece.getRow(), piece.getCol(), piece.getId());
+        }
+    }
+    public boolean setStatus(int tarRow, int tarCol,int num){
+        if(checkValid(tarRow, tarCol, num)){
+            boardStatus[tarRow][tarCol] = num;
+            return true;
+        }
+        return false;
+    }
+    public boolean updateBoards(Step nowStep){
+        steps.add(nowStep);
+        setStatus(nowStep.getFromRow(), nowStep.getFromCol(), 0);
+        if(nowStep.getMode()==0)setStatus(nowStep.getToRow(), nowStep.getToCol(), nowStep.getPieceType());
+        return true;
+    }
+    public int[][] getBoardNow(){
+        return boardStatus;
+    }
+
+    public List<Step> getSteps(){
+        return steps;
+    }
+    public void setSteps(List<Step> steps){
+        this.steps = steps;
+    }
     public int getId(){
         return this.id;
     }
@@ -154,23 +235,16 @@ public class ChessBoardModel {
     public String getName(){
         return this.name;
     }
-
     public void setName(String name){
         this.name = name;
-    }
-    public Status getStatus(){
-        return this.status;
-    }
-    public void setStatus(Status status){
-        this.status=status;
     }
     public int getType(){
         return this.boardType;
     }
-    public int getDescription(){
+    public String getDescription(){
         return this.description;
     }
-    public void setDescription(int description){
+    public void setDescription(String description){
         this.description = description;
     }
 }

@@ -24,12 +24,18 @@ public class ArchiveManager extends JFrame{
         archivePanel = new ArchivePanel(this.archives);
         
         // 将列表面板放入滚动窗格
+        // 使用 BorderLayout，这样可以在底部留出固定高度的区域
+        getContentPane().setLayout(new BorderLayout());
+
         scrollPane = new JScrollPane(archivePanel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        
-        // 添加滚动速度设置
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        // 底部占位面板，用于插入其他组件，固定高度 50
+        JPanel bottomPlaceholder = new JPanel();
+        bottomPlaceholder.setPreferredSize(new Dimension(0, 50)); // 宽度由布局决定，高度固定为 50
+        add(bottomPlaceholder, BorderLayout.SOUTH);
         
         add(scrollPane);
 
@@ -43,15 +49,18 @@ public class ArchiveManager extends JFrame{
     private void handleMouseClick(int x, int y){
 
         int Idx = y / archivePanel.getArchiveHeight();
-        if (Idx >= 0 && Idx < archives.size()) {
+        boolean haveChosen = (Idx==archivePanel.getSelectedIdx());
+        if ((!haveChosen) && Idx >= 0 && Idx < archives.size()) {
             archivePanel.setSelectedIdx(Idx);
             repaint();
         }
-        setVisible(false);
-
-        ChessBoardModel model = this.archives.get(Idx);
-        ChessBoard chessBoard = new ChessBoard(model);
-        chessBoard.setVisible(true);
+        else if(haveChosen && Idx >= 0 && Idx < archives.size()){
+            ChessBoardModel model = this.archives.get(Idx);
+            ChessBoard chessBoard = new ChessBoard(model);
+            archivePanel.setSelectedIdx(-1);
+            setVisible(false);
+            chessBoard.setVisible(true);
+        }
     }
 }
 

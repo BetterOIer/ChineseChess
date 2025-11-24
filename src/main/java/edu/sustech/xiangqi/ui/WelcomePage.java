@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
@@ -20,8 +19,7 @@ public class WelcomePage extends JFrame{
 
     private void switchToArchMgr() throws SQLException{
         DBOperationBoard.createTable();
-        List<ChessBoardModel> archives = DBOperationBoard.getAllBoards();//TODO:以后是从数据库导入
-        archives.add(new ChessBoardModel(1, 1));//Templine
+        List<ChessBoardModel> archives = DBOperationBoard.getAllBoards();
         ArchiveManager archiveManager = new ArchiveManager(archives);
         setVisible(false);
         archiveManager.setVisible(true);

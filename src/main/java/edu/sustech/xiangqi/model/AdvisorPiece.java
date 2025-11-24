@@ -4,6 +4,9 @@ public class AdvisorPiece extends AbstractPiece{
     public AdvisorPiece(int type, int row, int col, boolean isRed) {
         super(type, row, col, isRed);
     }
+    public AdvisorPiece(int type, int row, int col, boolean isRed, boolean status) {
+        super(type, row, col, isRed, status);
+    }
 
     @Override
     public boolean canMoveTo(int targetRow, int targetCol, ChessBoardModel model) {

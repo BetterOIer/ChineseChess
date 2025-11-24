@@ -1,32 +1,29 @@
 package edu.sustech.xiangqi.model;
 
 public class Step {
-    private int pieceId;
+    private int pieceType;
     private int fromRow;
     private int fromCol;
     private int toRow;
     private int toCol;
-    private int stepId;
     private int mode; //0 for move, 1 for eat.
     //If is mode 1, Please write toRow=toCol=-1;
 
-    private static int stepIdCnt;
 
-    public Step(int pieceId,int fromRow, int fromCol, int toRow, int toCol, int mode){
-        this.pieceId = pieceId;
+    public Step(int pieceType,int fromRow, int fromCol, int toRow, int toCol, int mode){
+        this.pieceType = pieceType;
         this.fromRow = fromRow;
         this.fromCol = fromCol;
         this.toRow = toRow;
         this.toCol = toCol;
         this.mode = mode;
-        this.stepId = ++stepIdCnt;
     }
 
     public int getMode(){
         return this.mode;
     }
-    public int getPieceID(){
-        return this.pieceId;
+    public int getPieceType(){
+        return this.pieceType;
     }
     public int getFromRow(){
         return this.fromRow;

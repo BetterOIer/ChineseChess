@@ -15,7 +15,7 @@ public class DBOperationBoard {
             + "    nowstatus TEXT,\n"
             + "    history TEXT,\n"
             + "    boardtype INTEGER,\n"
-            + "    description INTEGER\n"
+            + "    description TEXT\n"
             + ")";
         
         try (Connection conn = DriverManager.getConnection(URL);
@@ -31,9 +31,9 @@ public class DBOperationBoard {
             ps.setString(1, board.getName());
             ps.setString(2, board.getLastModTime());
             ps.setString(3, piece2Str(board.getPieces()));
-            ps.setString(4, status2Str(board.getStatus()));
+            ps.setString(4, steps2Str(board.getSteps()));
             ps.setInt(5, board.getType());
-            ps.setInt(6, board.getDescription());
+            ps.setString(6, board.getDescription());
             int affected = ps.executeUpdate();
             if (affected == 0) {
                 return -1;
@@ -65,9 +65,9 @@ public class DBOperationBoard {
             ps.setString(1, newBoard.getName());
             ps.setString(2, newBoard.getLastModTime());
             ps.setString(3, piece2Str(newBoard.getPieces()));
-            ps.setString(4, status2Str(newBoard.getStatus()));
+            ps.setString(4, steps2Str(newBoard.getSteps()));
             ps.setInt(5, newBoard.getType());
-            ps.setInt(6, newBoard.getDescription());
+            ps.setString(6, newBoard.getDescription());
             ps.setInt(7, id2Mod);
             int affected = ps.executeUpdate();
             return affected > 0;
@@ -104,11 +104,11 @@ public class DBOperationBoard {
         }
     }
 
-    public static boolean updateBoardHistory(int id2Mod, Status status) throws SQLException {
+    public static boolean updateBoardHistory(int id2Mod, List<Step> steps) throws SQLException {
         String sql = "UPDATE boards SET history = ? WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, status2Str(status));
+            ps.setString(1, steps2Str(steps));
             ps.setInt(2, id2Mod);
             return ps.executeUpdate() > 0;
         }
@@ -124,11 +124,11 @@ public class DBOperationBoard {
         }
     }
 
-    public static boolean updateBoardDescription(int id2Mod, int description) throws SQLException {
+    public static boolean updateBoardDescription(int id2Mod, String description) throws SQLException {
         String sql = "UPDATE boards SET description = ? WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, description);
+            ps.setString(1, description);
             ps.setInt(2, id2Mod);
             return ps.executeUpdate() > 0;
         }
@@ -154,11 +154,11 @@ public class DBOperationBoard {
                     board.setPieces(pieces);
                     
                     // 将数据库中的字符串转换为状态
-                    String statusStr = rs.getString("history");
-                    Status status = str2Status(statusStr, pieces);
-                    board.setStatus(status);
+                    String stepsStr = rs.getString("history");
+                    List<Step> steps = str2Steps(stepsStr);
+                    board.setSteps(steps);
                     
-                    board.setDescription(rs.getInt("description"));
+                    board.setDescription(rs.getString("description"));
                     
                     return board;
                 } else {
@@ -198,11 +198,17 @@ public class DBOperationBoard {
         }
         return s;
     }
-    private static String status2Str(Status status){
+    private static String steps2Str(List<Step> steps){
         String s="";
+        for(Step step:steps){
+            s+=(step.getPieceType()+" ");
+            s+=(step.getFromRow()+" ");
+            s+=(step.getFromCol()+" ");
+            s+=(step.getToRow()+" ");
+            s+=(step.getToCol()+" ");
+            s+=(step.getMode()+" ");
+        }
         return s;
-
-        //TODO : write this part.
     }
     // 需要添加的辅助方法，用于将字符串转换回棋子列表和状态
     private static List<AbstractPiece> str2Piece(String piecesStr) {
@@ -214,16 +220,41 @@ public class DBOperationBoard {
             int col = in.nextInt();
             boolean isRed = in.nextBoolean();
             boolean status = in.nextBoolean();
-            //TODO: 等待对方处理
+            if(isRed){
+                if(type==1)pieces.add(new RookPiece(type, row, col, isRed, status));
+                else if(type==2)pieces.add(new HorsePiece(type, row, col, isRed, status));
+                else if(type==3)pieces.add(new CannonPiece(type, row, col, isRed, status));
+                else if(type==4)pieces.add(new ElephantPiece(type, row, col, isRed, status));
+                else if(type==5)pieces.add(new AdvisorPiece(type, row, col, isRed, status));
+                else if(type==6)pieces.add(new SoldierPiece(type, row, col, isRed, status));
+                else if(type==7)pieces.add(new GeneralPiece(type, row, col, isRed, status));
+            }else{
+                if(type==1)pieces.add(new RookPiece(type, row, col, isRed, status));
+                else if(type==2)pieces.add(new HorsePiece(type, row, col, isRed, status));
+                else if(type==3)pieces.add(new CannonPiece(type, row, col, isRed, status));
+                else if(type==4)pieces.add(new ElephantPiece(type, row, col, isRed, status));
+                else if(type==5)pieces.add(new AdvisorPiece(type, row, col, isRed, status));
+                else if(type==6)pieces.add(new SoldierPiece(type, row, col, isRed, status));
+                else if(type==7)pieces.add(new GeneralPiece(type, row, col, isRed, status));
+            }
         }
         in.close();
         return pieces;
     }
 
-    private static Status str2Status(String statusStr, List<AbstractPiece> pieces) {
-        Status status = new Status(pieces);
-        // TODO: 实现字符串到Status对象的转换逻辑
-        // 根据你在status2Str方法中定义的格式来解析
-        return status;
+    private static List<Step> str2Steps(String stepsStr) {
+        List<Step> steps = new ArrayList<>();
+        Scanner in = new Scanner(stepsStr);
+        while(in.hasNext()){
+            int pieceType = in.nextInt();
+            int fromRow = in.nextInt();
+            int fromCol = in.nextInt();
+            int toRow = in.nextInt();
+            int toCol = in.nextInt();
+            int mode = in.nextInt();
+            steps.add(new Step(pieceType, fromRow, fromCol, toRow, toCol, mode));
+        }
+        in.close();
+        return steps;
     }
 }

@@ -5,6 +5,9 @@ public class GeneralPiece extends AbstractPiece {
     public GeneralPiece(int type, int row, int col, boolean isRed) {
         super(type, row, col, isRed);
     }
+    public GeneralPiece(int type, int row, int col, boolean isRed, boolean status) {
+        super(type, row, col, isRed, status);
+    }
 
     @Override
     public boolean canMoveTo(int targetRow, int targetCol, ChessBoardModel model) {
