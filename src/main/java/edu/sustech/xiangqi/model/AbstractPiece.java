@@ -4,7 +4,7 @@ public abstract class AbstractPiece {
     private final int type;
     /* 
          1   2  3   4   5  6   7
-    红方:車，馬，炮，相，士，兵，帥
+    红方:車，馬，炮，相，仕，兵，帥
     黑方:車，馬，炮，象，士，卒，將
     */
     private final boolean isRed;
@@ -50,7 +50,7 @@ public abstract class AbstractPiece {
             else if(this.type==2) return "馬";
             else if(this.type==3) return "炮";
             else if(this.type==4) return "相";
-            else if(this.type==5) return "士";
+            else if(this.type==5) return "仕";
             else if(this.type==6) return "兵";
             else if(this.type==7) return "帥";
             else return "";

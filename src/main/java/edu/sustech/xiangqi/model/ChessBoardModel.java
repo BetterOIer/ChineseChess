@@ -60,40 +60,40 @@ public class ChessBoardModel {
 
     private void initializePieces() {
         // 黑方棋子
-        pieces.add(new GeneralPiece("將", 0, 4, false));
-        pieces.add(new SoldierPiece("卒", 3, 0, false));
-        pieces.add(new SoldierPiece("卒", 3, 2, false));
-        pieces.add(new SoldierPiece("卒", 3, 4, false));
-        pieces.add(new SoldierPiece("卒", 3, 6, false));
-        pieces.add(new SoldierPiece("卒", 3, 8, false));
-        pieces.add(new HorsePiece("馬", 0, 7, false));
-        pieces.add(new HorsePiece("馬", 0, 1, false));
-        pieces.add(new AdvisorPiece("士", 0, 3, false));
-        pieces.add(new AdvisorPiece("士", 0, 5, false));
-        pieces.add(new ElephantPiece("象", 0, 2, false));
-        pieces.add(new ElephantPiece("象", 0, 6, false));
-        pieces.add(new RookPiece("車", 0, 0, false));
-        pieces.add(new RookPiece("車", 0, 8, false));
-        pieces.add(new CannonPiece("炮", 2, 1, false));
-        pieces.add(new CannonPiece("炮", 2, 7, false));
+        pieces.add(new GeneralPiece(7, 0, 4, false));
+        pieces.add(new SoldierPiece(6, 3, 0, false));
+        pieces.add(new SoldierPiece(6, 3, 2, false));
+        pieces.add(new SoldierPiece(6, 3, 4, false));
+        pieces.add(new SoldierPiece(6, 3, 6, false));
+        pieces.add(new SoldierPiece(6, 3, 8, false));
+        pieces.add(new HorsePiece(2, 0, 7, false));
+        pieces.add(new HorsePiece(2, 0, 1, false));
+        pieces.add(new AdvisorPiece(5, 0, 3, false));
+        pieces.add(new AdvisorPiece(5, 0, 5, false));
+        pieces.add(new ElephantPiece(4, 0, 2, false));
+        pieces.add(new ElephantPiece(4, 0, 6, false));
+        pieces.add(new RookPiece(1, 0, 0, false));
+        pieces.add(new RookPiece(1, 0, 8, false));
+        pieces.add(new CannonPiece(3, 2, 1, false));
+        pieces.add(new CannonPiece(3, 2, 7, false));
 
         // 红方棋子
-        pieces.add(new GeneralPiece("帅", 9, 4, true));
-        pieces.add(new SoldierPiece("兵", 6, 0, true));
-        pieces.add(new SoldierPiece("兵", 6, 2, true));
-        pieces.add(new SoldierPiece("兵", 6, 4, true));
-        pieces.add(new SoldierPiece("兵", 6, 6, true));
-        pieces.add(new SoldierPiece("兵", 6, 8, true));
-        pieces.add(new HorsePiece("馬", 9, 7, true));
-        pieces.add(new HorsePiece("馬", 9, 1, true));
-        pieces.add(new AdvisorPiece("仕", 9, 3, true));
-        pieces.add(new AdvisorPiece("仕", 9, 5, true));
-        pieces.add(new ElephantPiece("相", 9, 2, true));
-        pieces.add(new ElephantPiece("相", 9, 6, true));
-        pieces.add(new RookPiece("車", 9, 0, true));
-        pieces.add(new RookPiece("車", 9, 8, true));
-        pieces.add(new CannonPiece("炮", 7, 1, true));
-        pieces.add(new CannonPiece("炮", 7, 7, true));
+        pieces.add(new GeneralPiece(7, 9, 4, true));
+        pieces.add(new SoldierPiece(6, 6, 0, true));
+        pieces.add(new SoldierPiece(6, 6, 2, true));
+        pieces.add(new SoldierPiece(6, 6, 4, true));
+        pieces.add(new SoldierPiece(6, 6, 6, true));
+        pieces.add(new SoldierPiece(6, 6, 8, true));
+        pieces.add(new HorsePiece(2, 9, 7, true));
+        pieces.add(new HorsePiece(2, 9, 1, true));
+        pieces.add(new AdvisorPiece(5, 9, 3, true));
+        pieces.add(new AdvisorPiece(5, 9, 5, true));
+        pieces.add(new ElephantPiece(4, 9, 2, true));
+        pieces.add(new ElephantPiece(4, 9, 6, true));
+        pieces.add(new RookPiece(1, 9, 0, true));
+        pieces.add(new RookPiece(1, 9, 8, true));
+        pieces.add(new CannonPiece(3, 7, 1, true));
+        pieces.add(new CannonPiece(3, 7, 7, true));
     }
 
     public int getId(){
