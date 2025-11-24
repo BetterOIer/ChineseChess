@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
@@ -73,7 +74,8 @@ public class WelcomePage extends JFrame{
             try{
                 switchToArchMgr();
             }catch (SQLException e){
-                System.out.println("Database error.");
+                //System.out.println("Database error.");
+                e.printStackTrace();
             }
         });
 

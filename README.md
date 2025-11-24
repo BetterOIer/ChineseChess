@@ -60,7 +60,8 @@ Chinese Chess Group Project of Sustech CS109 2025 Fall.
    ```
 
 2. 数据库已接入
-   请注意更新你的IDE的项目配置（应该会自动更新的来着。。。）
+   请注意更新你的IDE的项目配置（应该会自动更新的来着。。。）  
+   注意：请在`xiangqi`文件夹下新建`database`文件夹，否则会跑不起来！！！
    
 
 

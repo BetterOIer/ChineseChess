@@ -1,0 +1,46 @@
+package edu.sustech.xiangqi.model;
+
+public class ElephantPiece extends AbstractPiece{
+    public ElephantPiece(String name, int row, int col, boolean isRed) {
+        super(name, row, col, isRed);
+    }
+
+    @Override
+    public boolean canMoveTo(int targetRow, int targetCol, ChessBoardModel model) {
+        int currentRow = getRow();
+        int currentCol = getCol();
+
+        if (currentRow == targetRow && currentCol == targetCol) {
+            return false;
+        }
+
+        int rowDiff = Math.abs(targetRow - currentRow);
+        int colDiff = Math.abs(targetCol - currentCol);
+
+        // 象/相的移动规则:
+        // 1.走田字（斜线两格）;
+        // 2.不能过河;
+        // 3.堵象眼不可走;
+
+        // 堵象眼
+        int eyeRow = (currentRow + targetRow) / 2;
+        int eyeCol = (currentCol + targetCol) / 2;
+        boolean isBlocked = model.getPieceAt(eyeRow, eyeCol) != null;
+
+        if (isRed()) {
+            // 不能过河
+            boolean crossedRiver = currentRow < 5;
+            if (!crossedRiver && !isBlocked) {
+                return rowDiff == 2 && colDiff == 2;
+
+            }
+        } else {
+            boolean crossedRiver = currentRow >= 5;
+            if (!crossedRiver && !isBlocked) {
+                return rowDiff == 2 && colDiff == 2;
+            }
+        }
+        return false;
+    }
+
+}
