@@ -1,8 +1,8 @@
 package edu.sustech.xiangqi.model;
 
 public class RookPiece extends AbstractPiece{
-    public RookPiece(String name, int row, int col, boolean isRed) {
-        super(name, row, col, isRed);
+    public RookPiece(int type, int row, int col, boolean isRed) {
+        super(type, row, col, isRed);
     }
 
     @Override

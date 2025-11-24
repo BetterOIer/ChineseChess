@@ -1,8 +1,8 @@
 package edu.sustech.xiangqi.model;
 
 public class CannonPiece extends AbstractPiece{
-    public CannonPiece(String name, int row, int col, boolean isRed) {
-        super(name, row, col, isRed);
+    public CannonPiece(int type, int row, int col, boolean isRed) {
+        super(type, row, col, isRed);
     }
 
     @Override

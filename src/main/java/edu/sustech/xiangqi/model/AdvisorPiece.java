@@ -1,8 +1,8 @@
 package edu.sustech.xiangqi.model;
 
 public class AdvisorPiece extends AbstractPiece{
-    public AdvisorPiece(String name, int row, int col, boolean isRed) {
-        super(name, row, col, isRed);
+    public AdvisorPiece(int type, int row, int col, boolean isRed) {
+        super(type, row, col, isRed);
     }
 
     @Override
