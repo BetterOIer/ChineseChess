@@ -60,25 +60,25 @@ public class ChessBoardModel {
 
     private void initializePieces() {
         // 黑方棋子
-        pieces.add(new GeneralPiece("將", 0, 4, false));
-        pieces.add(new SoldierPiece("卒", 3, 0, false));
-        pieces.add(new SoldierPiece("卒", 3, 2, false));
-        pieces.add(new SoldierPiece("卒", 3, 4, false));
-        pieces.add(new SoldierPiece("卒", 3, 6, false));
-        pieces.add(new SoldierPiece("卒", 3, 8, false));
-        pieces.add(new HorsePiece("马", 0, 6, false));
-        pieces.add(new HorsePiece("马", 0, 2, false));
+        pieces.add(new GeneralPiece(7, 0, 4, false));
+        pieces.add(new SoldierPiece(6, 3, 0, false));
+        pieces.add(new SoldierPiece(6, 3, 2, false));
+        pieces.add(new SoldierPiece(6, 3, 4, false));
+        pieces.add(new SoldierPiece(6, 3, 6, false));
+        pieces.add(new SoldierPiece(6, 3, 8, false));
+        pieces.add(new HorsePiece(2, 0, 6, false));
+        pieces.add(new HorsePiece(2, 0, 2, false));
 
 
         // 红方棋子
-        pieces.add(new GeneralPiece("帅", 9, 4, true));
-        pieces.add(new SoldierPiece("兵", 6, 0, true));
-        pieces.add(new SoldierPiece("兵", 6, 2, true));
-        pieces.add(new SoldierPiece("兵", 6, 4, true));
-        pieces.add(new SoldierPiece("兵", 6, 6, true));
-        pieces.add(new SoldierPiece("兵", 6, 8, true));
-        pieces.add(new HorsePiece("马", 9, 6, false));
-        pieces.add(new HorsePiece("马", 9, 2, false));
+        pieces.add(new GeneralPiece(7, 9, 4, true));
+        pieces.add(new SoldierPiece(6, 6, 0, true));
+        pieces.add(new SoldierPiece(6, 6, 2, true));
+        pieces.add(new SoldierPiece(6, 6, 4, true));
+        pieces.add(new SoldierPiece(6, 6, 6, true));
+        pieces.add(new SoldierPiece(6, 6, 8, true));
+        pieces.add(new HorsePiece(2, 9, 6, true));
+        pieces.add(new HorsePiece(2, 9, 2, true));
     }
 
     public int getId(){

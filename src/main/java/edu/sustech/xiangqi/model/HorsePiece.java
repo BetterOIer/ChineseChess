@@ -1,8 +1,8 @@
 package edu.sustech.xiangqi.model;
 
 public class HorsePiece extends AbstractPiece {
-    public HorsePiece(String name, int row, int col, boolean isRed) {
-        super(name, row, col, isRed);
+    public HorsePiece(int type, int row, int col, boolean isRed) {
+        super(type, row, col, isRed);
     }
 
     @Override

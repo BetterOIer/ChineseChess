@@ -1,10 +1,10 @@
 package edu.sustech.xiangqi.model;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Scanner;
 import java.sql.*;
 
-public class DBOperation {
+public class DBOperationBoard {
     private static final String URL = "jdbc:sqlite:src/main/java/edu/sustech/xiangqi/database/ChineseChess.db";
 
     public static void createTable() throws SQLException {
@@ -168,17 +168,35 @@ public class DBOperation {
         }
     }
 
-    public static List<ChessBoardModel> getAllBoards(){
+    public static List<ChessBoardModel> getAllBoards() throws SQLException {
         List<ChessBoardModel> boards = new ArrayList<>();
-        //TODO: write for loop.
+        int totBoard = getBoardCount();
+        for(int i = 1;i<=totBoard;i++){
+            boards.add(getBoardById(i));
+        }
         return boards; 
     }
 
-    private static String piece2Str(List<AbstractPiece> pieces){
-        String s="";
-        return s;
+    public static int getBoardCount() throws SQLException {
+        String sql = "SELECT COUNT(*) AS cnt FROM boards";
+        try (Connection conn = DriverManager.getConnection(URL);
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            if(rs.next()) return rs.getInt("cnt");
+            else return 0;
+        }
+    }
 
-        //TODO : write this part.
+    public static String piece2Str(List<AbstractPiece> pieces){
+        String s="";
+        for(AbstractPiece i:pieces){
+            s+=(i.getType()+" ");
+            s+=(i.getRow()+" ");
+            s+=(i.getCol()+" ");
+            s+=(i.isRed()+" ");
+            s+=(i.getStatus()+" ");
+        }
+        return s;
     }
     private static String status2Str(Status status){
         String s="";
@@ -188,9 +206,17 @@ public class DBOperation {
     }
     // 需要添加的辅助方法，用于将字符串转换回棋子列表和状态
     private static List<AbstractPiece> str2Piece(String piecesStr) {
+        Scanner in = new Scanner(piecesStr);
         List<AbstractPiece> pieces = new ArrayList<>();
-        // TODO: 实现字符串到棋子列表的转换逻辑
-        // 根据你在piece2Str方法中定义的格式来解析
+        while(in.hasNext()){
+            int type = in.nextInt();
+            int row = in.nextInt();
+            int col = in.nextInt();
+            boolean isRed = in.nextBoolean();
+            boolean status = in.nextBoolean();
+            //TODO: 等待对方处理
+        }
+        in.close();
         return pieces;
     }
 

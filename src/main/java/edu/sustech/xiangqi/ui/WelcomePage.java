@@ -7,18 +7,19 @@ import java.sql.SQLException;
 import java.util.List;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
-import edu.sustech.xiangqi.model.DBOperation;
+import edu.sustech.xiangqi.model.DBOperationBoard;
 
 public class WelcomePage extends JFrame{
 
     private void switchToLoginPage(){
-            setVisible(false);
-            //TODO:To write login page
+        LoginPage loginPage = new LoginPage();
+        setVisible(false);
+        loginPage.setVisible(true);
     }
 
     private void switchToArchMgr() throws SQLException{
-        DBOperation.createTable();
-        List<ChessBoardModel> archives = DBOperation.getAllBoards();//TODO:以后是从数据库导入
+        DBOperationBoard.createTable();
+        List<ChessBoardModel> archives = DBOperationBoard.getAllBoards();//TODO:以后是从数据库导入
         archives.add(new ChessBoardModel(1, 1));//Templine
         ArchiveManager archiveManager = new ArchiveManager(archives);
         setVisible(false);
@@ -114,34 +115,6 @@ public class WelcomePage extends JFrame{
         add(withAIButton);
         /* withAIButton.addActionListener(e1->{
             switchToLoginPage();
-        }); */
-
-        /* JLabel userNameTip = new JLabel("用户名：");
-        userNameTip.setLocation(10, 60);
-        userNameTip.setSize(120,40);
-        add(userNameTip);
-
-        userName = new JTextField();
-        userName.setLocation(60, 60);
-        userName.setSize(100, 40);
-        add(userName);
-
-        JLabel passwordTip = new JLabel("密码：");
-        passwordTip.setLocation(10, 110);
-        passwordTip.setSize(120,40);
-        add(passwordTip);
-
-        password = new JTextField();
-        password.setLocation(60, 110);
-        password.setSize(100, 40);
-        add(password);
-
-        boardOnlyButton = new JButton("登录");
-        boardOnlyButton.setLocation(10, 160);
-        boardOnlyButton.setSize(100, 40);
-        add(boardOnlyButton);
-        boardOnlyButton.addActionListener(e1->{
-            switchToBoards();
         }); */
     }
 }

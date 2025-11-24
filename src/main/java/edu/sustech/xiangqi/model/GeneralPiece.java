@@ -2,8 +2,8 @@ package edu.sustech.xiangqi.model;
 
 public class GeneralPiece extends AbstractPiece {
 
-    public GeneralPiece(String name, int row, int col, boolean isRed) {
-        super(name, row, col, isRed);
+    public GeneralPiece(int type, int row, int col, boolean isRed) {
+        super(type, row, col, isRed);
     }
 
 
