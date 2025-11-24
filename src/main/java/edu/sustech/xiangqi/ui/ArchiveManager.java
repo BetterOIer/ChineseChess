@@ -3,10 +3,12 @@ import java.util.List;
 
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
+import edu.sustech.xiangqi.model.DBOperationBoard;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.SQLException;
 
 public class ArchiveManager extends JFrame{
 
@@ -32,23 +34,138 @@ public class ArchiveManager extends JFrame{
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        // 底部占位面板，用于插入其他组件，固定高度 50
-        JPanel bottomPlaceholder = new JPanel();
-        bottomPlaceholder.setPreferredSize(new Dimension(0, 50)); // 宽度由布局决定，高度固定为 50
-        add(bottomPlaceholder, BorderLayout.SOUTH);
+        // 底部占位面板，用于插入其他组件，固定高度 60
+        bottomPlaceHolderPanel bottomplaceholder= new bottomPlaceHolderPanel();
+        add(bottomplaceholder, BorderLayout.SOUTH);
         
         add(scrollPane);
 
         archivePanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                handleMouseClick(e.getX(), e.getY());
+                handleMouseClickOnPanel(e.getX(), e.getY());
+            }
+        });
+
+        bottomplaceholder.getModButton().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleMouseClickOnModButton();
+            }
+        });
+
+        bottomplaceholder.getNewButton().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleMouseClickOnNewButton();
+            }
+        });
+
+        bottomplaceholder.getDelButton().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleMouseClickOnDelButton();
             }
         });
     }
-    private void handleMouseClick(int x, int y){
+
+    private void handleMouseClickOnDelButton(){
+        int Idx = archivePanel.getSelectedIdx();
+        if(Idx!=-1){
+            try {
+                DBOperationBoard.deleteBoardById(Idx);
+                Idx=0;
+                archives = DBOperationBoard.getAllBoards();
+                archivePanel.setArchives(archives);
+                archivePanel.revalidate();
+                archivePanel.repaint();
+                if (scrollPane != null) {
+                    scrollPane.revalidate();
+                }
+                // 整体重绘窗口
+                repaint();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        repaint();
+    }
+
+    private void handleMouseClickOnNewButton(){//其实这一块还有点问题...
+        try{
+            DBOperationBoard.insertBoard(new ChessBoardModel(DBOperationBoard.getBoardCount(), 1));
+            int Idx = DBOperationBoard.getBoardCount()-1;
+            /* System.out.println(Idx); */
+            if(Idx!=-1){
+                ModifyArchive modifyArchive = new ModifyArchive(Idx);
+                modifyArchive.setVisible(true);
+                modifyArchive.getCancelMod().addActionListener(e1 -> {
+                    modifyArchive.dispose();
+                });
+                modifyArchive.getSubmitMod().addActionListener(e1 -> {
+                    try{
+                        // 保存到数据库
+                        DBOperationBoard.updateBoardName(Idx, modifyArchive.getBoardName().getText());
+                        DBOperationBoard.updateBoardDescription(Idx, modifyArchive.getDescription().getText());
+                        // 从 DB 重新读取所有存档并更新面板
+                        archives = DBOperationBoard.getAllBoards();
+                        archivePanel.setArchives(archives);
+                        archivePanel.revalidate();
+                        archivePanel.repaint();
+                        if (scrollPane != null) {
+                            scrollPane.revalidate();
+                        }
+                        // 整体重绘窗口
+                        repaint();
+                    }catch(SQLException e){
+                        e.printStackTrace();
+                    }finally{
+                        modifyArchive.dispose();
+                    }
+                });
+            }
+            repaint();
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void handleMouseClickOnModButton(){
+        int Idx = archivePanel.getSelectedIdx();
+        if(Idx!=-1){
+            ModifyArchive modifyArchive = new ModifyArchive(Idx);
+            modifyArchive.setVisible(true);
+            modifyArchive.getCancelMod().addActionListener(e1 -> {
+                modifyArchive.dispose();
+            });
+            modifyArchive.getSubmitMod().addActionListener(e1 -> {
+                try{
+                    // 保存到数据库
+                    DBOperationBoard.updateBoardName(Idx, modifyArchive.getBoardName().getText());
+                    DBOperationBoard.updateBoardDescription(Idx, modifyArchive.getDescription().getText());
+                    // 从 DB 重新读取所有存档并更新面板
+                    archives = DBOperationBoard.getAllBoards();
+                    archivePanel.setArchives(archives);
+                    archivePanel.revalidate();
+                    archivePanel.repaint();
+                    if (scrollPane != null) {
+                        scrollPane.revalidate();
+                    }
+                    // 整体重绘窗口
+                    repaint();
+                }catch(SQLException e){
+                    e.printStackTrace();
+                }finally{
+                    modifyArchive.dispose();
+                }
+            });
+        }
+        repaint();
+    }
+    private void handleMouseClickOnPanel(int x, int y){
 
         int Idx = y / archivePanel.getArchiveHeight();
+        /* System.out.println(Idx); */
         boolean haveChosen = (Idx==archivePanel.getSelectedIdx());
         if ((!haveChosen) && Idx >= 0 && Idx < archives.size()) {
             archivePanel.setSelectedIdx(Idx);
@@ -74,6 +191,13 @@ class ArchivePanel extends JPanel{
         this.archives = archives;
         setBackground(new Color(220, 179, 92));
         setPreferredSize(new Dimension(400, archives.size() * archiveHeight));
+    }
+
+    public void setArchives(List<ChessBoardModel> archives){
+        this.archives = archives;
+        setPreferredSize(new Dimension(400, Math.max(1, archives.size()) * archiveHeight));
+        revalidate();
+        repaint();
     }
 
     @Override
@@ -109,7 +233,13 @@ class ArchivePanel extends JPanel{
             g.setColor(Color.BLACK);
             g.setFont(new Font("SimHei", Font.BOLD, 20));
             g.drawString(archNow.getName(), 20, y + 30);
+
+            //绘制时间
+            g.setColor(Color.GRAY);
+            g.setFont(new Font("SimHei", Font.PLAIN, 13));
+            g.drawString(archNow.getLastModTime(), 20, y + 60);
             
+
             // 绘制选中指示器
             if(archIdx == selectedIdx){
                 g.setColor(new Color(0, 120, 215));
@@ -130,5 +260,43 @@ class ArchivePanel extends JPanel{
     }
     public void setSelectedIdx(int selectedIdx){
         this.selectedIdx = selectedIdx;
+    }
+}
+
+class bottomPlaceHolderPanel extends JPanel{
+
+    private JButton modifyButton;
+    private JButton newButton;
+    private JButton delButton;
+
+    public bottomPlaceHolderPanel(){
+
+        setPreferredSize(new Dimension(0, 60)); // 宽度由布局决定，高度固定为 60
+        setLayout(null);
+
+        newButton = new JButton("新建");
+        newButton.setSize(60, 30);
+        newButton.setLocation(1161,15);
+        add(newButton);
+
+        modifyButton = new JButton("修改");
+        modifyButton.setSize(60, 30);
+        modifyButton.setLocation(1226,15);
+        add(modifyButton);
+
+        delButton = new JButton("删除");
+        delButton.setSize(60, 30);
+        delButton.setLocation(1291,15);
+        add(delButton);
+    }
+
+    public JButton getModButton(){
+        return modifyButton;
+    }
+    public JButton getNewButton(){
+        return newButton;
+    }
+    public JButton getDelButton(){
+        return delButton;
     }
 }
