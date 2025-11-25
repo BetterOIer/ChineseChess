@@ -18,7 +18,7 @@ public class CannonPiece extends AbstractPiece{
         //中间隔一子：若目标位置有对方子，移动且吃子；
         //其他无法移动或吃子；
 
-        if (!canBasicMove(currentRow, currentCol, targetRow, targetCol)
+        if (!canBasicMove(currentRow, currentCol, targetRow, targetCol, model)
                 || model.getPieceAt(targetRow, targetCol) != null) {
             return false;
         }
@@ -31,7 +31,7 @@ public class CannonPiece extends AbstractPiece{
         int currentCol = getCol();
 
         //能否移动
-        if (!canBasicMove(currentRow, currentCol, targetRow, targetCol)) {
+        if (!canBasicMove(currentRow, currentCol, targetRow, targetCol, model)) {
             return false;
         }
 
@@ -66,7 +66,7 @@ public class CannonPiece extends AbstractPiece{
         }
         return betweenPieceNumber;
     }
-    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol) {
+    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model) {
 
         // 非原地移动
         if (currentRow == targetRow && currentCol == targetCol) {

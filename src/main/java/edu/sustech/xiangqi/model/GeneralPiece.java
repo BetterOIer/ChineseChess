@@ -13,7 +13,7 @@ public class GeneralPiece extends AbstractPiece {
      * 对面见将游戏结束
      */
 
-    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol) {
+    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model) {
         //非原地移动
         if (currentRow == targetRow && currentCol == targetCol) {
             return false;

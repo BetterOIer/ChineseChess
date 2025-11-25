@@ -12,7 +12,7 @@ public class SoldierPiece extends AbstractPiece {
         super(type, row, col, isRed, status);
     }
 
-    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol) {
+    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model) {
         int rowDiff = targetRow - currentRow;
         int colDiff = Math.abs(targetCol - currentCol);
         if (currentRow == targetRow && currentCol == targetCol) {

@@ -19,7 +19,6 @@ public class WelcomePage extends JFrame{
 
     private void switchToArchMgr() throws SQLException{
         DBOperationBoard.createTable();
-        DBOperationBoard.insertBoard(new ChessBoardModel(1,1));
         List<ChessBoardModel> archives = DBOperationBoard.getAllBoards();
         ArchiveManager archiveManager = new ArchiveManager(archives);
         setVisible(false);

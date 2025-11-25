@@ -8,10 +8,7 @@ public class HorsePiece extends AbstractPiece {
         super(type, row, col, isRed, status);
     }
 
-    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol) {
-        int rowDiff = Math.abs(targetRow - currentRow);
-        int colDiff = Math.abs(targetCol - currentCol);
-
+    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model) {
         //非原地移动
         if (currentRow == targetRow && currentCol == targetCol) {
             return false;

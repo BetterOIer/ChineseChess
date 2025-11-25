@@ -107,7 +107,7 @@ public abstract class AbstractPiece {
         int currentCol = getCol();
 
         // 能否移动
-        if (!canBasicMove(currentRow, currentCol, targetRow, targetCol)) {
+        if (!canBasicMove(currentRow, currentCol, targetRow, targetCol, model)) {
             return false;
         }
 
@@ -121,7 +121,7 @@ public abstract class AbstractPiece {
         int currentCol = getCol();
 
         // 能否移动
-        if (!canBasicMove(currentRow, currentCol, targetRow, targetCol)) {
+        if (!canBasicMove(currentRow, currentCol, targetRow, targetCol, model)) {
             return false;
         }
 
@@ -130,6 +130,6 @@ public abstract class AbstractPiece {
                 && model.getPieceAt(targetRow, targetCol).isRed() != this.isRed();
     }
 
-    public abstract boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol);
+    public abstract boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model);
 }
 

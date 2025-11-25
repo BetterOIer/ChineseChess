@@ -8,7 +8,7 @@ public class ElephantPiece extends AbstractPiece{
         super(type, row, col, isRed, status);
     }
 
-    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol) {
+    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model) {
         int rowDiff = Math.abs(targetRow - currentRow);
         int colDiff = Math.abs(targetCol - currentCol);
 

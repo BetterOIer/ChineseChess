@@ -8,7 +8,7 @@ public class RookPiece extends AbstractPiece{
         super(type, row, col, isRed, status);
     }
 
-    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol) {
+    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model) {
 
         //非原地移动
         if (currentRow == targetRow && currentCol == targetCol) {
