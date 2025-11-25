@@ -9,21 +9,22 @@ public class GeneralPiece extends AbstractPiece {
         super(type, row, col, isRed, status);
     }
 
-    @Override
-    public boolean canMoveTo(int targetRow, int targetCol, ChessBoardModel model) {
-        int currentRow = getRow();
-        int currentCol = getCol();
+    /**
+     * 对面见将游戏结束
+     */
 
+    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol) {
+        //非原地移动
         if (currentRow == targetRow && currentCol == targetCol) {
             return false;
         }
 
-        int rowDiff = Math.abs(targetRow - currentRow);
-        int colDiff = Math.abs(targetCol - currentCol);
-
-        // 兵/卒的移动规则：
+        // 将的移动规则：
         // 1.九宫内走一格直线；
         // 2.不得对面见将
+
+        int rowDiff = Math.abs(targetRow - currentRow);
+        int colDiff = Math.abs(targetCol - currentCol);
 
         if (isRed()) {
             if (targetRow >= 7 && targetRow <= 9 && targetCol >= 3 && targetCol <= 5) {

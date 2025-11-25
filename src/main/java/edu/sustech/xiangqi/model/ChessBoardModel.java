@@ -217,6 +217,22 @@ public class ChessBoardModel {
         return true;
     }
 
+    //待改
+
+
+    public boolean eatPiece(AbstractPiece piece, int newRow, int newCol) {
+        if (!isValidPosition(newRow, newCol)) {
+            return false;
+        }
+
+        if (!piece.canEat(newRow, newCol, this)) {
+            return false;
+        }
+
+        piece.moveTo(newRow, newCol);
+        return true;
+    }
+
     public static int getRows() {
         return ROWS;
     }

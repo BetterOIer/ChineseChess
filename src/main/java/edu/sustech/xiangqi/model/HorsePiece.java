@@ -8,47 +8,48 @@ public class HorsePiece extends AbstractPiece {
         super(type, row, col, isRed, status);
     }
 
-    @Override
-    public boolean canMoveTo(int targetRow, int targetCol, ChessBoardModel model) {
-        int currentRow = getRow();
-        int currentCol = getCol();
+    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol) {
+        int rowDiff = Math.abs(targetRow - currentRow);
+        int colDiff = Math.abs(targetCol - currentCol);
 
+        //非原地移动
         if (currentRow == targetRow && currentCol == targetCol) {
             return false;
         }
 
         int rowDiff = targetRow - currentRow;
         int colDiff = targetCol - currentCol;
+
         //蹩马脚
         boolean isStopped = false;
         int footCol;
         int footRow;
-        if (Math.abs(rowDiff) == 1 && colDiff == -2){
+        if (Math.abs(rowDiff) == 1 && colDiff == -2) {
             footCol = currentCol - 1;
-            if (model.getPieceAt(currentRow, footCol) != null){
+            if (model.getPieceAt(currentRow, footCol) != null) {
                 isStopped = true;
             }
-        }else if (Math.abs(colDiff) == 1 && rowDiff == -2){
+        } else if (Math.abs(colDiff) == 1 && rowDiff == -2) {
             footRow = currentRow - 1;
-            if (model.getPieceAt(footRow, currentCol) != null){
+            if (model.getPieceAt(footRow, currentCol) != null) {
                 isStopped = true;
             }
         } else if (Math.abs(rowDiff) == 1 && colDiff == 2) {
             footCol = currentCol + 1;
-            if (model.getPieceAt(currentRow, footCol) != null){
+            if (model.getPieceAt(currentRow, footCol) != null) {
                 isStopped = true;
             }
-        }else if (Math.abs(colDiff) == 1 && rowDiff == 2){
+        } else if (Math.abs(colDiff) == 1 && rowDiff == 2) {
             footRow = currentRow + 1;
-            if (model.getPieceAt(footRow, currentCol) != null){
+            if (model.getPieceAt(footRow, currentCol) != null) {
                 isStopped = true;
             }
         }
 
 
         //走日字（先直一格再斜一格）；蹩马腿不可走
-        if(!isStopped){
-            if(Math.abs(rowDiff) == 2 && Math.abs(colDiff) == 1){
+        if (!isStopped) {
+            if (Math.abs(rowDiff) == 2 && Math.abs(colDiff) == 1) {
                 return true;
             }
             return Math.abs(rowDiff) == 1 && Math.abs(colDiff) == 2;

@@ -9,16 +9,14 @@ public class AdvisorPiece extends AbstractPiece{
     }
 
     @Override
-    public boolean canMoveTo(int targetRow, int targetCol, ChessBoardModel model) {
-        int currentRow = getRow();
-        int currentCol = getCol();
+    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol) {
+        int rowDiff = Math.abs(targetRow - currentRow);
+        int colDiff = Math.abs(targetCol - currentCol);
 
+        //非原地移动
         if (currentRow == targetRow && currentCol == targetCol) {
             return false;
         }
-
-        int rowDiff = Math.abs(targetRow - currentRow);
-        int colDiff = Math.abs(targetCol - currentCol);
 
         // 仕/士的移动规则：
         // 1.九宫内走斜线一格（对角线）;

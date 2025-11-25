@@ -12,18 +12,12 @@ public class SoldierPiece extends AbstractPiece {
         super(type, row, col, isRed, status);
     }
 
-    @Override
-    public boolean canMoveTo(int targetRow, int targetCol, ChessBoardModel model) {
-        int currentRow = getRow();
-        int currentCol = getCol();
-
+    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol) {
+        int rowDiff = targetRow - currentRow;
+        int colDiff = Math.abs(targetCol - currentCol);
         if (currentRow == targetRow && currentCol == targetCol) {
             return false;
         }
-
-        int rowDiff = targetRow - currentRow;
-        int colDiff = Math.abs(targetCol - currentCol);
-
         // 兵/卒的移动规则：
         // 1. 未过河前只能向前走一步
         // 2. 过河后可以向前、向左、向右走一步，但不能后退

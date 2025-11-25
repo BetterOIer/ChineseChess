@@ -8,15 +8,7 @@ public class ElephantPiece extends AbstractPiece{
         super(type, row, col, isRed, status);
     }
 
-    @Override
-    public boolean canMoveTo(int targetRow, int targetCol, ChessBoardModel model) {
-        int currentRow = getRow();
-        int currentCol = getCol();
-
-        if (currentRow == targetRow && currentCol == targetCol) {
-            return false;
-        }
-
+    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol) {
         int rowDiff = Math.abs(targetRow - currentRow);
         int colDiff = Math.abs(targetCol - currentCol);
 
@@ -24,6 +16,11 @@ public class ElephantPiece extends AbstractPiece{
         // 1.走田字（斜线两格）;
         // 2.不能过河;
         // 3.堵象眼不可走;
+
+        //非原地移动
+        if (currentRow == targetRow && currentCol == targetCol) {
+            return false;
+        }
 
         // 堵象眼
         int eyeRow = (currentRow + targetRow) / 2;
@@ -45,5 +42,4 @@ public class ElephantPiece extends AbstractPiece{
         }
         return false;
     }
-
 }
