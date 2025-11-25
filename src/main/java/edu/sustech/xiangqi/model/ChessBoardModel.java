@@ -1,4 +1,5 @@
 package edu.sustech.xiangqi.model;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -145,7 +146,6 @@ public class ChessBoardModel {
     }
 
     private boolean checkValid(int tarRow, int tarCol,int num){
-        //TODO update condition for set status.
         return true;
     }
 
@@ -212,8 +212,15 @@ public class ChessBoardModel {
         if (!piece.canMoveTo(newRow, newCol, this)) {
             return false;
         }
-
+        Step nowStep = new Step(piece.getType(),piece.getRow(),piece.getCol(),newRow,newCol, 0);
+        updateBoards(nowStep);
         piece.moveTo(newRow, newCol);
+        try{
+            DBOperationBoard.updateBoardNowStatus(this.id, pieces);
+            DBOperationBoard.updateBoardHistory(this.id,steps);
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
         return true;
     }
 

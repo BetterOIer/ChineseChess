@@ -9,7 +9,7 @@ public class DBOperationBoard {
 
     public static void createTable() throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS boards (\n"
-            + "    id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
+            + "    id INTEGER,\n"
             + "    name TEXT NOT NULL,\n"
             + "    date TEXT,\n"
             + "    nowstatus TEXT,\n"
@@ -25,15 +25,16 @@ public class DBOperationBoard {
         }
     }
     public static int insertBoard(ChessBoardModel board) throws SQLException {
-        String sql = "INSERT INTO boards(name, date, nowstatus, history, boardtype, description) VALUES(?,?,?,?,?,?)";
+        String sql = "INSERT INTO boards(id, name, date, nowstatus, history, boardtype, description) VALUES(?,?,?,?,?,?,?)";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, board.getName());
-            ps.setString(2, board.getLastModTime());
-            ps.setString(3, piece2Str(board.getPieces()));
-            ps.setString(4, steps2Str(board.getSteps()));
-            ps.setInt(5, board.getType());
-            ps.setString(6, board.getDescription());
+            ps.setInt(1, board.getId());
+            ps.setString(2, board.getName());
+            ps.setString(3, board.getLastModTime());
+            ps.setString(4, piece2Str(board.getPieces()));
+            ps.setString(5, steps2Str(board.getSteps()));
+            ps.setInt(6, board.getType());
+            ps.setString(7, board.getDescription());
             int affected = ps.executeUpdate();
             if (affected == 0) {
                 return -1;
@@ -49,12 +50,34 @@ public class DBOperationBoard {
     }
 
     public static boolean deleteBoardById(int id2Del) throws SQLException {
-        String sql = "DELETE FROM boards WHERE id = ?";
-        try (Connection conn = DriverManager.getConnection(URL);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id2Del);
-            int affected = ps.executeUpdate();
-            return affected > 0;
+        String sqlDelete = "DELETE FROM boards WHERE id = ?";
+        String sqlShift = "UPDATE boards SET id = id - 1 WHERE id > ?";
+        try (Connection conn = DriverManager.getConnection(URL)) {
+            boolean prevAuto = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+            try {
+                // 删除指定记录
+                try (PreparedStatement psDelete = conn.prepareStatement(sqlDelete)) {
+                    psDelete.setInt(1, id2Del);
+                    int affected = psDelete.executeUpdate();
+                    if (affected == 0) {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+                // 将后续记录 id 全部 -1
+                try (PreparedStatement psShift = conn.prepareStatement(sqlShift)) {
+                    psShift.setInt(1, id2Del);
+                    psShift.executeUpdate();
+                }
+                conn.commit();
+                return true;
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            } finally {
+                conn.setAutoCommit(prevAuto);
+            }
         }
     }
 
@@ -171,7 +194,7 @@ public class DBOperationBoard {
     public static List<ChessBoardModel> getAllBoards() throws SQLException {
         List<ChessBoardModel> boards = new ArrayList<>();
         int totBoard = getBoardCount();
-        for(int i = 1;i<=totBoard;i++){
+        for(int i = 0;i<totBoard;i++){
             boards.add(getBoardById(i));
         }
         return boards; 
