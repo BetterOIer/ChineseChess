@@ -1,6 +1,7 @@
 package edu.sustech.xiangqi.ui;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
+import edu.sustech.xiangqi.model.DBOperationBoard;
 import edu.sustech.xiangqi.model.AbstractPiece;
 
 import javax.swing.*;
@@ -65,19 +66,22 @@ class ChessBoardPanel extends JPanel {
 
         if (!model.isValidPosition(row, col)) {
             return;
+        }else if(selectedPiece == null){
+            selectedPiece= model.trySelectPiece(row, col);
+        }else if(selectedPiece != null){
+            if(model.getPieceAt(row, col)==null){
+                model.tryMovePiece(row, col);
+            }else{
+                model.tryEatPiece(row, col);
+            }
+            selectedPiece=null;
+            model.caneclSelection();
         }
-
-        if (selectedPiece == null) {
-            selectedPiece = model.getPieceAt(row, col);
-        } else {
-            model.movePiece(selectedPiece, row, col);
-            selectedPiece = null;
-        }
-
         // 处理完点击事件后，需要重新绘制ui界面才能让界面上的棋子“移动”起来
         // Swing 会将多个请求合并后再重新绘制，因此调用 repaint 后gui不会立刻变更
         // repaint 中会调用 paintComponent，从而重新绘制gui上棋子的位置等
         repaint();
+        /* System.out.println(model.getSteps()); */
     }
 
     @Override

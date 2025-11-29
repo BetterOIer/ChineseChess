@@ -21,12 +21,19 @@ public class ChessBoardModel {
 
     //棋子信息
     private List<AbstractPiece> pieces;//这里存所有的棋子
+    private AbstractPiece selectedPiece = null;
+    private AbstractPiece generalPieceRed = null;
+    private AbstractPiece generalPieceBlack = null;
+    // 改为存坐标对象
+    private List<Coordinate> moveRange;
+    private List<Coordinate> eatRange;
 
     //过程信息
     private List<Step> steps;
     private int[][] boardStatus = new int[ROWS][COLS];
 
 
+    //构造函数
     public ChessBoardModel(int id, int boardType) {
         this.id=id;
         this.boardType = boardType;
@@ -107,7 +114,9 @@ public class ChessBoardModel {
         this.steps = steps;
         initBoardStatus(pieces);
     }
+    
 
+    //初始化
     private void initPieces() {
         // 黑方棋子
         pieces.add(new GeneralPiece(7, 0, 4, false));
@@ -144,39 +153,42 @@ public class ChessBoardModel {
         pieces.add(new CannonPiece(3, 7, 1, true));
         pieces.add(new CannonPiece(3, 7, 7, true));
     }
-
-    private boolean checkValid(int tarRow, int tarCol,int num){
-        return true;
-    }
-
     private void initBoardStatus(List<AbstractPiece> pieces){
         for(AbstractPiece piece:pieces){
             setStatus(piece.getRow(), piece.getCol(), piece.getId());
+            if(piece.getType()==7 && piece.isRed()) this.generalPieceRed=piece;
+            if(piece.getType()==7 && (!piece.isRed())) this. generalPieceBlack=piece; 
         }
     }
-    public boolean setStatus(int tarRow, int tarCol,int num){
-        if(checkValid(tarRow, tarCol, num)){
-            boardStatus[tarRow][tarCol] = num;
-            return true;
-        }
-        return false;
-    }
-    public boolean updateBoards(Step nowStep){
-        steps.add(nowStep);
-        setStatus(nowStep.getFromRow(), nowStep.getFromCol(), 0);
-        if(nowStep.getMode()==0)setStatus(nowStep.getToRow(), nowStep.getToCol(), nowStep.getPieceType());
-        return true;
-    }
+
+
+    //Getter Setter
+    //棋盘
     public int[][] getBoardNow(){
         return boardStatus;
     }
+    public void setStatusAll(int[][] boardNow){
+        this.boardStatus = boardNow;
+    }
+    public void setStatus(int tarRow, int tarCol,int num){
+        boardStatus[tarRow][tarCol] = num;
+    }
+    public static int getRows(){
+        return ROWS;
+    }
+    public static int getCols(){
+        return COLS;
+    }
 
+    //历史
     public List<Step> getSteps(){
         return steps;
     }
     public void setSteps(List<Step> steps){
         this.steps = steps;
     }
+
+    //ID
     public int getId(){
         return this.id;
     }
@@ -184,13 +196,39 @@ public class ChessBoardModel {
         this.id=id;
     }
 
-    public List<AbstractPiece> getPieces() {
-        return pieces;
+    //名字
+    public String getName(){
+        return this.name;
     }
-    public void setPieces(List<AbstractPiece> pieces) {
-        this.pieces = pieces;
+    public void setName(String name){
+        this.name = name;
     }
 
+    //类型
+    public int getType(){
+        return this.boardType;
+    }
+    public void setType(int type){
+        this.boardType=type;
+    }
+
+    //描述
+    public String getDescription(){
+        return this.description;
+    }
+    public void setDescription(String description){
+        this.description = description;
+    }
+
+    //修改时间
+    public String getLastModTime(){
+        return this.lastModTime;
+    }
+    public void setLastModTime(String lastModTime){
+        this.lastModTime=lastModTime;
+    }
+
+    //棋子
     public AbstractPiece getPieceAt(int row, int col) {
         for (AbstractPiece piece : pieces) {
             if (piece.getRow() == row && piece.getCol() == col) {
@@ -199,75 +237,103 @@ public class ChessBoardModel {
         }
         return null;
     }
+    public List<AbstractPiece> getPieces() {
+        return pieces;
+    }
+    public void setPieces(List<AbstractPiece> pieces) {
+        this.pieces = pieces;
+    }
+    public int getSelectedRow() {
+        return selectedPiece.getRow();
+    }
+    public void setSelectedRow(int selectedRow){
+        this.selectedPiece.setRow(selectedRow);
+    }
+    public int getSelectedCol() {
+        return selectedPiece.getCol();
+    }
+    public void setSelectedCol(int selectedCol){
+        this.selectedPiece.setCol(selectedCol);
+    }
 
+
+    public boolean updateBoards(Step nowStep){
+        steps.add(nowStep);
+        setStatus(nowStep.getFromRow(), nowStep.getFromCol(), 0);
+        if(nowStep.getMode()==0)setStatus(nowStep.getToRow(), nowStep.getToCol(), nowStep.getPieceType());
+        return true;
+    }
     public boolean isValidPosition(int row, int col) {
         return row >= 0 && row < ROWS && col >= 0 && col < COLS;
     }
-
-    public boolean movePiece(AbstractPiece piece, int newRow, int newCol) {
-        if (!isValidPosition(newRow, newCol)) {
-            return false;
+    public AbstractPiece trySelectPiece(int row, int col){
+        if(((this.boardType&8)!=0)) return null;
+        this.selectedPiece=getPieceAt(row, col);
+        refreshTar();
+        return this.selectedPiece;
+    }
+    private void refreshTar(){
+        if(selectedPiece==null) return;
+        moveRange = new ArrayList<>();
+        eatRange = new ArrayList<>();
+        for(int i = 0;i<ROWS;i++){
+            for(int j = 0;j<COLS;j++){
+                if(selectedPiece.canMove(this, i, j)) moveRange.add(new Coordinate(i, j));
+                if(selectedPiece.canEat(this, i,j)) eatRange.add(new Coordinate(i, j));
+            }
         }
-
-        if (!piece.canMoveTo(newRow, newCol, this)) {
-            return false;
+        /* System.out.println("Can move:"+this.moveRange);
+        System.out.println("Can eat:"+this.eatRange); */
+    }
+    public void caneclSelection(){
+        this.selectedPiece = null;
+    }
+    public void tryMovePiece(int row, int col){
+        if(this.selectedPiece==null) return;
+        if(!isValidPosition(row, col)) return;
+        if(moveRange != null && moveRange.contains(new Coordinate(row, col))){
+            Step nowStep = new Step(selectedPiece.getType(),selectedPiece.getRow(),selectedPiece.getCol(), row, col, 0);
+            updateBoards(nowStep);
+            this.selectedPiece.moveTo(row, col);
+            setLastModTime(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            try{
+                DBOperationBoard.updateBoardNowStatus(this.id, this.pieces);
+                DBOperationBoard.updateBoardHistory(this.id,steps);
+                DBOperationBoard.updateBoardDate(this.id, this.lastModTime);
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
         }
-        Step nowStep = new Step(piece.getType(),piece.getRow(),piece.getCol(),newRow,newCol, 0);
-        updateBoards(nowStep);
-        piece.moveTo(newRow, newCol);
-        try{
-            DBOperationBoard.updateBoardNowStatus(this.id, pieces);
-            DBOperationBoard.updateBoardHistory(this.id,steps);
-        }catch(SQLException e){
-            e.printStackTrace();
+    }
+    
+    public void tryEatPiece(int row, int col){
+        if(this.selectedPiece==null) return;
+        if(!isValidPosition(row, col)) return;
+        if(eatRange != null && eatRange.contains(new Coordinate(row, col))){
+            AbstractPiece eatenPiece = this.getPieceAt(row, col);
+            Step step1 = new Step(eatenPiece.getType(),eatenPiece.getRow(),eatenPiece.getCol(), -1, -1, 1);
+            eatenPiece.setStatus(false);
+            eatenPiece.moveTo(-1, -1);
+            updateBoards(step1);
+            Step step2 = new Step(selectedPiece.getType(),selectedPiece.getRow(),selectedPiece.getCol(), row, col, 0);
+            updateBoards(step2);
+            this.selectedPiece.moveTo(row, col);
+            setLastModTime(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            try{
+                DBOperationBoard.updateBoardNowStatus(this.id, this.pieces);
+                DBOperationBoard.updateBoardHistory(this.id,steps);
+                DBOperationBoard.updateBoardDate(this.id, this.lastModTime);
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+            if(eatenPiece.getType()==7){
+                this.boardType|=8;
+                try{
+                    DBOperationBoard.updateBoardType(this.id, boardType);
+                }catch(SQLException e){
+                    e.printStackTrace();
+                }
+            }
         }
-        return true;
-    }
-
-    //待改
-
-
-    public boolean eatPiece(AbstractPiece piece, int newRow, int newCol) {
-        if (!isValidPosition(newRow, newCol)) {
-            return false;
-        }
-
-        if (!piece.canEat(newRow, newCol, this)) {
-            return false;
-        }
-
-        piece.moveTo(newRow, newCol);
-        return true;
-    }
-
-    public static int getRows() {
-        return ROWS;
-    }
-
-    public static int getCols() {
-        return COLS;
-    }
-
-    public String getLastModTime(){
-        return this.lastModTime;
-    }
-    public void setLastModTime(String lastModTime){
-        this.lastModTime=lastModTime;
-    }
-
-    public String getName(){
-        return this.name;
-    }
-    public void setName(String name){
-        this.name = name;
-    }
-    public int getType(){
-        return this.boardType;
-    }
-    public String getDescription(){
-        return this.description;
-    }
-    public void setDescription(String description){
-        this.description = description;
     }
 }

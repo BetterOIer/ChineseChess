@@ -8,45 +8,52 @@ public class RookPiece extends AbstractPiece{
         super(type, row, col, isRed, status);
     }
 
-    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model) {
+    @Override
+    public boolean canEat(ChessBoardModel model, int row, int col){
+        if(!model.isValidPosition(row, col)) return false;
+        if(model.getPieceAt(row, col)==null) return false;
+        if(row==getRow() && col==getCol()) return false;
+        if(row!=getRow() && col!=getCol()) return false;
+        if((isRed()==model.getPieceAt(row, col).isRed()))return false;
+        if(betweenPieceNumber(getRow(), getCol(), row, col, model)!=0) return false;
+        return true;
+    }
 
-        //非原地移动
-        if (currentRow == targetRow && currentCol == targetCol) {
-            return false;
-        }
+    @Override
+    public boolean canMove(ChessBoardModel model, int row, int col){
+        if(!model.isValidPosition(row, col)) return false;
+        if(model.getPieceAt(row, col)!=null) return false;
+        if(row==getRow() && col==getCol()) return false;
+        if(row!=getRow() && col!=getCol()) return false;
+        if(betweenPieceNumber(getRow(), getCol(), row, col, model)!=0) return false;
+        return true;
+    }
 
-        // 车的移动规则：
-        // 直线任意步；
-        // 无障碍可行；
-
-        boolean isBlocked = false;
+    private int betweenPieceNumber(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model) {
+        int betweenPieceNumber = 0;
         boolean isHorizontal = (currentRow == targetRow);
-        boolean isVertical = (currentCol == targetCol);
-        if (!isHorizontal && !isVertical) {
-            return false;
-        }
 
-        //水平移动
+        /* 不含端点 */
+
         if (isHorizontal){
-            int startCol = Math.min(currentCol, targetCol);
+            // 水平移动
+            int startCol = Math.min(currentCol, targetCol) + 1;
             int endCol = Math.max(currentCol, targetCol);
-            for (int i = startCol; i <= endCol; i++){
-                if (model.getPieceAt(currentRow, i) != null){
-                    isBlocked = true;
-                    break;
+            for (int col = startCol; col < endCol; col++) {
+                if (model.getPieceAt(currentRow, col) != null) {
+                    betweenPieceNumber++;
                 }
             }
-        }else {
-            //竖直移动
-            int startRow = Math.min(currentRow, targetRow);
+        }else{
+            // 竖直移动
+            int startRow = Math.min(currentRow, targetRow) + 1;
             int endRow = Math.max(currentRow, targetRow);
-            for (int i = startRow; i <= endRow; i++){
-                if (model.getPieceAt(i, currentCol) != null){
-                    isBlocked = true;
-                    break;
+            for (int row = startRow; row < endRow; row++) {
+                if (model.getPieceAt(row, currentCol) != null) {
+                    betweenPieceNumber++;
                 }
             }
         }
-        return !isBlocked;
+        return betweenPieceNumber;
     }
 }

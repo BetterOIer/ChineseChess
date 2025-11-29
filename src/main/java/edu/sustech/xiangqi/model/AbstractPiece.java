@@ -32,18 +32,25 @@ public abstract class AbstractPiece {
         this.id = ++idCnt;
     }
 
+    //Id
     public int getId(){
         return this.id;
     }
-
     public void resetId(){
         idCnt=0;
     }
 
+    //Type
     public int getType() {
         return type;
     }
 
+    //isRed
+    public boolean isRed() {
+        return isRed;
+    }
+
+    //name
     public String getName(){
         if(this.isRed){
             if(this.type==1) return "車";
@@ -66,26 +73,21 @@ public abstract class AbstractPiece {
         }
     }
 
+    //Position
     public int getRow() {
         return row;
     }
-
     public void setRow(int row) {
         this.row = row;
     }
-
     public int getCol() {
         return col;
     }
-
     public void setCol(int col) {
         this.col = col;
     }
 
-    public boolean isRed() {
-        return isRed;
-    }
-
+    //Action
     public void moveTo(int newRow, int newCol) {
         this.row = newRow;
         this.col = newCol;
@@ -97,11 +99,9 @@ public abstract class AbstractPiece {
         return this.alive;
     }
 
-    /**
-     * 判断棋子是否可以移动到目标位置
-     *
-     * @return 是否可以移动
-     */
+    public abstract boolean canEat(ChessBoardModel model, int row, int col);
+    public abstract boolean canMove(ChessBoardModel model, int row, int col);
+    /* //Judge
     public boolean canMoveTo(int targetRow, int targetCol, ChessBoardModel model){
         int currentRow = getRow();
         int currentCol = getCol();
@@ -130,6 +130,6 @@ public abstract class AbstractPiece {
                 && model.getPieceAt(targetRow, targetCol).isRed() != this.isRed();
     }
 
-    public abstract boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model);
+    public abstract boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model); */
 }
 

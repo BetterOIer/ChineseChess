@@ -8,38 +8,32 @@ public class ElephantPiece extends AbstractPiece{
         super(type, row, col, isRed, status);
     }
 
-    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model) {
-        int rowDiff = Math.abs(targetRow - currentRow);
-        int colDiff = Math.abs(targetCol - currentCol);
+    @Override
+    public boolean canEat(ChessBoardModel model, int row, int col){
+        if(!model.isValidPosition(row, col)) return false;
+        if(model.getPieceAt(row, col)==null) return false;
+        if(row==getRow() && col==getCol()) return false;
+        if((isRed()==model.getPieceAt(row, col).isRed()))return false;
+        int rowDiff = Math.abs(row - getRow());
+        int colDiff = Math.abs(col - getCol());
+        if(rowDiff !=2 || colDiff !=2) return false;
+        if(model.getPieceAt((row+getRow())/2, (col+getCol())/2)!=null) return false;
+        if(isRed()){if(row<5) return false;}
+        else{if(row>=5) return false;}
+        return true;
+    }
 
-        // 象/相的移动规则:
-        // 1.走田字（斜线两格）;
-        // 2.不能过河;
-        // 3.堵象眼不可走;
-
-        //非原地移动
-        if (currentRow == targetRow && currentCol == targetCol) {
-            return false;
-        }
-
-        // 堵象眼
-        int eyeRow = (currentRow + targetRow) / 2;
-        int eyeCol = (currentCol + targetCol) / 2;
-        boolean isBlocked = model.getPieceAt(eyeRow, eyeCol) != null;
-
-        if (isRed()) {
-            // 不能过河
-            boolean crossedRiver = currentRow < 5;
-            if (!crossedRiver && !isBlocked) {
-                return rowDiff == 2 && colDiff == 2;
-
-            }
-        } else {
-            boolean crossedRiver = currentRow >= 5;
-            if (!crossedRiver && !isBlocked) {
-                return rowDiff == 2 && colDiff == 2;
-            }
-        }
-        return false;
+    @Override
+    public boolean canMove(ChessBoardModel model, int row, int col){
+        if(!model.isValidPosition(row, col)) return false;
+        if(model.getPieceAt(row, col)!=null) return false;
+        if(row==getRow() && col==getCol()) return false;
+        int rowDiff = Math.abs(row - getRow());
+        int colDiff = Math.abs(col - getCol());
+        if(rowDiff !=2 || colDiff !=2) return false;
+        if(model.getPieceAt((row+getRow())/2, (col+getCol())/2)!=null) return false;
+        if(isRed()){if(row<5) return false;}
+        else{if(row>=5) return false;}
+        return true;
     }
 }
