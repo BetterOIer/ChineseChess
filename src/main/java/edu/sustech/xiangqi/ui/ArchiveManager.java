@@ -4,6 +4,7 @@ import java.util.List;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
 import edu.sustech.xiangqi.model.DBOperationBoard;
+import edu.sustech.xiangqi.model.DBOperationUser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -93,7 +94,7 @@ public class ArchiveManager extends JFrame{
 
     private void handleMouseClickOnNewButton(){//其实这一块还有点问题...
         try{
-            DBOperationBoard.insertBoard(new ChessBoardModel(DBOperationBoard.getBoardCount(), 1));
+            DBOperationBoard.insertBoard(new ChessBoardModel(DBOperationBoard.getBoardCount(), 1, DBOperationUser.getUserByName("Red"), DBOperationUser.getUserByName("Black"), true));
             int Idx = DBOperationBoard.getBoardCount()-1;
             /* System.out.println(Idx); */
             if(Idx!=-1){

@@ -15,7 +15,10 @@ public class DBOperationBoard {
             + "    nowstatus TEXT,\n"
             + "    history TEXT,\n"
             + "    boardtype INTEGER,\n"
-            + "    description TEXT\n"
+            + "    description TEXT,\n"
+            + "    userred TEXT,\n"
+            + "    userblack TEXT,\n"
+            + "    whoseturn BOOL\n"
             + ")";
         
         try (Connection conn = DriverManager.getConnection(URL);
@@ -25,7 +28,7 @@ public class DBOperationBoard {
         }
     }
     public static int insertBoard(ChessBoardModel board) throws SQLException {
-        String sql = "INSERT INTO boards(id, name, date, nowstatus, history, boardtype, description) VALUES(?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO boards(id, name, date, nowstatus, history, boardtype, description, userred, userblack, whoseturn) VALUES(?,?,?,?,?,?,?,?,?,?)";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, board.getId());
@@ -35,6 +38,9 @@ public class DBOperationBoard {
             ps.setString(5, steps2Str(board.getSteps()));
             ps.setInt(6, board.getType());
             ps.setString(7, board.getDescription());
+            ps.setString(8, board.getUserRed().getName());
+            ps.setString(9, board.getUserBlack().getName());
+            ps.setBoolean(10, board.getWhoseTurn());
             int affected = ps.executeUpdate();
             if (affected == 0) {
                 return -1;
@@ -82,7 +88,7 @@ public class DBOperationBoard {
     }
 
     public static boolean updateBoardById(int id2Mod, ChessBoardModel newBoard) throws SQLException {
-        String sql = "UPDATE boards SET name = ?, date = ?, nowstatus = ?, history = ?, boardtype = ?, description = ? WHERE id = ?";
+        String sql = "UPDATE boards SET name = ?, date = ?, nowstatus = ?, history = ?, boardtype = ?, description = ?, whoseturn = ? WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, newBoard.getName());
@@ -91,7 +97,8 @@ public class DBOperationBoard {
             ps.setString(4, steps2Str(newBoard.getSteps()));
             ps.setInt(5, newBoard.getType());
             ps.setString(6, newBoard.getDescription());
-            ps.setInt(7, id2Mod);
+            ps.setBoolean(7, newBoard.getWhoseTurn());
+            ps.setInt(8, id2Mod);
             int affected = ps.executeUpdate();
             return affected > 0;
         }
@@ -157,6 +164,16 @@ public class DBOperationBoard {
         }
     }
 
+    public static boolean updateBoardWhoseTurn(int id2Mod, boolean whoseTurn) throws SQLException {
+        String sql = "UPDATE boards SET whoseturn = ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, whoseTurn);
+            ps.setInt(2, id2Mod);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     public static ChessBoardModel getBoardById(int id2Get) throws SQLException {
         String sql = "SELECT * FROM boards WHERE id = ?";
         
@@ -167,7 +184,7 @@ public class DBOperationBoard {
             
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    ChessBoardModel board = new ChessBoardModel(rs.getInt("id"), rs.getInt("boardtype"));
+                    ChessBoardModel board = new ChessBoardModel(rs.getInt("id"), rs.getInt("boardtype"), DBOperationUser.getUserByName(rs.getString("userred")), DBOperationUser.getUserByName(rs.getString("userblack")),rs.getBoolean("whoseturn"));
                     board.setName(rs.getString("name"));
                     board.setLastModTime(rs.getString("date"));
                     

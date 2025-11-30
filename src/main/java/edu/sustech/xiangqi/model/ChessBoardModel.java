@@ -22,8 +22,6 @@ public class ChessBoardModel {
     //棋子信息
     private List<AbstractPiece> pieces;//这里存所有的棋子
     private AbstractPiece selectedPiece = null;
-    private AbstractPiece generalPieceRed = null;
-    private AbstractPiece generalPieceBlack = null;
     // 改为存坐标对象
     private List<Coordinate> moveRange;
     private List<Coordinate> eatRange;
@@ -32,9 +30,13 @@ public class ChessBoardModel {
     private List<Step> steps;
     private int[][] boardStatus = new int[ROWS][COLS];
 
+    //用户信息
+    private User userRed;
+    private User userBlack;
+    private boolean whoseTurn;
 
     //构造函数
-    public ChessBoardModel(int id, int boardType) {
+    public ChessBoardModel(int id, int boardType, User userRed, User userBlack, boolean whoseTurn) {
         this.id=id;
         this.boardType = boardType;
         this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -43,8 +45,11 @@ public class ChessBoardModel {
         initPieces();
         this.steps = new ArrayList<>();
         initBoardStatus(pieces);
+        this.userRed=userRed;
+        this.userBlack=userBlack;
+        this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, String name, int boardType) {
+    public ChessBoardModel(int id, String name, int boardType, User userRed, User userBlack, boolean whoseTurn) {
         this.id=id;
         this.boardType = boardType;
         this.name = name;
@@ -53,8 +58,11 @@ public class ChessBoardModel {
         initPieces();
         this.steps = new ArrayList<>();
         initBoardStatus(pieces);
+        this.userRed=userRed;
+        this.userBlack=userBlack;
+        this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, int boardType, String description) {
+    public ChessBoardModel(int id, int boardType, String description, User userRed, User userBlack, boolean whoseTurn) {
         this.id=id;
         this.description = description;
         this.boardType = boardType;
@@ -64,8 +72,11 @@ public class ChessBoardModel {
         initPieces();
         this.steps = new ArrayList<>();
         initBoardStatus(pieces);
+        this.userRed=userRed;
+        this.userBlack=userBlack;
+        this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, String name, int boardType, String description) {
+    public ChessBoardModel(int id, String name, int boardType, String description, User userRed, User userBlack, boolean whoseTurn) {
         this.id=id;
         this.description = description;
         this.boardType = boardType;
@@ -75,8 +86,11 @@ public class ChessBoardModel {
         initPieces();
         this.steps = new ArrayList<>();
         initBoardStatus(pieces);
+        this.userRed=userRed;
+        this.userBlack=userBlack;
+        this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, int boardType, List<AbstractPiece> pieces, List<Step> steps) {
+    public ChessBoardModel(int id, int boardType, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, boolean whoseTurn) {
         this.id=id;
         this.boardType = boardType;
         this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -84,8 +98,11 @@ public class ChessBoardModel {
         this.pieces = pieces;
         this.steps = steps;
         initBoardStatus(pieces);
+        this.userRed=userRed;
+        this.userBlack=userBlack;
+        this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, String name, int boardType, List<AbstractPiece> pieces, List<Step> steps) {
+    public ChessBoardModel(int id, String name, int boardType, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, boolean whoseTurn) {
         this.id=id;
         this.boardType = boardType;
         this.name = name;
@@ -93,8 +110,11 @@ public class ChessBoardModel {
         this.pieces = pieces;
         this.steps = steps;
         initBoardStatus(pieces);
+        this.userRed=userRed;
+        this.userBlack=userBlack;
+        this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps) {
+    public ChessBoardModel(int id, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, boolean whoseTurn) {
         this.id=id;
         this.description = description;
         this.boardType = boardType;
@@ -103,8 +123,11 @@ public class ChessBoardModel {
         this.pieces = pieces;
         this.steps = steps;
         initBoardStatus(pieces);
+        this.userRed=userRed;
+        this.userBlack=userBlack;
+        this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, String name, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps) {
+    public ChessBoardModel(int id, String name, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, boolean whoseTurn) {
         this.id=id;
         this.description = description;
         this.boardType = boardType;
@@ -113,6 +136,9 @@ public class ChessBoardModel {
         this.pieces = pieces;
         this.steps = steps;
         initBoardStatus(pieces);
+        this.userRed=userRed;
+        this.userBlack=userBlack;
+        this.whoseTurn = whoseTurn;
     }
     
 
@@ -156,8 +182,6 @@ public class ChessBoardModel {
     private void initBoardStatus(List<AbstractPiece> pieces){
         for(AbstractPiece piece:pieces){
             setStatus(piece.getRow(), piece.getCol(), piece.getId());
-            if(piece.getType()==7 && piece.isRed()) this.generalPieceRed=piece;
-            if(piece.getType()==7 && (!piece.isRed())) this. generalPieceBlack=piece; 
         }
     }
 
@@ -256,6 +280,16 @@ public class ChessBoardModel {
         this.selectedPiece.setCol(selectedCol);
     }
 
+    //用户
+    public User getUserRed(){
+        return this.userRed;
+    }
+    public User getUserBlack(){
+        return this.userBlack;
+    }
+    public boolean getWhoseTurn(){
+        return this.whoseTurn;
+    }
 
     public boolean updateBoards(Step nowStep){
         steps.add(nowStep);
@@ -268,6 +302,7 @@ public class ChessBoardModel {
     }
     public AbstractPiece trySelectPiece(int row, int col){
         if(((this.boardType&8)!=0)) return null;
+        if(getPieceAt(row, col)!=null && getPieceAt(row, col).isRed()!=whoseTurn) return null;
         this.selectedPiece=getPieceAt(row, col);
         refreshTar();
         return this.selectedPiece;
@@ -295,6 +330,7 @@ public class ChessBoardModel {
             Step nowStep = new Step(selectedPiece.getType(),selectedPiece.getRow(),selectedPiece.getCol(), row, col, 0);
             updateBoards(nowStep);
             this.selectedPiece.moveTo(row, col);
+            this.whoseTurn=!this.whoseTurn;
             setLastModTime(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             try{
                 DBOperationBoard.updateBoardNowStatus(this.id, this.pieces);
@@ -318,6 +354,7 @@ public class ChessBoardModel {
             Step step2 = new Step(selectedPiece.getType(),selectedPiece.getRow(),selectedPiece.getCol(), row, col, 0);
             updateBoards(step2);
             this.selectedPiece.moveTo(row, col);
+            this.whoseTurn=!this.whoseTurn;
             setLastModTime(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             try{
                 DBOperationBoard.updateBoardNowStatus(this.id, this.pieces);

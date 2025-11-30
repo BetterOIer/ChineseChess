@@ -8,6 +8,7 @@ import java.util.List;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
 import edu.sustech.xiangqi.model.DBOperationBoard;
+import edu.sustech.xiangqi.model.DBOperationUser;
 
 public class WelcomePage extends JFrame{
 
@@ -19,6 +20,7 @@ public class WelcomePage extends JFrame{
 
     private void switchToArchMgr() throws SQLException{
         DBOperationBoard.createTable();
+        DBOperationUser.createTable();
         List<ChessBoardModel> archives = DBOperationBoard.getAllBoards();
         ArchiveManager archiveManager = new ArchiveManager(archives);
         setVisible(false);

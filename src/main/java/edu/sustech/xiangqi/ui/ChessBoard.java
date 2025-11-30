@@ -1,7 +1,6 @@
 package edu.sustech.xiangqi.ui;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
-import edu.sustech.xiangqi.model.DBOperationBoard;
 import edu.sustech.xiangqi.model.AbstractPiece;
 
 import javax.swing.*;
