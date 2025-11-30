@@ -18,4 +18,11 @@ public class Coordinate {
     public String toString() {
         return "("+row+","+col+")";
     }
+
+    public int getRow(){
+        return this.row;
+    }
+    public int getCol(){
+        return this.col;
+    }
 }

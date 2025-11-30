@@ -22,7 +22,6 @@ public class ChessBoardModel {
     //棋子信息
     private List<AbstractPiece> pieces;//这里存所有的棋子
     private AbstractPiece selectedPiece = null;
-    // 改为存坐标对象
     private List<Coordinate> moveRange;
     private List<Coordinate> eatRange;
 
@@ -278,6 +277,12 @@ public class ChessBoardModel {
     }
     public void setSelectedCol(int selectedCol){
         this.selectedPiece.setCol(selectedCol);
+    }
+    public List<Coordinate> getMoveRange(){
+        return this.moveRange;
+    }
+    public List<Coordinate> getEatRange(){
+        return this.eatRange;
     }
 
     //用户

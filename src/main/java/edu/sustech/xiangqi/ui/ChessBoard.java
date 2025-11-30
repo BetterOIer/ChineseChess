@@ -1,6 +1,7 @@
 package edu.sustech.xiangqi.ui;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
+import edu.sustech.xiangqi.model.Coordinate;
 import edu.sustech.xiangqi.model.AbstractPiece;
 
 import javax.swing.*;
@@ -141,6 +142,7 @@ class ChessBoardPanel extends JPanel {
      * 绘制棋子
      */
     private void drawPieces(Graphics2D g) {
+        if(selectedPiece!=null)drawHitRange(g);
         // 遍历棋盘上的每一个棋子，每次循环绘制该棋子
         for (AbstractPiece piece : model.getPieces()) {
             // 计算每一个棋子的坐标
@@ -210,5 +212,22 @@ class ChessBoardPanel extends JPanel {
                 centerX + cornerSize - lineLength, centerY + cornerSize);
         g.drawLine(centerX + cornerSize, centerY + cornerSize,
                 centerX + cornerSize, centerY + cornerSize - lineLength);
+    }
+
+    private void drawHitRange(Graphics2D g){
+        g.setColor(new Color(255, 128, 0));
+        int r = 10;
+        for(Coordinate coordinate:model.getMoveRange()){
+            int centerY = MARGIN + coordinate.getRow()* CELL_SIZE;
+            int centerX = MARGIN + coordinate.getCol()* CELL_SIZE;
+            g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
+        }
+        g.setColor(new Color(127, 0, 255));
+        r=30;
+        for(Coordinate coordinate:model.getEatRange()){
+            int centerY = MARGIN + coordinate.getRow()* CELL_SIZE;
+            int centerX = MARGIN + coordinate.getCol()* CELL_SIZE;
+            g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
+        }
     }
 }

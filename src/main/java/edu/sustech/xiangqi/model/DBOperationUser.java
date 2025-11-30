@@ -12,7 +12,6 @@ public class DBOperationUser {
             + "    id INTEGER,\n"
             + "    name TEXT NOT NULL,\n"
             + "    pswordhash TEXT,\n"
-            + "    isred BOOL,\n"
             + "    description TEXT\n"
             + ")";
         
@@ -22,22 +21,21 @@ public class DBOperationUser {
         }
 
         if(getUserByName("Red")==null){
-            insertUser(new User(getUserCount(), "Red", null, true));
+            insertUser(new User(getUserCount(), "Red", null));
         }
         if(getUserByName("Black")==null){
-            insertUser(new User(getUserCount(), "Black", null, true));
+            insertUser(new User(getUserCount(), "Black", null));
         }
     }
 
     public static int insertUser(User user) throws SQLException {
-        String sql = "INSERT INTO users(id, name, pswordhash, isred, description) VALUES(?,?,?,?,?)";
+        String sql = "INSERT INTO users(id, name, pswordhash, description) VALUES(?,?,?,?)";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, user.getId());
             ps.setString(2, user.getName());
             ps.setString(3, user.getPswordHash());
-            ps.setBoolean(4, user.isRed());
-            ps.setString(5, user.getDescription());
+            ps.setString(4, user.getDescription());
             int affected = ps.executeUpdate();
             return affected > 0 ? user.getId() : -1;
         }
@@ -54,14 +52,13 @@ public class DBOperationUser {
     }
     
     public static boolean updateUserById(int id, User newUser) throws SQLException {
-        String sql = "UPDATE users SET name = ?, pswordhash = ?, isred = ?, description = ? WHERE id = ?";
+        String sql = "UPDATE users SET name = ?, pswordhash = ?, description = ? WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, newUser.getName());
             ps.setString(2, newUser.getPswordHash());
-            ps.setBoolean(3, newUser.isRed());
-            ps.setString(4, newUser.getDescription());
-            ps.setInt(5, id);
+            ps.setString(3, newUser.getDescription());
+            ps.setInt(4, id);
             return ps.executeUpdate() > 0;
         }
     }
@@ -81,16 +78,6 @@ public class DBOperationUser {
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, hash);
-            ps.setInt(2, id);
-            return ps.executeUpdate() > 0;
-        }
-    }
-
-    public static boolean updateUserIsRed(int id, boolean isRed) throws SQLException {
-        String sql = "UPDATE users SET isred = ? WHERE id = ?";
-        try (Connection conn = DriverManager.getConnection(URL);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setBoolean(1, isRed);
             ps.setInt(2, id);
             return ps.executeUpdate() > 0;
         }
@@ -117,7 +104,6 @@ public class DBOperationUser {
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("pswordhash"),
-                        rs.getBoolean("isred"),
                         rs.getString("description")
                     );
                 } else {
@@ -138,7 +124,6 @@ public class DBOperationUser {
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("pswordhash"),
-                        rs.getBoolean("isred"),
                         rs.getString("description")
                     );
                 } else {
@@ -169,4 +154,8 @@ public class DBOperationUser {
         }
     }
 
+    public static String calHash(String password){
+        String hash=password;
+        return hash;
+    }
 }

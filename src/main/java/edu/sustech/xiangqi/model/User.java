@@ -5,27 +5,21 @@ public class User {
     private int id;
     private String username;
     private String pswordHash;
-    private boolean isRed;
     private String description;
 
-    public User(int id, String username, String password, boolean isRed){
+    public User(int id, String username, String password){
         this.id=id;
         this.username = username;
-        this.pswordHash = calHash(password);
-        this.isRed = isRed;
+        this.pswordHash = DBOperationUser.calHash(password);
     }
-    public User(int id, String username, String password, boolean isRed, String description){
+    public User(int id, String username, String password, String description){
         this.id=id;
         this.username = username;
-        this.pswordHash = calHash(password);
-        this.isRed = isRed;
+        this.pswordHash = DBOperationUser.calHash(password);
         this.description = description;
     }
 
-    private String calHash(String password){
-        String hash="";
-        return hash;
-    }
+    
 
     //ID
     public int getId(){
@@ -49,14 +43,6 @@ public class User {
     }
     public void setPswordHash(String hash){
         this.pswordHash = hash;
-    }
-
-    //isred
-    public boolean isRed(){
-        return this.isRed;
-    }
-    public void setSide(boolean isRed){
-        this.isRed=isRed;
     }
 
     //描述

@@ -19,8 +19,6 @@ public class WelcomePage extends JFrame{
     }
 
     private void switchToArchMgr() throws SQLException{
-        DBOperationBoard.createTable();
-        DBOperationUser.createTable();
         List<ChessBoardModel> archives = DBOperationBoard.getAllBoards();
         ArchiveManager archiveManager = new ArchiveManager(archives);
         setVisible(false);
@@ -36,6 +34,12 @@ public class WelcomePage extends JFrame{
         getContentPane().setBackground(new Color(220, 179, 92));
         // 设置窗口可缩放的最小尺寸并在缩放时强制维持该最小值
         setMinimumSize(new Dimension(600, 768));
+        try{
+            DBOperationBoard.createTable();
+            DBOperationUser.createTable();
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
 
         JLabel msgGreetings = new JLabel("欢迎来玩中国象棋！");
         msgGreetings.setFont(new Font("SimHei", Font.BOLD, 36));

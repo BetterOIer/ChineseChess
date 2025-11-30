@@ -73,42 +73,47 @@ public class ArchiveManager extends JFrame{
     private void handleMouseClickOnDelButton(){
         int Idx = archivePanel.getSelectedIdx();
         if(Idx!=-1){
-            try {
-                DBOperationBoard.deleteBoardById(Idx);
-                Idx=0;
-                archives = DBOperationBoard.getAllBoards();
-                archivePanel.setArchives(archives);
-                archivePanel.revalidate();
-                archivePanel.repaint();
-                if (scrollPane != null) {
-                    scrollPane.revalidate();
+            DelArchive delArchive = new DelArchive(Idx);
+            delArchive.setVisible(true);
+            delArchive.getCancelMod().addActionListener(e1 -> {
+                delArchive.dispose();
+            });
+            delArchive.getSubmitMod().addActionListener(e1 -> {
+                try{
+                    DBOperationBoard.deleteBoardById(Idx);
+                    archives = DBOperationBoard.getAllBoards();
+                    archivePanel.setArchives(archives);
+                    archivePanel.revalidate();
+                    archivePanel.repaint();
+                    if (scrollPane != null) {
+                        scrollPane.revalidate();
+                    }
+                    // 整体重绘窗口
+                    repaint();
+                }catch(SQLException e){
+                    e.printStackTrace();
+                }finally{
+                    delArchive.dispose();
                 }
-                // 整体重绘窗口
-                repaint();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            });
+            repaint();
         }
-        repaint();
     }
 
-    private void handleMouseClickOnNewButton(){//其实这一块还有点问题...
+    private void handleMouseClickOnNewButton(){
         try{
-            DBOperationBoard.insertBoard(new ChessBoardModel(DBOperationBoard.getBoardCount(), 1, DBOperationUser.getUserByName("Red"), DBOperationUser.getUserByName("Black"), true));
-            int Idx = DBOperationBoard.getBoardCount()-1;
+            //
+            int Idx = DBOperationBoard.getBoardCount();
             /* System.out.println(Idx); */
             if(Idx!=-1){
-                ModifyArchive modifyArchive = new ModifyArchive(Idx);
-                modifyArchive.setVisible(true);
-                modifyArchive.getCancelMod().addActionListener(e1 -> {
-                    modifyArchive.dispose();
+                NewArchive newArchive = new NewArchive();
+                newArchive.setVisible(true);
+                newArchive.getCancelMod().addActionListener(e1 -> {
+                    newArchive.dispose();
                 });
-                modifyArchive.getSubmitMod().addActionListener(e1 -> {
+                newArchive.getSubmitMod().addActionListener(e1 -> {
                     try{
-                        // 保存到数据库
-                        DBOperationBoard.updateBoardName(Idx, modifyArchive.getBoardName().getText());
-                        DBOperationBoard.updateBoardDescription(Idx, modifyArchive.getDescription().getText());
-                        // 从 DB 重新读取所有存档并更新面板
+                        DBOperationBoard.insertBoard(new ChessBoardModel(DBOperationBoard.getBoardCount(),newArchive.getBoardName().getText(), 1, newArchive.getDescription().getText(),DBOperationUser.getUserByName("Red"), DBOperationUser.getUserByName("Black"), true));// 从 DB 重新读取所有存档并更新面板
                         archives = DBOperationBoard.getAllBoards();
                         archivePanel.setArchives(archives);
                         archivePanel.revalidate();
@@ -121,11 +126,10 @@ public class ArchiveManager extends JFrame{
                     }catch(SQLException e){
                         e.printStackTrace();
                     }finally{
-                        modifyArchive.dispose();
+                        newArchive.dispose();
                     }
                 });
             }
-            repaint();
         }catch(SQLException e){
             e.printStackTrace();
         }
@@ -161,7 +165,6 @@ public class ArchiveManager extends JFrame{
                 }
             });
         }
-        repaint();
     }
     private void handleMouseClickOnPanel(int x, int y){
 
