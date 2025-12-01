@@ -79,7 +79,13 @@ public class Connection extends JFrame{
         }
         running = true;
         connected = false;
-        peerAddress = InetAddress.getByName("localhost");
+        // 启用广播并发送到广播地址（向整个局域网/全网广播）
+        try {
+            socket.setBroadcast(true);
+        } catch (SocketException se) {
+            se.printStackTrace();
+        }
+        peerAddress = InetAddress.getByName("255.255.255.255");
         /* PORT = PORT; */
 
         // 接收消息线程
