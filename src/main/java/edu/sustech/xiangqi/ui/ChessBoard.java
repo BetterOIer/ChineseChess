@@ -21,13 +21,16 @@ public class ChessBoard extends JFrame {
         pack();
         setLocationRelativeTo(null);
     }
+
+    public ChessBoardPanel getPanel(){
+        return chessBoardPanel;
+    }
     
 }
 
 class ChessBoardPanel extends JPanel {
     private final ChessBoardModel model;
-    private
-    Image backgroundImage;
+    private Image backgroundImage;
 
     /**
      * 单个棋盘格子的尺寸（px）
