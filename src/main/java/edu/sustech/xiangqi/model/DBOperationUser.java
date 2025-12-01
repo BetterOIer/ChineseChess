@@ -41,7 +41,7 @@ public class DBOperationUser {
         }
     }
 
-    public static boolean deleteUserById(int id) throws SQLException {
+    public static boolean deleteUserById(int id) throws SQLException {//!暂时别用这个！！
         String sql = "DELETE FROM users WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {

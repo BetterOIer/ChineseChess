@@ -5,10 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
+import org.json.JSONObject;
 
 import edu.sustech.xiangqi.model.*;
 
@@ -27,8 +25,9 @@ public class Connection extends JFrame{
 
     // 记录对端信息
     private InetAddress peerAddress;
-    private int peerPort;
     private boolean connected = false;
+    private boolean confirm = false;
+    private String candidate = null;
     
     public Connection(User user){
         setTitle("等待连接");
@@ -72,38 +71,16 @@ public class Connection extends JFrame{
         });
     }
 
-    // 可由外部设置棋盘模型/界面，以便收到远程指令时更新本地棋盘
-    public void setChessBoardModel(ChessBoardModel model){
-        this.chessBoardModel = model;
-    }
-    public void setChessBoard(ChessBoard cb){
-        this.chessBoard = cb;
-    }
-
     void handleMouseClick() throws IOException{
-        // 解析目标端口（房间号），若为空或解析失败使用默认 PORT
-        int targetPort = PORT;
-        String roomText = room.getText();
-        if(roomText != null && !roomText.trim().isEmpty()){
-            try{
-                targetPort = Integer.parseInt(roomText.trim());
-            }catch(NumberFormatException ex){
-                // 静默处理，使用默认端口
-                targetPort = PORT;
-            }
-        }
-
-        try {
-            // 绑定随机本地端口，避免端口被占用导致失败
-            socket = new DatagramSocket();
-        } catch (SocketException ex) {
-            // 静默处理
-            return;
+        try{
+            socket = new DatagramSocket(PORT);
+        }catch(SocketException ex){
+            ex.printStackTrace();
         }
         running = true;
         connected = false;
         peerAddress = InetAddress.getByName("localhost");
-        peerPort = targetPort;
+        /* PORT = PORT; */
 
         // 接收消息线程
         Thread receiveThread = new Thread(this::receiveMessages);
@@ -114,89 +91,122 @@ public class Connection extends JFrame{
         sendThread.start();
     }
 
+    private void sendMessages(){
+        while(running){
+            try{
+                if ((!connected)&&(!confirm)){
+                    String handshake = encodeBuff("Handshake",user,room.getText());
+                    byte[] data = handshake.getBytes();
+                    DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
+                    try{
+                        socket.send(packet);
+                        System.out.println("sent:"+handshake);
+                    }catch(IOException ignore){
+                        ignore.printStackTrace();
+                    }
+                    Thread.sleep(1000); // 间隔发送，避免忙循环
+                }else if((!connected)&&confirm){
+                    String confirm = encodeBuff("Confirm",user,room.getText());
+                    byte[] data = confirm.getBytes();
+                    DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
+                    try{
+                        socket.send(packet);
+                        System.out.println("sent:"+confirm);
+                    }catch(IOException ignore){
+                        ignore.printStackTrace();
+                    }
+                    Thread.sleep(1000); // 间隔发送，避免忙循环
+                }else{
+                    Thread.sleep(1000);
+                }
+            }catch(InterruptedException ie){
+                ie.printStackTrace();
+            }
+        }
+    }
+
     private void receiveMessages() {
         byte[] buffer = new byte[2048];
-        
         while (running) {
             try {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
-                
                 String message = new String(packet.getData(), 0, packet.getLength());
-                // 静默处理消息，解析协议
-                try {
-                    if (message != null) {
-                        message = message.trim();
-                        if (message.startsWith("Handshake")) {
-                            // 对端发来握手：记录对端地址与端口，标记已连接
-                            peerAddress = packet.getAddress();
-                            peerPort = packet.getPort();
-                            connected = true;
-                        } else if (message.startsWith("MOVE")) {
-                            // 协议：MOVE fromRow fromCol toRow toCol
-                            String[] parts = message.split("\\s+");
-                            if (parts.length >= 5) {
-                                try {
-                                    int fromRow = Integer.parseInt(parts[1]);
-                                    int fromCol = Integer.parseInt(parts[2]);
-                                    int toRow = Integer.parseInt(parts[3]);
-                                    int toCol = Integer.parseInt(parts[4]);
-                                    applyRemoteMove(fromRow, fromCol, toRow, toCol);
-                                } catch (NumberFormatException nfe) {
-                                    // 静默忽略
-                                }
-                            }
-                        } else if (message.startsWith("UPDATE")) {
-                            // 这里保留接收 UPDATE 的位置，项目可根据需求扩展
-                            // 目前不对 UPDATE 做深解析（静默）
-                        }
-                    }
-                } catch (Exception ex) {
-                    // 静默处理解析/应用错误
-                }
-            } catch (IOException e) {
-                // 静默处理接收错误；若运行标记为 false 则结束循环
+                System.out.println("receive:"+message);
+                decodeBuff(message);
+            }catch(IOException e){
                 if (!running) break;
             }
         }
     }
-    
-    private void sendMessages() {
-        try {
-            // 发送循环：未连接时周期性发送 Handshake；连接后不自动 flood，外部可调用 sendMove/sendBoardUpdate
-            while (running) {
-                try {
-                    if (!connected) {
-                        String handshake = "Handshake " + user.getName();
-                        byte[] data = handshake.getBytes();
-                        DatagramPacket packet = new DatagramPacket(
-                            data, data.length,
-                            peerAddress, peerPort
-                        );
-                        try {
-                            socket.send(packet);
-                        } catch (IOException ignore) {
-                            // 静默
-                        }
-                    }
-                    Thread.sleep(1500); // 间隔发送，避免忙循环
-                } catch (InterruptedException ie) {
-                    // 静默处理并继续/退出
-                    Thread.currentThread().interrupt();
-                    break;
+
+    private String encodeBuff(String aim, User user, String msg){
+        JSONObject json = new JSONObject();
+        json.put("aim", aim);
+        json.put("user", user.toString());
+        json.put("msg", msg);
+        return json.toString();
+    }
+private void decodeBuff(String msg) {
+        if (msg==null||msg.trim().isEmpty()) {
+            return;
+        }
+        JSONObject json = new JSONObject(msg);
+        
+        String aim = json.optString("aim", "");
+        String userStr = json.optString("user", "");
+        String message = json.optString("msg", "");
+
+        if(userStr==user.toString()) return;
+
+        if(aim=="Handshake"){
+            if((!this.connected) && (!this.confirm)){
+                if(message==room.getText()){
+                    this.confirm=true;
+                    this.candidate=userStr;
                 }
             }
-        } finally {
-            // 退出时确保 socket 被关闭（由 stop 管理）
         }
+        if(aim=="Confirm"){
+            if((!this.connected) && (this.confirm)){
+                if(this.candidate==userStr){
+                    try{
+                        DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(),userStr,null));
+                        chessBoardModel = new ChessBoardModel(DBOperationBoard.getBoardCount(), 2, user, DBOperationUser.getUserByName(userStr), true);
+                        chessBoard = new ChessBoard(chessBoardModel);
+                        this.connected=true;
+                        chessBoard.setVisible(true);
+                        setVisible(false);
+                    }catch(SQLException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        
+}
+    
+/* 
+    // 可由外部设置棋盘模型/界面，以便收到远程指令时更新本地棋盘
+    public void setChessBoardModel(ChessBoardModel model){
+        this.chessBoardModel = model;
     }
+    public void setChessBoard(ChessBoard cb){
+        this.chessBoard = cb;
+    }
+
+    
+
+    
+    
+    
 
     // 对外调用：发送一次移动指令给对端（协议为 MOVE）
     public void sendMove(int fromRow, int fromCol, int toRow, int toCol){
         if (socket == null || socket.isClosed() || peerAddress == null) return;
         String message = "MOVE " + fromRow + " " + fromCol + " " + toRow + " " + toCol;
         byte[] data = message.getBytes();
-        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, peerPort);
+        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
         try {
             socket.send(packet);
         } catch (IOException e) {
@@ -209,7 +219,7 @@ public class Connection extends JFrame{
         if (socket == null || socket.isClosed() || peerAddress == null) return;
         String message = "UPDATE " + payload;
         byte[] data = message.getBytes();
-        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, peerPort);
+        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
         try {
             socket.send(packet);
         } catch (IOException e) {
@@ -268,7 +278,7 @@ public class Connection extends JFrame{
         } catch (Exception ex) {
             // 静默处理任何意外
         }
-    }
+    } */
         
     public void stop() {
         running = false;
