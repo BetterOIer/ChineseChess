@@ -79,7 +79,13 @@ public class Connection extends JFrame{
         }
         running = true;
         connected = false;
-        peerAddress = InetAddress.getByName("localhost");
+        try {
+            socket.setBroadcast(true);
+
+        }catch (SocketException se){
+            se.printStackTrace();
+        }
+        peerAddress = InetAddress.getByName("255.255.255.255");
         /* PORT = PORT; */
 
         // 接收消息线程
@@ -157,19 +163,19 @@ private void decodeBuff(String msg) {
         String userStr = json.optString("user", "");
         String message = json.optString("msg", "");
 
-        if(userStr==user.toString()) return;
+        if(userStr.equals(user.toString())) return;
 
-        if(aim=="Handshake"){
+        if(aim.equals("Handshake")){
             if((!this.connected) && (!this.confirm)){
-                if(message==room.getText()){
+                if(message.equals(room.getText())){
                     this.confirm=true;
                     this.candidate=userStr;
                 }
             }
         }
-        if(aim=="Confirm"){
+        if(aim.equals("Confirm")){
             if((!this.connected) && (this.confirm)){
-                if(this.candidate==userStr){
+                if(this.candidate.equals(userStr)){
                     try{
                         DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(),userStr,null));
                         chessBoardModel = new ChessBoardModel(DBOperationBoard.getBoardCount(), 2, user, DBOperationUser.getUserByName(userStr), true);
