@@ -9,26 +9,42 @@ public class AdvisorPiece extends AbstractPiece{
     }
 
     @Override
-    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model) {
-        int rowDiff = Math.abs(targetRow - currentRow);
-        int colDiff = Math.abs(targetCol - currentCol);
-
-        //非原地移动
-        if (currentRow == targetRow && currentCol == targetCol) {
-            return false;
-        }
-
-        // 仕/士的移动规则：
-        // 1.九宫内走斜线一格（对角线）;
-
+    public boolean canMove(ChessBoardModel model, int row, int col){
+        if(!model.isValidPosition(row, col)) return false;
+        if(model.getPieceAt(row, col)!=null) return false;
+        if(row==getRow() && col==getCol()) return false;
+        int rowDiff = Math.abs(row - getRow());
+        int colDiff = Math.abs(col - getCol());
         if (isRed()) {
             //红方
-            if (targetRow >= 7 && targetRow <= 9 && targetCol >= 3 && targetCol <= 5) {
+            if (row >= 7 && row <= 9 && col >= 3 && col <= 5) {
                 return rowDiff == 1 && colDiff == 1;
             }
         } else {
             //黑方
-            if (targetRow >= 0 && targetRow <= 2 && targetCol >= 3 && targetCol <= 5) {
+            if (row >= 0 && row <= 2 && col >= 3 && col <= 5) {
+                return rowDiff == 1 && colDiff == 1;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canEat(ChessBoardModel model, int row, int col){
+        if(!model.isValidPosition(row, col)) return false;
+        if(model.getPieceAt(row, col)==null) return false;
+        if(row==getRow() && col==getCol()) return false;
+        if((isRed()==model.getPieceAt(row, col).isRed()))return false;
+        int rowDiff = Math.abs(row - getRow());
+        int colDiff = Math.abs(col - getCol());
+        if (isRed()) {
+            //红方
+            if (row >= 7 && row <= 9 && col >= 3 && col <= 5) {
+                return rowDiff == 1 && colDiff == 1;
+            }
+        } else {
+            //黑方
+            if (row >= 0 && row <= 2 && col >= 3 && col <= 5) {
                 return rowDiff == 1 && colDiff == 1;
             }
         }

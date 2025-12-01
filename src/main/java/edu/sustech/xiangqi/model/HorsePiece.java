@@ -7,50 +7,28 @@ public class HorsePiece extends AbstractPiece {
     public HorsePiece(int type, int row, int col, boolean isRed, boolean status) {
         super(type, row, col, isRed, status);
     }
+    @Override
+    public boolean canEat(ChessBoardModel model, int row, int col){
+        if(!model.isValidPosition(row, col)) return false;
+        if(model.getPieceAt(row, col)==null) return false;
+        if(row==getRow() && col==getCol()) return false;
+        if((isRed()==model.getPieceAt(row, col).isRed()))return false;
+        int rowDiff = Math.abs(row - getRow());
+        int colDiff = Math.abs(col - getCol());
+        if(rowDiff*rowDiff+colDiff*colDiff!=5) return false;
+        if(rowDiff==2) return model.getPieceAt((row+getRow())/2, getCol())==null;
+        else return model.getPieceAt(getRow(), (col+getCol())/2)==null;
+    }
 
-    public boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model) {
-        //非原地移动
-        if (currentRow == targetRow && currentCol == targetCol) {
-            return false;
-        }
-
-        int rowDiff = targetRow - currentRow;
-        int colDiff = targetCol - currentCol;
-
-        //蹩马脚
-        boolean isStopped = false;
-        int footCol;
-        int footRow;
-        if (Math.abs(rowDiff) == 1 && colDiff == -2) {
-            footCol = currentCol - 1;
-            if (model.getPieceAt(currentRow, footCol) != null) {
-                isStopped = true;
-            }
-        } else if (Math.abs(colDiff) == 1 && rowDiff == -2) {
-            footRow = currentRow - 1;
-            if (model.getPieceAt(footRow, currentCol) != null) {
-                isStopped = true;
-            }
-        } else if (Math.abs(rowDiff) == 1 && colDiff == 2) {
-            footCol = currentCol + 1;
-            if (model.getPieceAt(currentRow, footCol) != null) {
-                isStopped = true;
-            }
-        } else if (Math.abs(colDiff) == 1 && rowDiff == 2) {
-            footRow = currentRow + 1;
-            if (model.getPieceAt(footRow, currentCol) != null) {
-                isStopped = true;
-            }
-        }
-
-
-        //走日字（先直一格再斜一格）；蹩马腿不可走
-        if (!isStopped) {
-            if (Math.abs(rowDiff) == 2 && Math.abs(colDiff) == 1) {
-                return true;
-            }
-            return Math.abs(rowDiff) == 1 && Math.abs(colDiff) == 2;
-        }
-        return false;
+    @Override
+    public boolean canMove(ChessBoardModel model, int row, int col){
+        if(!model.isValidPosition(row, col)) return false;
+        if(model.getPieceAt(row, col)!=null) return false;
+        if(row==getRow() && col==getCol()) return false;
+        int rowDiff = Math.abs(row - getRow());
+        int colDiff = Math.abs(col - getCol());
+        if(rowDiff*rowDiff+colDiff*colDiff!=5) return false;
+        if(rowDiff==2) return model.getPieceAt((row+getRow())/2, getCol())==null;
+        else return model.getPieceAt(getRow(), (col+getCol())/2)==null;
     }
 }

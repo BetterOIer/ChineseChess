@@ -37,5 +37,11 @@ public class Step {
     public int getToCol(){
         return this.toCol;
     }
+
+
+    @Override
+    public String toString(){
+        return "Type "+this.pieceType + " move from ("+this.fromRow+", "+this.fromCol+") to ("+this.toRow+", "+this.toCol+")";
+    }
     
 }

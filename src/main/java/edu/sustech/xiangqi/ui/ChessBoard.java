@@ -1,6 +1,7 @@
 package edu.sustech.xiangqi.ui;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
+import edu.sustech.xiangqi.model.Coordinate;
 import edu.sustech.xiangqi.model.AbstractPiece;
 
 import javax.swing.*;
@@ -66,25 +67,28 @@ class ChessBoardPanel extends JPanel {
         });
     }
 
-    private void handleMouseClick(int x, int y) {
+    public void handleMouseClick(int x, int y) {
         int col = Math.round((float)(x - MARGIN) / CELL_SIZE);
         int row = Math.round((float)(y - MARGIN) / CELL_SIZE);
 
         if (!model.isValidPosition(row, col)) {
             return;
+        }else if(selectedPiece == null){
+            selectedPiece= model.trySelectPiece(row, col);
+        }else if(selectedPiece != null){
+            if(model.getPieceAt(row, col)==null){
+                model.tryMovePiece(row, col);
+            }else{
+                model.tryEatPiece(row, col);
+            }
+            selectedPiece=null;
+            model.caneclSelection();
         }
-
-        if (selectedPiece == null) {
-            selectedPiece = model.getPieceAt(row, col);
-        } else {
-            model.movePiece(selectedPiece, row, col);
-            selectedPiece = null;
-        }
-
         // 处理完点击事件后，需要重新绘制ui界面才能让界面上的棋子“移动”起来
         // Swing 会将多个请求合并后再重新绘制，因此调用 repaint 后gui不会立刻变更
         // repaint 中会调用 paintComponent，从而重新绘制gui上棋子的位置等
         repaint();
+        /* System.out.println(model.getSteps()); */
     }
 
     @Override
@@ -328,6 +332,7 @@ class ChessBoardPanel extends JPanel {
      * 绘制棋子
      */
     private void drawPieces(Graphics2D g) {
+        if(selectedPiece!=null)drawHitRange(g);
         // 遍历棋盘上的每一个棋子，每次循环绘制该棋子
         for (AbstractPiece piece : model.getPieces()) {
             // 计算每一个棋子的坐标
@@ -402,5 +407,22 @@ class ChessBoardPanel extends JPanel {
                 centerX + cornerSize - lineLength, centerY + cornerSize);
         g.drawLine(centerX + cornerSize, centerY + cornerSize,
                 centerX + cornerSize, centerY + cornerSize - lineLength);
+    }
+
+    private void drawHitRange(Graphics2D g){
+        g.setColor(new Color(255, 128, 0));
+        int r = 10;
+        for(Coordinate coordinate:model.getMoveRange()){
+            int centerY = MARGIN + coordinate.getRow()* CELL_SIZE;
+            int centerX = MARGIN + coordinate.getCol()* CELL_SIZE;
+            g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
+        }
+        g.setColor(new Color(127, 0, 255));
+        r=30;
+        for(Coordinate coordinate:model.getEatRange()){
+            int centerY = MARGIN + coordinate.getRow()* CELL_SIZE;
+            int centerX = MARGIN + coordinate.getCol()* CELL_SIZE;
+            g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
+        }
     }
 }

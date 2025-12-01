@@ -8,6 +8,7 @@ import java.util.List;
 
 import edu.sustech.xiangqi.model.ChessBoardModel;
 import edu.sustech.xiangqi.model.DBOperationBoard;
+import edu.sustech.xiangqi.model.DBOperationUser;
 
 public class WelcomePage extends JFrame{
 
@@ -21,7 +22,6 @@ public class WelcomePage extends JFrame{
     }
 
     private void switchToArchMgr() throws SQLException{
-        DBOperationBoard.createTable();
         List<ChessBoardModel> archives = DBOperationBoard.getAllBoards();
         ArchiveManager archiveManager = new ArchiveManager(archives);
         setVisible(false);
@@ -68,6 +68,12 @@ public class WelcomePage extends JFrame{
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
+        try{
+            DBOperationBoard.createTable();
+            DBOperationUser.createTable();
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
 
         // 创建自定义背景面板
         JPanel backgroundPanel = new JPanel() {
