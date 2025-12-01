@@ -11,6 +11,9 @@ import edu.sustech.xiangqi.model.DBOperationBoard;
 
 public class WelcomePage extends JFrame{
 
+    private Image backgroundImage;
+    private JButton archiveButton, pvpButton, aiButton;
+
     private void switchToLoginPage(){
         LoginPage loginPage = new LoginPage();
         setVisible(false);
@@ -25,96 +28,160 @@ public class WelcomePage extends JFrame{
         archiveManager.setVisible(true);
     }
 
+    private void switchToPvPPage() {
+        // 双人对弈跳转到联机游戏页面
+        switchToLoginPage();
+    }
+
+    private void switchToAIPage() {
+        // 人机对战页面跳转到人机对战页面
+        JOptionPane.showMessageDialog(this, "人机对战功能开发中...", "提示", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // 获取屏幕尺寸，设置一个不铺满屏幕的正方形窗口
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    int screenWidth = screenSize.width;
+    int screenHeight = screenSize.height;
+
+    // 设置窗口大小为屏幕较小边长的70%，确保不铺满屏幕
+    int squareSize = (int) (Math.min(screenWidth, screenHeight) * 0.7);
+
     public WelcomePage(){
         setTitle("中国象棋");
         setLayout(null);
-        setSize(768,768);
+
+        setSize(squareSize, squareSize);
+
+        // 加载背景图片
+        try {
+            ImageIcon icon = new ImageIcon("src/main/image/WelcomePageBackground.png");
+            backgroundImage = icon.getImage();
+        }
+        catch
+        (Exception e) {
+            JOptionPane.showMessageDialog(this, "背景图片加载失败: " + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+            // 如果图片加载失败，使用默认大小
+            setSize(768, 768);
+            getContentPane().setBackground(new Color(220, 179, 92));
+        }
+
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        getContentPane().setBackground(new Color(220, 179, 92));
-        // 设置窗口可缩放的最小尺寸并在缩放时强制维持该最小值
-        setMinimumSize(new Dimension(600, 768));
+        setResizable(false);
 
-        JLabel msgGreetings = new JLabel("欢迎来玩中国象棋！");
-        msgGreetings.setFont(new Font("SimHei", Font.BOLD, 36));
-        int greetMsgLabelWidth = 400;
-        int greetMsgLabelHeight = 60;
-        int greetMsgLabelOriginX = (getWidth()-greetMsgLabelWidth)/2;
-        int greetMsgLabelOriginY = (getHeight()-greetMsgLabelHeight)/2/4;
-        msgGreetings.setHorizontalAlignment(SwingConstants.CENTER);
-        msgGreetings.setVerticalAlignment(SwingConstants.CENTER);
-        msgGreetings.setBounds(greetMsgLabelOriginX, greetMsgLabelOriginY, greetMsgLabelWidth, greetMsgLabelHeight);
-        addComponentListener(new ComponentAdapter() {
+        // 创建自定义背景面板
+        JPanel backgroundPanel = new JPanel() {
             @Override
-            public void componentResized(ComponentEvent e) {
-                int x = (getWidth()-msgGreetings.getWidth())/2;
-                msgGreetings.setLocation(Math.max(0, x), msgGreetings.getY());
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    // 绘制背景图片，填充整个面板
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                }
             }
-        });
-        add(msgGreetings);
+        };
+        backgroundPanel.setLayout(null);
+        setContentPane(backgroundPanel);
 
-        JButton boardOnlyButton = new JButton("仅棋盘");
-        boardOnlyButton.setFont(new Font("SimHei", Font.BOLD, 20));
-        int boardOnlyButtonWidth = 400;
-        int boardOnlyButtonHeight = 60;
-        int boardOnlyButtonOriginX = (getWidth()-boardOnlyButtonWidth)/2;
-        int boardOnlyButtonOriginY = (getHeight()-boardOnlyButtonHeight)/2;
-        boardOnlyButton.setBounds(boardOnlyButtonOriginX, boardOnlyButtonOriginY, boardOnlyButtonWidth, boardOnlyButtonHeight);
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-            int boardOnlyButtonNowX = (getWidth() - boardOnlyButton.getWidth()) / 2;
-            boardOnlyButton.setLocation(Math.max(0, boardOnlyButtonNowX), boardOnlyButton.getY());
-            }
-        });
-        add(boardOnlyButton);
-        boardOnlyButton.addActionListener(e1->{
-            try{
+        // 根据图片上文字的位置创建透明按钮
+        createTransparentButtons();
+    }
+
+    private void createTransparentButtons() {
+        int windowWidth = getWidth();
+        int windowHeight = getHeight();
+
+        // 存档按钮 - 对应图片上的"存档"文字位置
+        archiveButton = createTransparentButton("", 150, 40);
+        int archiveButtonX = squareSize / 2 - 75; // 水平居中
+        int archiveButtonY = squareSize * 2 / 3 - 60;
+        archiveButton.setBounds(archiveButtonX, archiveButtonY, 150, 40);
+        archiveButton.addActionListener(e1->{
+            try {
                 switchToArchMgr();
-            }catch (SQLException e){
-                //System.out.println("Database error.");
+            }
+            catch (SQLException e){
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "数据库错误: " + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        JButton remoteGameButton = new JButton("联机游戏");
-        remoteGameButton.setFont(new Font("SimHei", Font.BOLD, 20));
-        int remoteGameButtonWidth = 400;
-        int remoteGameButtonHeight = 60;
-        int remoteGameButtonOriginX = (getWidth()-remoteGameButtonWidth)/2;
-        int remoteGameButtonOriginY = boardOnlyButton.getY() + boardOnlyButton.getHeight() + 40;
-        remoteGameButton.setBounds(remoteGameButtonOriginX, remoteGameButtonOriginY, remoteGameButtonWidth, remoteGameButtonHeight);
-        // 保证按钮在窗口水平居中：监听窗口大小变化而不是按钮本身
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-            int remoteGameButtonNowX = (getWidth() - remoteGameButton.getWidth()) / 2;
-            remoteGameButton.setLocation(Math.max(0, remoteGameButtonNowX), remoteGameButton.getY());
+        // 双人对弈按钮 - 对应图片上的"双人对弈"文字位置
+        pvpButton = createTransparentButton("", 150, 40);
+        int pvpButtonX = squareSize / 2 - 75;
+        int pvpButtonY = archiveButtonY + 70; // 在存档按钮下方60像素（对应"双人对弈"文字位置）
+        pvpButton.setBounds(pvpButtonX, pvpButtonY, 150, 40);
+        pvpButton.addActionListener(e1->{
+            try {
+                switchToPvPPage();
             }
-        });
-        add(remoteGameButton);
-        remoteGameButton.addActionListener(e1->{
-            switchToLoginPage();
+            catch (Exception e){
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "页面跳转错误: " + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
-        JButton withAIButton = new JButton("人机");
-        withAIButton.setFont(new Font("SimHei", Font.BOLD, 20));
-        int withAIButtonWidth = 400;
-        int withAIButtonHeight = 60;
-        int withAIButtonOriginX = (getWidth()-withAIButtonWidth)/2;
-        int withAIButtonOriginY = remoteGameButton.getY() + remoteGameButton.getHeight() + 40;
-        withAIButton.setBounds(withAIButtonOriginX, withAIButtonOriginY, withAIButtonWidth, withAIButtonHeight);
-        // 保证按钮在窗口水平居中：监听窗口大小变化而不是按钮本身
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-            int withAIButtonNowX = (getWidth() - withAIButton.getWidth()) / 2;
-            withAIButton.setLocation(Math.max(0, withAIButtonNowX), withAIButton.getY());
+        // 人机对战按钮 - 对应图片上的"人机对战"文字位置
+        aiButton = createTransparentButton("", 150, 40);
+        int aiButtonX = windowWidth / 2 - 75;
+        int aiButtonY = pvpButtonY + 60; // 在双人对弈按钮下方60像素（对应"人机对战"文字位置）
+        aiButton.setBounds(aiButtonX, aiButtonY, 150, 40);
+        aiButton.addActionListener(e1->{
+            try {
+                switchToAIPage();
+            }
+            catch
+            (Exception e){
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(
+                        this, "页面跳转错误: " + e.getMessage(), "错误"
+                        , JOptionPane.ERROR_MESSAGE);
             }
         });
-        add(withAIButton);
-        /* withAIButton.addActionListener(e1->{
-            switchToLoginPage();
-        }); */
+
+        // 添加按钮到面板
+        getContentPane().add(archiveButton);
+        getContentPane().add(pvpButton);
+        getContentPane().add(aiButton);
+    }
+
+    private JButton createTransparentButton(String text, int width, int height) {
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // 完全透明背景，只响应点击，不显示任何内容
+                // 因为图片上已经有文字，所以按钮不需要显示文字
+            }
+        };
+
+        // 设置完全透明的按钮
+        button.setOpaque(false);
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // 添加鼠标悬停效果（可选，帮助用户发现按钮位置）
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                // 鼠标悬停时显示半透明边框，提示按钮位置
+                button.setBorder(BorderFactory.createLineBorder(
+                        new Color(255, 255, 255, 100), 2
+                ));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBorder(null);
+            }
+        });
+        return button;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            WelcomePage welcomePage = new WelcomePage();
+            welcomePage.setVisible(true);});
     }
 }
