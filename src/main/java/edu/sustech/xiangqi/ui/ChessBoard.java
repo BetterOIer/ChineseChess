@@ -21,7 +21,11 @@ public class ChessBoard extends JFrame {
         pack();
         setLocationRelativeTo(null);
     }
-}
+    
+    public ChessBoardPanel getPanel(){
+        return chessBoardPanel;
+    }
+    
 
 class ChessBoardPanel extends JPanel {
     private final ChessBoardModel model;

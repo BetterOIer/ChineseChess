@@ -34,6 +34,11 @@ public class ChessBoardModel {
     private User userBlack;
     private boolean whoseTurn;
 
+    @Override
+    public String toString(){
+        return name+" "+boardType+" "+description+" "+userRed+" "+userBlack+" "+whoseTurn;
+    }
+
     //构造函数
     public ChessBoardModel(int id, int boardType, User userRed, User userBlack, boolean whoseTurn) {
         this.id=id;
