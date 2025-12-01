@@ -79,23 +79,13 @@ public class Connection extends JFrame{
         }
         running = true;
         connected = false;
-<<<<<<< HEAD
-        try {
-            socket.setBroadcast(true);
-
-        }catch (SocketException se){
-            se.printStackTrace();
-        }
-        peerAddress = InetAddress.getByName("255.255.255.255");
-=======
         // 启用广播并发送到广播地址（向整个局域网/全网广播）
         try {
             socket.setBroadcast(true);
         } catch (SocketException se) {
             se.printStackTrace();
         }
-        peerAddress = InetAddress.getByName("255.255.255.255"); 
->>>>>>> 7ccec6c1cb5a32f59c1144671a2d84a3d31ed30e
+        peerAddress = InetAddress.getByName("255.255.255.255");
         /* PORT = PORT; */
 
         // 接收消息线程
@@ -225,11 +215,7 @@ public class Connection extends JFrame{
             }
         }
         if(aim.equals("Confirm")){
-<<<<<<< HEAD
-            if((!this.connected) && (this.confirm)){
-=======
             if((!this.connected) && (this.confirm) && (this.active>0)){
->>>>>>> 7ccec6c1cb5a32f59c1144671a2d84a3d31ed30e
                 if(this.candidate.equals(userStr)){
                     try{
                         DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(),userStr,null));
