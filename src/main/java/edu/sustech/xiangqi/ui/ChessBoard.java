@@ -26,6 +26,8 @@ public class ChessBoard extends JFrame {
 
 class ChessBoardPanel extends JPanel {
     private final ChessBoardModel model;
+    private
+    Image backgroundImage;
 
     /**
      * 单个棋盘格子的尺寸（px）
@@ -46,11 +48,16 @@ class ChessBoardPanel extends JPanel {
 
     public ChessBoardPanel(ChessBoardModel model) {
         this.model = model;
-        setPreferredSize(new Dimension(
-                CELL_SIZE * (ChessBoardModel.getCols() - 1) + MARGIN * 2,
-                CELL_SIZE * (ChessBoardModel.getRows() - 1) + MARGIN * 2
-        ));
-        setBackground(new Color(220, 179, 92));
+        // 加载背景图片
+        try {
+            backgroundImage = new ImageIcon("src/main/image/ChessBoardBackground.JPG").getImage();
+        }
+        catch (Exception e) {
+            System.out.println("背景图片加载失败: " + e.getMessage());
+            backgroundImage = null;
+        }
+        setPreferredSize(new Dimension(CELL_SIZE * (ChessBoardModel.getCols() - 1) + MARGIN * 2, CELL_SIZE * (ChessBoardModel.getRows() - 1) + MARGIN * 2));
+        setOpaque(false);
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -92,8 +99,22 @@ class ChessBoardPanel extends JPanel {
 
         // Demo的GUI都是由Swing中基本的组件组成的，比如背景的格子是用许多个line组合起来实现的，棋子是先绘制一个circle再在上面绘制一个text实现的
         // 因此绘制GUI的过程中需要自己手动计算每个组件的位置（坐标）
+        drawBackground(g2d);
         drawBoard(g2d);
         drawPieces(g2d);
+    }
+
+    private void drawBackground(Graphics2D g) {
+        if (backgroundImage != null) {
+            // 绘制背景图片，填充整个面板
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this
+            );
+        }
+        else {
+            // 如果背景图片加载失败，使用默认背景色
+            g.setColor(new Color(220, 179, 92));
+            g.fillRect(0, 0, getWidth(), getHeight());
+        }
     }
 
     /**
@@ -101,7 +122,22 @@ class ChessBoardPanel extends JPanel {
      */
     private void drawBoard(Graphics2D g) {
         g.setColor(Color.BLACK);
+        // 设置棋盘外框线条粗细
         g.setStroke(new BasicStroke(2));
+        // 绘制棋盘外框（粗线）
+        int boardWidth = (ChessBoardModel.getCols() - 1) * CELL_SIZE;
+        int boardHeight = (ChessBoardModel.getRows() - 1) * CELL_SIZE;
+        // 设置外框与棋盘最外缘的间隔距离
+        int borderMargin = 5;
+        // 绘制外围边框 - 与棋盘最外缘保持间隔
+        int borderX = MARGIN - borderMargin;
+        int borderY = MARGIN - borderMargin;
+        int borderWidth = boardWidth + borderMargin * 2;
+        int borderHeight = boardHeight + borderMargin * 2;
+
+        g.drawRect(borderX, borderY, borderWidth, borderHeight);
+        // 设置内部线条粗细
+        g.setStroke(new BasicStroke(1));
 
         // 绘制横线
         for (int i = 0; i < ChessBoardModel.getRows(); i++) {
@@ -122,9 +158,15 @@ class ChessBoardPanel extends JPanel {
             }
         }
 
+        // 绘制斜线
+        drawDiagonalLines(g);
+
+        //绘制棋子位置标记线
+        drawPositionMarks(g);
+
         // 绘制“楚河”和“汉界”这两个文字
         g.setColor(Color.BLACK);
-        g.setFont(new Font("楷体", Font.BOLD, 24));
+        g.setFont(new Font("隶书", Font.BOLD, 30));
 
         int riverY = MARGIN + 4 * CELL_SIZE + CELL_SIZE / 2;
 
@@ -136,6 +178,154 @@ class ChessBoardPanel extends JPanel {
         String hanJieText = "汉界";
         int hanJieWidth = fm.stringWidth(hanJieText);
         g.drawString(hanJieText, MARGIN + CELL_SIZE * 6 - hanJieWidth / 2, riverY + 8);
+    }
+
+    private void drawDiagonalLines(Graphics2D g) {
+        g.setColor(Color.BLACK);
+        g.setStroke(new BasicStroke(1));
+
+        // 绘制红方九宫格斜线（上方）
+        // 左上到右下的斜线
+        g.drawLine(MARGIN + 3 * CELL_SIZE, MARGIN, MARGIN + 5 * CELL_SIZE, MARGIN + 2 * CELL_SIZE);
+        // 右上到左下的斜线
+        g.drawLine(MARGIN + 5 * CELL_SIZE, MARGIN, MARGIN + 3 * CELL_SIZE, MARGIN + 2 * CELL_SIZE);
+
+        // 绘制黑方九宫格斜线（下方）
+        // 左上到右下的斜线
+        g.drawLine(MARGIN + 3 * CELL_SIZE, MARGIN + 7 * CELL_SIZE, MARGIN + 5 * CELL_SIZE, MARGIN + 9 * CELL_SIZE);
+        // 右上到左下的斜线
+        g.drawLine(MARGIN + 5 * CELL_SIZE, MARGIN + 7 * CELL_SIZE, MARGIN + 3 * CELL_SIZE, MARGIN + 9 * CELL_SIZE);
+
+        // 绘制九宫格内部的交叉斜线（根据图2的详细样式）
+        // 红方九宫格内部交叉线
+        g.drawLine(MARGIN + 3 * CELL_SIZE, MARGIN + 1 * CELL_SIZE, MARGIN + 5 * CELL_SIZE, MARGIN + 1 * CELL_SIZE);
+        g.drawLine(MARGIN + 4 * CELL_SIZE, MARGIN, MARGIN + 4 * CELL_SIZE, MARGIN + 2 * CELL_SIZE);
+
+        // 黑方九宫格内部交叉线
+        g.drawLine(MARGIN + 3 * CELL_SIZE, MARGIN + 8 * CELL_SIZE, MARGIN + 5 * CELL_SIZE, MARGIN + 8 * CELL_SIZE);
+        g.drawLine(MARGIN + 4 * CELL_SIZE, MARGIN + 7 * CELL_SIZE, MARGIN + 4 * CELL_SIZE, MARGIN + 9 * CELL_SIZE);
+    }
+
+    /**
+     *标记棋盘上炮位卒位
+     */
+    private void drawPositionMarks(Graphics2D g) {
+        g.setColor(Color.BLACK);
+        g.setStroke(new BasicStroke(1));
+        int markLength = 6; // L形标记的长度
+
+        // 炮位标记（双方各2个炮位）
+        int[][] cannonPositions = {
+                {2, 1}, {2, 7},  // 红方炮位（第3行，第2列和第8列）
+                {7, 1}, {7, 7}   // 黑方炮位（第8行，第2列和第8列）
+        };
+
+        // 兵/卒位标记（双方各5个兵/卒位）
+        int[][] soldierPositions = {
+                {3, 0}, {3, 2}, {3, 4}, {3, 6}, {3, 8},  // 红方兵位（第4行）
+                {6, 0}, {6, 2}, {6, 4}, {6, 6}, {6, 8}   // 黑方卒位（第7行）
+        };
+
+        // 绘制炮位标记（特殊的L形标记）
+        for (int[] pos : cannonPositions) {
+            int row = pos[0];
+            int col = pos[1];
+            drawCannonMarks(g, row, col, markLength);
+        }
+
+        // 绘制兵/卒位标记
+        for (int[] pos : soldierPositions) {
+            int row = pos[0];
+            int col = pos[1];
+            drawSoldierMarks(g, row, col, markLength);
+        }
+    }
+
+    /**
+     * 绘制炮位的特殊L形标记（四个方向的L形）
+     */
+    private void drawCannonMarks(Graphics2D g, int row, int col, int length) {
+        int x = MARGIN + col * CELL_SIZE;
+        int y = MARGIN + row * CELL_SIZE;
+
+        // 炮位标记：在交叉点的四个角都绘制小L形
+        if (row == 2) { // 红方炮位（棋盘上方）
+            // 左上角L形
+            g.drawLine(x - length, y, x, y);
+            g.drawLine(x, y - length, x, y);
+            // 右上角L形
+            g.drawLine(x, y - length, x, y);
+            g.drawLine(x, y, x + length, y);
+            // 左下角L形
+            g.drawLine(x - length, y, x, y);
+            g.drawLine(x, y, x, y + length);
+            // 右下角L形
+            g.drawLine(x, y, x + length, y);
+            g.drawLine(x, y, x, y + length);
+        }
+        else if (row == 7) { // 黑方炮位（棋盘下方）
+            // 左上角L形
+            g.drawLine(x - length, y, x, y);
+            g.drawLine(x, y, x, y - length);
+            // 右上角L形
+            g.drawLine(x, y, x + length, y);
+            g.drawLine(x, y, x, y - length);
+            // 左下角L形
+            g.drawLine(x - length, y, x, y);
+            g.drawLine(x, y, x, y + length);
+            // 右下角L形
+            g.drawLine(x, y, x + length, y);
+            g.drawLine(x, y, x, y + length);
+        }
+    }
+
+    /**
+     * 绘制兵/卒位的L形标记（指向棋盘中心的L形）
+     */
+    private void drawSoldierMarks(Graphics2D g, int row, int col, int length) {
+        int x = MARGIN + col * CELL_SIZE;
+        int y = MARGIN + row * CELL_SIZE;
+
+        if (row == 3) { // 红方兵位
+            // 兵位标记：L形指向棋盘中心（向下）
+            if (col == 0) {
+                // 最左边兵位：右下L形
+                g.drawLine(x, y, x + length, y);
+                g.drawLine(x, y, x, y + length);
+            }
+            else if (col == 8) {
+                // 最右边兵位：左下L形
+                g.drawLine(x, y, x - length, y);
+                g.drawLine(x, y, x, y + length);
+            }
+            else {
+                // 中间兵位：向下L形
+                g.drawLine(x - length/
+                                2, y, x + length/2
+                        , y);
+                g.drawLine(x, y, x, y + length);
+            }
+        }
+        else if (row == 6) { // 黑方卒位
+            // 卒位标记：L形指向棋盘中心（向上）
+            if (col == 0) {
+                // 最左边卒位：右上L形
+                g.drawLine(x, y, x + length, y);
+                g.drawLine(x, y, x, y - length);
+            }
+            else if (col == 8) {
+                // 最右边卒位：左上L形
+                g.drawLine(x, y, x - length, y);
+                g.drawLine(x, y, x, y - length);
+            }
+            else {
+                // 中间卒位：向上L形
+                g.drawLine(x - length/
+                                2, y, x + length/2
+                        , y);
+                g.drawLine(x, y, x, y - length);
+            }
+        }
     }
 
     /**
@@ -151,12 +341,17 @@ class ChessBoardPanel extends JPanel {
 
             boolean isSelected = (piece == selectedPiece);
 
-            // 先绘制circle
+            // 绘制circle
             g.setColor(new Color(245, 222, 179));
             g.fillOval(x - PIECE_RADIUS, y - PIECE_RADIUS, PIECE_RADIUS * 2, PIECE_RADIUS * 2);
+
+            // 绘制circle的灰色细线
+            g.setColor(new Color(105, 105, 105));
+            g.setStroke(new BasicStroke(1.5f));
+            g.drawOval(x - PIECE_RADIUS + 5, y - PIECE_RADIUS + 5, PIECE_RADIUS * 2 - 10, PIECE_RADIUS * 2 - 10);
             // 绘制circle的黑色边框
             g.setColor(Color.BLACK);
-            g.setStroke(new BasicStroke(2));
+            g.setStroke(new BasicStroke(1.8f));
             g.drawOval(x - PIECE_RADIUS, y - PIECE_RADIUS, PIECE_RADIUS * 2, PIECE_RADIUS * 2);
 
             if (isSelected) {
@@ -169,7 +364,7 @@ class ChessBoardPanel extends JPanel {
             } else {
                 g.setColor(Color.BLACK);
             }
-            g.setFont(new Font("楷体", Font.BOLD, 22));
+            g.setFont(new Font("楷体", Font.BOLD, 32));
             FontMetrics fm = g.getFontMetrics();
             int textWidth = fm.stringWidth(piece.getName());
             int textHeight = fm.getAscent();
