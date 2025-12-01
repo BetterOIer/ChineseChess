@@ -130,7 +130,7 @@ public class WelcomePage extends JFrame{
         // 人机对战按钮 - 对应图片上的"人机对战"文字位置
         aiButton = createTransparentButton("", 150, 40);
         int aiButtonX = windowWidth / 2 - 75;
-        int aiButtonY = pvpButtonY + 60; // 在双人对弈按钮下方60像素（对应"人机对战"文字位置）
+        int aiButtonY = pvpButtonY + 70; // 在双人对弈按钮下方60像素（对应"人机对战"文字位置）
         aiButton.setBounds(aiButtonX, aiButtonY, 150, 40);
         aiButton.addActionListener(e1->{
             try {

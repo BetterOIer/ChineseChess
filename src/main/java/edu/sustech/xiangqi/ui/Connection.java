@@ -85,7 +85,7 @@ public class Connection extends JFrame{
         } catch (SocketException se) {
             se.printStackTrace();
         }
-        peerAddress = InetAddress.getByName("255.255.255.255"); 
+        peerAddress = InetAddress.getByName("255.255.255.255");
         /* PORT = PORT; */
 
         // 接收消息线程

@@ -21,17 +21,19 @@ public class ChessBoard extends JFrame {
         pack();
         setLocationRelativeTo(null);
     }
-
+    
     public ChessBoardPanel getPanel(){
         return chessBoardPanel;
     }
     
-}
 
 class ChessBoardPanel extends JPanel {
     private final ChessBoardModel model;
     private Image backgroundImage;
 
+    static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    static int screenWidth = screenSize.width;
+    static int screenHeight = screenSize.height;
     /**
      * 单个棋盘格子的尺寸（px）
      */
@@ -40,7 +42,7 @@ class ChessBoardPanel extends JPanel {
     /**
      * 棋盘边界与窗口边界的边距
      */
-    private static final int MARGIN = 40;
+    private static final int MARGIN = screenHeight / 7 ;
 
     /**
      * 棋子的半径
@@ -53,13 +55,14 @@ class ChessBoardPanel extends JPanel {
         this.model = model;
         // 加载背景图片
         try {
-            backgroundImage = new ImageIcon("src/main/image/ChessBoardBackground.JPG").getImage();
+            backgroundImage = new ImageIcon("src/main/image/ChessBoardBackground.png").getImage();
         }
         catch (Exception e) {
             System.out.println("背景图片加载失败: " + e.getMessage());
             backgroundImage = null;
         }
-        setPreferredSize(new Dimension(CELL_SIZE * (ChessBoardModel.getCols() - 1) + MARGIN * 2, CELL_SIZE * (ChessBoardModel.getRows() - 1) + MARGIN * 2));
+        //setPreferredSize(new Dimension(CELL_SIZE * (ChessBoardModel.getCols() - 1) + MARGIN * 2, CELL_SIZE * (ChessBoardModel.getRows() - 1) + MARGIN * 2));
+        setPreferredSize(new Dimension(screenWidth, screenHeight));
         setOpaque(false);
 
         addMouseListener(new MouseAdapter() {
@@ -110,8 +113,7 @@ class ChessBoardPanel extends JPanel {
     private void drawBackground(Graphics2D g) {
         if (backgroundImage != null) {
             // 绘制背景图片，填充整个面板
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this
-            );
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
         else {
             // 如果背景图片加载失败，使用默认背景色
@@ -348,8 +350,12 @@ class ChessBoardPanel extends JPanel {
             g.setColor(new Color(245, 222, 179));
             g.fillOval(x - PIECE_RADIUS, y - PIECE_RADIUS, PIECE_RADIUS * 2, PIECE_RADIUS * 2);
 
-            // 绘制circle的灰色细线
-            g.setColor(new Color(105, 105, 105));
+            // 绘制circle的灰色/红色细线
+            if (piece.isRed()) {
+                g.setColor(new Color(200, 0, 0));
+            } else {
+                g.setColor(new Color(105, 105, 105));
+            }
             g.setStroke(new BasicStroke(1.5f));
             g.drawOval(x - PIECE_RADIUS + 5, y - PIECE_RADIUS + 5, PIECE_RADIUS * 2 - 10, PIECE_RADIUS * 2 - 10);
             // 绘制circle的黑色边框
