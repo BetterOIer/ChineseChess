@@ -26,7 +26,7 @@ public class Connection extends JFrame{
     private InetAddress peerAddress;
     private boolean connected = false;
     private boolean confirm = false;
-    private int active = 3;
+    private int active = 1;
     private String candidate = null;
     
     public Connection(User user){
@@ -65,7 +65,7 @@ public class Connection extends JFrame{
                 try{
                     handleMouseClick();
                 }catch(IOException e2){
-                    // 静默处理
+                    e2.printStackTrace();
                 }
             }
         });
@@ -164,6 +164,7 @@ public class Connection extends JFrame{
                             });
                         });
                         listenerThread.start();
+                        break;
                     }
                 }
             }catch(InterruptedException ie){
@@ -182,7 +183,7 @@ public class Connection extends JFrame{
                 System.out.println("receive:"+message);
                 decodeBuff(message);
             }catch(IOException e){
-                if (!running) break;
+                e.printStackTrace();
             }
         }
     }
@@ -220,6 +221,7 @@ public class Connection extends JFrame{
                     try{
                         DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(),userStr,null));
                         chessBoardModel = new ChessBoardModel(DBOperationBoard.getBoardCount(), 2, user, DBOperationUser.getUserByName(userStr), true);
+                        DBOperationBoard.insertBoard(chessBoardModel);
                         chessBoard = new ChessBoard(chessBoardModel);
                         this.connected=true;
                         chessBoard.setVisible(true);
@@ -236,9 +238,9 @@ public class Connection extends JFrame{
         }
         if(aim.equals("Board")){
             try{
-                DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(),userStr,null));
                 chessBoardModel = convert2Board(message);
                 chessBoard = new ChessBoard(chessBoardModel);
+                DBOperationBoard.insertBoard(chessBoardModel);
                 this.connected=true;
                 chessBoard.setVisible(true);
                 setVisible(false);
@@ -313,7 +315,7 @@ public class Connection extends JFrame{
         running = false;
         connected = false;
         confirm = false;
-        active = 3;
+        active = 1;
         if (socket != null) {
             socket.close();
         }
