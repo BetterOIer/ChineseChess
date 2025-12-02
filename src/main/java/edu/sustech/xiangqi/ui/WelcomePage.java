@@ -185,9 +185,9 @@ public class WelcomePage extends JFrame{
         return button;
     }
 
-    public static void main(String[] args) {
+    /* public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             WelcomePage welcomePage = new WelcomePage();
             welcomePage.setVisible(true);});
-    }
+    } */
 }

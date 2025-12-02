@@ -146,21 +146,19 @@ public class Connection extends JFrame{
                 }else if(connected){
                     if (chessBoard != null) {
                         Thread listenerThread = new Thread(() -> {
-                            SwingUtilities.invokeLater(() -> {
-                                chessBoard.addMouseListener(new MouseAdapter() {
-                                    @Override
-                                    public void mousePressed(MouseEvent e) {
-                                        try {
-                                            String mouseMsg = encodeBuff("Mouse", user, e.getX() + "," + e.getY());
-                                            byte[] data = mouseMsg.getBytes();
-                                            DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
-                                            socket.send(packet);
-                                            System.out.println("sent:" + mouseMsg);
-                                        } catch (IOException ex) {
-                                            ex.printStackTrace();
-                                        }
+                            chessBoard.addMouseListener(new MouseAdapter() {
+                                @Override
+                                public void mousePressed(MouseEvent e) {
+                                    try {
+                                        String mouseMsg = encodeBuff("Mouse", user, e.getX() + "," + e.getY());
+                                        byte[] data = mouseMsg.getBytes();
+                                        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
+                                        socket.send(packet);
+                                        System.out.println("sent:" + mouseMsg);
+                                    } catch (IOException ex) {
+                                        ex.printStackTrace();
                                     }
-                                });
+                                }
                             });
                         });
                         listenerThread.start();
@@ -219,7 +217,9 @@ public class Connection extends JFrame{
             if((!this.connected) && (this.confirm) && (this.active>0)){
                 if(this.candidate.equals(userStr)){
                     try{
-                        DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(),userStr,null));
+                        if(DBOperationUser.getUserByName(userStr)==null){
+                            DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(),userStr,null));
+                        }
                         chessBoardModel = new ChessBoardModel(DBOperationBoard.getBoardCount(), 2, user, DBOperationUser.getUserByName(userStr), true);
                         DBOperationBoard.insertBoard(chessBoardModel);
                         chessBoard = new ChessBoard(chessBoardModel);

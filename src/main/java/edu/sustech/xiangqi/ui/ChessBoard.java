@@ -25,15 +25,15 @@ public class ChessBoard extends JFrame {
     public ChessBoardPanel getPanel(){
         return chessBoardPanel;
     }
-    
+}
 
 class ChessBoardPanel extends JPanel {
     private final ChessBoardModel model;
     private Image backgroundImage;
 
     static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    static int screenWidth = screenSize.width;
-    static int screenHeight = screenSize.height;
+    static int screenWidth = (int)(screenSize.width*0.7);
+    static int screenHeight = (int)(screenSize.height*0.7);
     /**
      * 单个棋盘格子的尺寸（px）
      */
