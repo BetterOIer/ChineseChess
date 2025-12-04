@@ -383,4 +383,22 @@ public class ChessBoardModel {
             }
         }
     }
+
+    public void resetBoard(){
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        this.boardType = (this.boardType&(1<<3))==0? this.boardType:(this.boardType^(1<<3));
+        this.pieces = new ArrayList<>();
+        initPieces();
+        this.steps = new ArrayList<>();
+        initBoardStatus(pieces);
+        selectedPiece = null;
+        boardStatus = new int[ROWS][COLS];
+        this.moveRange=new ArrayList<>();
+        this.eatRange = new ArrayList<>();
+        try{
+            DBOperationBoard.updateBoardById(id, this);
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
 }

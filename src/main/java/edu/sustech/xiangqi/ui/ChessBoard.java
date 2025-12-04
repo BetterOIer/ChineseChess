@@ -1,8 +1,6 @@
 package edu.sustech.xiangqi.ui;
 
-import edu.sustech.xiangqi.model.ChessBoardModel;
-import edu.sustech.xiangqi.model.Coordinate;
-import edu.sustech.xiangqi.model.AbstractPiece;
+import edu.sustech.xiangqi.model.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,18 +10,51 @@ import java.awt.event.MouseEvent;
 public class ChessBoard extends JFrame {
 
     private final ChessBoardPanel chessBoardPanel;
+    private JButton reset;
 
     public ChessBoard(ChessBoardModel model){
         setTitle("中国象棋-"+model.getName());
+        setLayout(null);
+        setSize(ChessBoardPanel.screenWidth, ChessBoardPanel.screenHeight);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        reset = new JButton("重置棋盘");
+        reset.setLocation(10, 160);
+        reset.setSize(100, 40);
+        if((model.getType()&(1<<3))==0)reset.setVisible(false);
+        add(reset);
+
+
         this.chessBoardPanel =  new ChessBoardPanel(model);
         add(chessBoardPanel);
-        pack();
+
+        
+
+        reset.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e){
+                model.resetBoard();
+                reset.setVisible(false);
+                repaint();
+            }
+        });
+
+        chessBoardPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if((model.getType()&(1<<3))!=0) reset.setVisible(true);
+            }
+        });
+
+        
         setLocationRelativeTo(null);
     }
     
     public ChessBoardPanel getPanel(){
         return chessBoardPanel;
+    }
+    public JButton getReset(){
+        return reset;
     }
 }
 
@@ -62,7 +93,7 @@ class ChessBoardPanel extends JPanel {
             backgroundImage = null;
         }
         //setPreferredSize(new Dimension(CELL_SIZE * (ChessBoardModel.getCols() - 1) + MARGIN * 2, CELL_SIZE * (ChessBoardModel.getRows() - 1) + MARGIN * 2));
-        setPreferredSize(new Dimension(screenWidth, screenHeight));
+        setSize(new Dimension(screenWidth, screenHeight));
         setOpaque(false);
 
         addMouseListener(new MouseAdapter() {
@@ -337,6 +368,7 @@ class ChessBoardPanel extends JPanel {
      * 绘制棋子
      */
     private void drawPieces(Graphics2D g) {
+        if(!model.getSteps().isEmpty())drawPrePos(g, model.getSteps().getLast());
         if(selectedPiece!=null)drawHitRange(g);
         // 遍历棋盘上的每一个棋子，每次循环绘制该棋子
         for (AbstractPiece piece : model.getPieces()) {
@@ -433,5 +465,18 @@ class ChessBoardPanel extends JPanel {
             int centerX = MARGIN + coordinate.getCol()* CELL_SIZE;
             g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
         }
+    }
+
+    private void drawPrePos(Graphics2D g, Step step){
+        g.setColor(new Color(0, 0, 0));
+        int r = 10;
+        int centerY = MARGIN + step.getFromRow()* CELL_SIZE;
+        int centerX = MARGIN + step.getFromCol()* CELL_SIZE;
+        g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
+        g.setColor(new Color(120, 120, 120));
+        r = 30;
+        centerY = MARGIN + step.getToRow()* CELL_SIZE;
+        centerX = MARGIN + step.getToCol()* CELL_SIZE;
+        g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
     }
 }

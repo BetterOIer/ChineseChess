@@ -144,7 +144,8 @@ public class Connection extends JFrame{
                     active--;
                     Thread.sleep(33); // 间隔发送，避免忙循环
                 }else if(connected){
-                    if (chessBoard != null) {
+                    Thread.sleep(10000);
+                    /* if (chessBoard != null) {
                         Thread listenerThread = new Thread(() -> {
                             chessBoard.addMouseListener(new MouseAdapter() {
                                 @Override
@@ -163,7 +164,7 @@ public class Connection extends JFrame{
                         });
                         listenerThread.start();
                         break;
-                    }
+                    } */
                 }
             }catch(InterruptedException ie){
                 ie.printStackTrace();
