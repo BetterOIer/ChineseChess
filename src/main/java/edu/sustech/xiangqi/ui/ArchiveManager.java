@@ -99,7 +99,6 @@ public class ArchiveManager extends JFrame{
             repaint();
         }
     }
-
     private void handleMouseClickOnNewButton(){
         try{
             //
@@ -134,7 +133,6 @@ public class ArchiveManager extends JFrame{
             e.printStackTrace();
         }
     }
-
     private void handleMouseClickOnModButton(){
         int Idx = archivePanel.getSelectedIdx();
         if(Idx!=-1){
@@ -179,7 +177,6 @@ public class ArchiveManager extends JFrame{
             ChessBoardModel model = this.archives.get(Idx);
             ChessBoard chessBoard = new ChessBoard(model);
             archivePanel.setSelectedIdx(-1);
-            setVisible(false);
             chessBoard.setVisible(true);
         }
     }

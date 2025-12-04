@@ -6,17 +6,58 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChessBoard extends JFrame {
 
+    private ChessBoardModel model;
+
     private final ChessBoardPanel chessBoardPanel;
-    private JButton reset;
+    private PlayBackPanel playBackPanel;
+    private JButton reset, playBack;
+    private Image backgroundImage;
+
+    private boolean playBackOn= false;
+
+    static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    static int screenWidth = (int)(screenSize.width*0.7);
+    static int screenHeight = (int)(screenSize.height*0.7);
 
     public ChessBoard(ChessBoardModel model){
+
+        this.model=model;
+
         setTitle("中国象棋-"+model.getName());
-        setLayout(null);
+        // 加载背景图片
+        try {
+            backgroundImage = new ImageIcon("src/main/image/ChessBoardBackground.png").getImage();
+        }
+        catch (Exception e) {
+            System.out.println("背景图片加载失败: " + e.getMessage());
+            backgroundImage = null;
+        }
+
+        // 设置自定义ContentPane以绘制背景
+        JPanel contentPane = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    g.setColor(new Color(220, 179, 92));
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
+            }
+        };
+        contentPane.setLayout(null);
+        setContentPane(contentPane);
+
         setSize(ChessBoardPanel.screenWidth, ChessBoardPanel.screenHeight);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setLocationRelativeTo(null);
 
         reset = new JButton("重置棋盘");
         reset.setLocation(10, 160);
@@ -24,30 +65,46 @@ public class ChessBoard extends JFrame {
         if((model.getType()&(1<<3))==0)reset.setVisible(false);
         add(reset);
 
+        playBack = new JButton("复盘");
+        playBack.setLocation(10,220);
+        playBack.setSize(100,40);
+        if((model.getType()&(1<<3))==0)playBack.setVisible(false);
+        add(playBack);
 
         this.chessBoardPanel =  new ChessBoardPanel(model);
         add(chessBoardPanel);
-
-        
 
         reset.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e){
                 model.resetBoard();
                 reset.setVisible(false);
+                playBack.setVisible(false);
+                playBackOn=false;
+                if (playBackPanel != null) {
+                    remove(playBackPanel);
+                }
                 repaint();
+            }
+        });
+
+        playBack.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+                handleClickOnPlayBack(model);
             }
         });
 
         chessBoardPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if((model.getType()&(1<<3))!=0) reset.setVisible(true);
+                if((model.getType()&(1<<3))!=0){
+                    reset.setVisible(true);
+                    if(!playBackOn)playBack.setVisible(true);
+                }
             }
         });
 
-        
-        setLocationRelativeTo(null);
     }
     
     public ChessBoardPanel getPanel(){
@@ -56,11 +113,42 @@ public class ChessBoard extends JFrame {
     public JButton getReset(){
         return reset;
     }
+    public JButton getPlayBack(){
+        return playBack;
+    }
+
+    private void handleClickOnPlayBack(ChessBoardModel model){
+        if (playBackPanel != null) {
+            remove(playBackPanel);
+        }
+        playBackPanel = new PlayBackPanel(model.getSteps());
+        add(playBackPanel, 0);
+        playBack.setVisible(false);
+        playBackOn=true;
+        playBackPanel.repaint();
+        playBackPanel.getContentPanel().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleMouseClickOnPlayBackPanel(e.getX(), e.getY());
+            }
+        });
+    }
+    
+    private void handleMouseClickOnPlayBackPanel(int x, int y){
+
+        playBackPanel.setSelectedIdx(y / playBackPanel.getStepHeight());
+        replacePieces(playBackPanel.getSelectedIdx());
+        playBackPanel.getContentPanel().repaint();
+    }
+
+    private void replacePieces(int stepIdx){
+        model.tryPlayBack(stepIdx);
+        chessBoardPanel.repaint();
+    }
 }
 
 class ChessBoardPanel extends JPanel {
     private final ChessBoardModel model;
-    private Image backgroundImage;
 
     static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     static int screenWidth = (int)(screenSize.width*0.7);
@@ -84,15 +172,6 @@ class ChessBoardPanel extends JPanel {
 
     public ChessBoardPanel(ChessBoardModel model) {
         this.model = model;
-        // 加载背景图片
-        try {
-            backgroundImage = new ImageIcon("src/main/image/ChessBoardBackground.png").getImage();
-        }
-        catch (Exception e) {
-            System.out.println("背景图片加载失败: " + e.getMessage());
-            backgroundImage = null;
-        }
-        //setPreferredSize(new Dimension(CELL_SIZE * (ChessBoardModel.getCols() - 1) + MARGIN * 2, CELL_SIZE * (ChessBoardModel.getRows() - 1) + MARGIN * 2));
         setSize(new Dimension(screenWidth, screenHeight));
         setOpaque(false);
 
@@ -136,21 +215,8 @@ class ChessBoardPanel extends JPanel {
 
         // Demo的GUI都是由Swing中基本的组件组成的，比如背景的格子是用许多个line组合起来实现的，棋子是先绘制一个circle再在上面绘制一个text实现的
         // 因此绘制GUI的过程中需要自己手动计算每个组件的位置（坐标）
-        drawBackground(g2d);
         drawBoard(g2d);
         drawPieces(g2d);
-    }
-
-    private void drawBackground(Graphics2D g) {
-        if (backgroundImage != null) {
-            // 绘制背景图片，填充整个面板
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-        }
-        else {
-            // 如果背景图片加载失败，使用默认背景色
-            g.setColor(new Color(220, 179, 92));
-            g.fillRect(0, 0, getWidth(), getHeight());
-        }
     }
 
     /**
@@ -204,16 +270,16 @@ class ChessBoardPanel extends JPanel {
         g.setColor(Color.BLACK);
         g.setFont(new Font("隶书", Font.BOLD, 30));
 
-        int riverY = MARGIN + 4 * CELL_SIZE + CELL_SIZE / 2;
+        int rrY = MARGIN + 4 * CELL_SIZE + CELL_SIZE / 2;
 
         String chuHeText = "楚河";
         FontMetrics fm = g.getFontMetrics();
         int chuHeWidth = fm.stringWidth(chuHeText);
-        g.drawString(chuHeText, MARGIN + CELL_SIZE * 2 - chuHeWidth / 2, riverY + 8);
+        g.drawString(chuHeText, MARGIN + CELL_SIZE * 2 - chuHeWidth / 2, rrY + 8);
 
         String hanJieText = "汉界";
         int hanJieWidth = fm.stringWidth(hanJieText);
-        g.drawString(hanJieText, MARGIN + CELL_SIZE * 6 - hanJieWidth / 2, riverY + 8);
+        g.drawString(hanJieText, MARGIN + CELL_SIZE * 6 - hanJieWidth / 2, rrY + 8);
     }
 
     private void drawDiagonalLines(Graphics2D g) {
@@ -478,5 +544,104 @@ class ChessBoardPanel extends JPanel {
         centerY = MARGIN + step.getToRow()* CELL_SIZE;
         centerX = MARGIN + step.getToCol()* CELL_SIZE;
         g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
+    }
+}
+
+class PlayBackPanel extends JScrollPane {
+
+    private List<Step> steps;
+    private int stepHeight = 40;
+    private int selectedIdx = -1;
+
+    private JPanel contentPanel;
+
+    public JPanel getContentPanel(){
+        return this.contentPanel;
+    }
+
+    public int getSelectedIdx(){
+        return selectedIdx;
+    }
+    public void setSelectedIdx(int selectedIdx){
+        this.selectedIdx = selectedIdx;
+    }
+
+    public int getStepHeight(){
+        return this.stepHeight;
+    }
+
+    public PlayBackPanel(List<Step> steps) {
+        this.steps = steps;
+        this.selectedIdx = steps.size() - 1;
+
+        // 创建内部面板用于绘制内容
+        contentPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                drawSteps(g2d, getWidth());
+            }
+
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(280, steps.size() * stepHeight);
+            }
+        };
+        
+        contentPanel.setBackground(new Color(220, 179, 92));
+        
+        // 将内容面板设置为视口视图
+        setViewportView(contentPanel);
+        
+        // 设置滚动条策略
+        setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        getVerticalScrollBar().setUnitIncrement(16);
+
+        // 设置在ChessBoard中的位置和大小
+        // ChessBoard布局为null，必须手动设置bounds
+        // 放置在右侧空白区域
+        int x = ChessBoard.screenWidth - 320;
+        int y = ChessBoard.screenHeight / 7;
+        setBounds(x, y, 300, 400);
+
+        
+    }
+
+    private void drawSteps(Graphics2D g, int width) {
+        g.setStroke(new BasicStroke(2));
+
+        for (int stepIdx = 0; stepIdx < steps.size(); stepIdx++) {
+            Step stepNow = steps.get(stepIdx);
+
+            int y = stepIdx * stepHeight;
+            if (stepIdx == selectedIdx) g.setColor(new Color(200, 220, 255));
+            else if (stepIdx % 2 == 0) g.setColor(Color.WHITE);
+            else g.setColor(new Color(245, 245, 245));
+
+            g.fillRect(0, y, width, stepHeight);
+
+            // 绘制边框
+            g.setColor(Color.LIGHT_GRAY);
+            g.drawLine(0, y, width, y);
+
+            // 绘制标题
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("SimHei", Font.BOLD, 20));
+            // 调整文字y坐标使其居中 (y是顶部，加上偏移量)
+            g.drawString(stepNow.toString(), 20, y + 28);
+
+            // 绘制选中指示器
+            if (stepIdx == selectedIdx) {
+                g.setColor(new Color(0, 120, 215));
+                g.fillRect(0, y, 5, stepHeight);
+            }
+        }
+
+        // 绘制底部边框
+        g.setColor(Color.LIGHT_GRAY);
+        g.drawLine(0, steps.size() * stepHeight, width, steps.size() * stepHeight);
     }
 }

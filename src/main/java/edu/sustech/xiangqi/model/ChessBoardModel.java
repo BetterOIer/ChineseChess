@@ -313,8 +313,8 @@ public class ChessBoardModel {
         return this.whoseTurn;
     }
 
-    public boolean updateBoards(Step nowStep){
-        steps.add(nowStep);
+    public boolean updateBoards(Step nowStep, boolean updateSteps){
+        if(updateSteps)steps.add(nowStep);
         setStatus(nowStep.getFromRow(), nowStep.getFromCol(), 0);
         if(nowStep.getMode()==0)setStatus(nowStep.getToRow(), nowStep.getToCol(), nowStep.getPieceType());
         return true;
@@ -350,7 +350,7 @@ public class ChessBoardModel {
         if(!isValidPosition(row, col)) return;
         if(moveRange != null && moveRange.contains(new Coordinate(row, col))){
             Step nowStep = new Step(selectedPiece.getType(),selectedPiece.getRow(),selectedPiece.getCol(), row, col, 0);
-            updateBoards(nowStep);
+            updateBoards(nowStep,true);
             this.selectedPiece.moveTo(row, col);
             this.whoseTurn=!this.whoseTurn;
             setLastModTime(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
@@ -372,9 +372,9 @@ public class ChessBoardModel {
             Step step1 = new Step(eatenPiece.getType(),eatenPiece.getRow(),eatenPiece.getCol(), -1, -1, 1);
             eatenPiece.setStatus(false);
             eatenPiece.moveTo(-1, -1);
-            updateBoards(step1);
+            updateBoards(step1,true);
             Step step2 = new Step(selectedPiece.getType(),selectedPiece.getRow(),selectedPiece.getCol(), row, col, 0);
-            updateBoards(step2);
+            updateBoards(step2,true);
             this.selectedPiece.moveTo(row, col);
             this.whoseTurn=!this.whoseTurn;
             setLastModTime(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
@@ -393,6 +393,16 @@ public class ChessBoardModel {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    public void tryPlayBack(int StepIdx){
+        this.pieces = new ArrayList<>();
+        initPieces();initBoardStatus(pieces);
+        for(int i = 0;i<=StepIdx;i++){
+            Step nowStep = steps.get(i);
+            updateBoards(nowStep,false);
+            getPieceAt(nowStep.getFromRow(), nowStep.getFromCol()).moveTo(nowStep.getToRow(), nowStep.getToCol());
         }
     }
 

@@ -23,7 +23,7 @@ public class DBOperationBoard {
             + "    description TEXT,\n"
             + "    userred TEXT,\n"
             + "    userblack TEXT,\n"
-            + "    onwer TEXT,\n"
+            + "    owner TEXT,\n"
             + "    whoseturn BOOL\n"
             + ")";
         
@@ -57,7 +57,7 @@ public class DBOperationBoard {
         }
     }
     public static int insertBoard(ChessBoardModel board) throws SQLException {
-        String sql = "INSERT INTO boards(id, name, date, nowstatus, history, boardtype, description, userred, userblack, onwer, whoseturn) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO boards(id, name, date, nowstatus, history, boardtype, description, userred, userblack, owner, whoseturn) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, board.getId());
@@ -225,7 +225,7 @@ public class DBOperationBoard {
             
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    ChessBoardModel board = new ChessBoardModel(rs.getInt("id"), rs.getInt("boardtype"), DBOperationUser.getUserByName(rs.getString("userred")), DBOperationUser.getUserByName(rs.getString("userblack")),DBOperationUser.getUserByName(rs.getString("onwer")),rs.getBoolean("whoseturn"));
+                    ChessBoardModel board = new ChessBoardModel(rs.getInt("id"), rs.getInt("boardtype"), DBOperationUser.getUserByName(rs.getString("userred")), DBOperationUser.getUserByName(rs.getString("userblack")),DBOperationUser.getUserByName(rs.getString("owner")),rs.getBoolean("whoseturn"));
                     board.setName(rs.getString("name"));
                     board.setLastModTime(rs.getString("date"));
                     
