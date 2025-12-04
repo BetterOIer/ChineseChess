@@ -2,12 +2,17 @@ package edu.sustech.xiangqi.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 
 public class DBOperationBoard {
     private static final String URL = "jdbc:sqlite:src/main/java/edu/sustech/xiangqi/database/ChineseChess.db";
 
     public static void createTable() throws SQLException {
+        createDatabaseFolder("src/main/java/edu/sustech/xiangqi/database");
         String sql = "CREATE TABLE IF NOT EXISTS boards (\n"
             + "    id INTEGER,\n"
             + "    name TEXT NOT NULL,\n"
@@ -26,6 +31,29 @@ public class DBOperationBoard {
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             /* System.out.println("表创建成功"); */
+        }
+    }
+
+    public static boolean createDatabaseFolder(String path) {
+        try {
+            // 方法1: 使用java.nio.file (推荐)
+            File directory = new File(path);
+            if(directory.exists()) return true;
+            Path directoryPath = Paths.get(path);
+            Files.createDirectories(directoryPath);
+            
+            // 验证文件夹是否创建成功
+            directory = new File(path);
+            if (directory.exists() && directory.isDirectory()) {
+                return true;
+            } else {
+                return false;
+            }
+            
+        } catch (Exception e) {
+            System.err.println("创建文件夹时发生错误: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
     public static int insertBoard(ChessBoardModel board) throws SQLException {
