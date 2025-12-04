@@ -6,8 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ChessBoard extends JFrame {
@@ -156,7 +154,7 @@ class ChessBoardPanel extends JPanel {
     /**
      * 单个棋盘格子的尺寸（px）
      */
-    private static final int CELL_SIZE = 64;
+    private static final int CELL_SIZE = screenHeight / 13;
 
     /**
      * 棋盘边界与窗口边界的边距

@@ -188,9 +188,17 @@ public class WelcomePage extends JFrame{
     }
 
     private void switchToConnection(){
-        Connection connection = new Connection();
-        connection.setVisible(true);
-        setVisible(false);
+        try{
+            if(DBOperationUser.getUserInUse()==null || DBOperationUser.getUserInUse().getName()=="null"){
+                switchToTourWarning();
+            }else{
+                Connection connection = new Connection();
+                connection.setVisible(true);
+                setVisible(false);
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 
     private void switchToAIPage() {
