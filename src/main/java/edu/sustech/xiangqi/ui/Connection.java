@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import edu.sustech.xiangqi.model.*;
 
 public class Connection extends JFrame{
-    private User user;
     private ChessBoardModel chessBoardModel;
     private ChessBoard chessBoard;
 
@@ -29,15 +28,12 @@ public class Connection extends JFrame{
     private int active = 1;
     private String candidate = null;
     
-    public Connection(User user){
+    public Connection(){
         setTitle("等待连接");
         setLayout(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(400,200);
         setLocationRelativeTo(null);
-
-        this.user = user;
-
         
         JLabel roomTip = new JLabel("创建或加入房间：");
         roomTip.setLocation(10, 60);
@@ -109,62 +105,66 @@ public class Connection extends JFrame{
         while(running){
             System.out.println(""+connected+" "+confirm);
             try{
-                if((!connected)&&(!confirm)){
-                    String handshake = encodeBuff("Handshake",user,room.getText());
-                    byte[] data = handshake.getBytes();
-                    DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
-                    try{
-                        socket.send(packet);
-                        System.out.println("sent:"+handshake);
-                    }catch(IOException ignore){
-                        ignore.printStackTrace();
-                    }
-                    Thread.sleep(1000); // 间隔发送，避免忙循环
-                }else if((!connected)&&confirm){
-                    String confirm = encodeBuff("Confirm",user,room.getText());
-                    byte[] data = confirm.getBytes();
-                    DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
-                    try{
-                        socket.send(packet);
-                        System.out.println("sent:"+confirm);
-                    }catch(IOException ignore){
-                        ignore.printStackTrace();
-                    }
-                    Thread.sleep(1000); // 间隔发送，避免忙循环
-                }else if(connected && active>0){
-                    String board = encodeBuff("Board", user, chessBoardModel.toString());
-                    byte[] data = board.getBytes();
-                    DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
-                    try{
-                        socket.send(packet);
-                        System.out.println("sent:"+board);
-                    }catch(IOException ignore){
-                        ignore.printStackTrace();
-                    }
-                    active--;
-                    Thread.sleep(33); // 间隔发送，避免忙循环
-                }else if(connected){
-                    Thread.sleep(10000);
-                    /* if (chessBoard != null) {
-                        Thread listenerThread = new Thread(() -> {
-                            chessBoard.addMouseListener(new MouseAdapter() {
-                                @Override
-                                public void mousePressed(MouseEvent e) {
-                                    try {
-                                        String mouseMsg = encodeBuff("Mouse", user, e.getX() + "," + e.getY());
-                                        byte[] data = mouseMsg.getBytes();
-                                        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
-                                        socket.send(packet);
-                                        System.out.println("sent:" + mouseMsg);
-                                    } catch (IOException ex) {
-                                        ex.printStackTrace();
+                try{
+                    if((!connected)&&(!confirm)){
+                        String handshake = encodeBuff("Handshake",DBOperationUser.getUserInUse(),room.getText());
+                        byte[] data = handshake.getBytes();
+                        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
+                        try{
+                            socket.send(packet);
+                            System.out.println("sent:"+handshake);
+                        }catch(IOException ignore){
+                            ignore.printStackTrace();
+                        }
+                        Thread.sleep(1000); // 间隔发送，避免忙循环
+                    }else if((!connected)&&confirm){
+                        String confirm = encodeBuff("Confirm",DBOperationUser.getUserInUse(),room.getText());
+                        byte[] data = confirm.getBytes();
+                        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
+                        try{
+                            socket.send(packet);
+                            System.out.println("sent:"+confirm);
+                        }catch(IOException ignore){
+                            ignore.printStackTrace();
+                        }
+                        Thread.sleep(1000); // 间隔发送，避免忙循环
+                    }else if(connected && active>0){
+                        String board = encodeBuff("Board", DBOperationUser.getUserInUse(), chessBoardModel.toString());
+                        byte[] data = board.getBytes();
+                        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
+                        try{
+                            socket.send(packet);
+                            System.out.println("sent:"+board);
+                        }catch(IOException ignore){
+                            ignore.printStackTrace();
+                        }
+                        active--;
+                        Thread.sleep(33); // 间隔发送，避免忙循环
+                    }else if(connected){
+                        Thread.sleep(10000);
+                        /* if (chessBoard != null) {
+                            Thread listenerThread = new Thread(() -> {
+                                chessBoard.addMouseListener(new MouseAdapter() {
+                                    @Override
+                                    public void mousePressed(MouseEvent e) {
+                                        try {
+                                            String mouseMsg = encodeBuff("Mouse", user, e.getX() + "," + e.getY());
+                                            byte[] data = mouseMsg.getBytes();
+                                            DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
+                                            socket.send(packet);
+                                            System.out.println("sent:" + mouseMsg);
+                                        } catch (IOException ex) {
+                                            ex.printStackTrace();
+                                        }
                                     }
-                                }
+                                });
                             });
-                        });
-                        listenerThread.start();
-                        break;
-                    } */
+                            listenerThread.start();
+                            break;
+                        } */
+                    }
+                }catch(SQLException e){
+                    e.printStackTrace();
                 }
             }catch(InterruptedException ie){
                 ie.printStackTrace();
@@ -203,9 +203,11 @@ public class Connection extends JFrame{
         String aim = json.optString("aim", "");
         String userStr = json.optString("user", "");
         String message = json.optString("msg", "");
-
-        if(userStr.equals(user.toString())) return;
-
+        try{
+            if(userStr.equals(DBOperationUser.getUserInUse().getName())) return;
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
         if(aim.equals("Handshake")){
             if((!this.connected) && (!this.confirm)){
                 if(message.equals(room.getText())){
@@ -219,9 +221,9 @@ public class Connection extends JFrame{
                 if(this.candidate.equals(userStr)){
                     try{
                         if(DBOperationUser.getUserByName(userStr)==null){
-                            DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(),userStr,null));
+                            DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(),userStr,null, 2));
                         }
-                        chessBoardModel = new ChessBoardModel(DBOperationBoard.getBoardCount(), 2, user, DBOperationUser.getUserByName(userStr), true);
+                        chessBoardModel = new ChessBoardModel(DBOperationBoard.getBoardCount(), 2, DBOperationUser.getUserInUse(), DBOperationUser.getUserByName(userStr),DBOperationUser.getUserInUse(), true);
                         DBOperationBoard.insertBoard(chessBoardModel);
                         chessBoard = new ChessBoard(chessBoardModel);
                         this.connected=true;
@@ -295,20 +297,20 @@ public class Connection extends JFrame{
             try {
                 redUser = DBOperationUser.getUserByName(userRed);
                 if (redUser == null) {
-                    DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), userRed, null));
+                    DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), userRed, null, 2));
                     redUser = DBOperationUser.getUserByName(userRed);
                 }
                 blackUser = DBOperationUser.getUserByName(userBlack);
                 if (blackUser == null) {
-                    DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), userBlack, null));
+                    DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), userBlack, null, 2));
                     blackUser = DBOperationUser.getUserByName(userBlack);
                 }
+                ChessBoardModel model = new ChessBoardModel(DBOperationBoard.getBoardCount(), name, boardType, description, redUser, blackUser, DBOperationUser.getUserInUse(), whoseTurn);
+                return model;
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            ChessBoardModel model = new ChessBoardModel(DBOperationBoard.getBoardCount(),name,  boardType, description, redUser, blackUser, whoseTurn);
-
-            return model;
+            return null;
         }
     }
         

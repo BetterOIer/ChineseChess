@@ -6,37 +6,14 @@ import java.awt.event.*;
 import java.sql.SQLException;
 import java.util.List;
 
-import edu.sustech.xiangqi.model.ChessBoardModel;
-import edu.sustech.xiangqi.model.DBOperationBoard;
-import edu.sustech.xiangqi.model.DBOperationUser;
+import edu.sustech.xiangqi.model.*;
 
 public class WelcomePage extends JFrame{
 
     private Image backgroundImage;
-    private JButton archiveButton, pvpButton, aiButton;
+    private JButton archiveButton, pvpButton, aiButton, loginButton, logoutButton;
+    private JLabel userInUse;
 
-    private void switchToLoginPage(){
-        LoginPage loginPage = new LoginPage();
-        setVisible(false);
-        loginPage.setVisible(true);
-    }
-
-    private void switchToArchMgr() throws SQLException{
-        List<ChessBoardModel> archives = DBOperationBoard.getAllBoards();
-        ArchiveManager archiveManager = new ArchiveManager(archives);
-        setVisible(false);
-        archiveManager.setVisible(true);
-    }
-
-    private void switchToPvPPage() {
-        // 双人对弈跳转到联机游戏页面
-        switchToLoginPage();
-    }
-
-    private void switchToAIPage() {
-        // 人机对战页面跳转到人机对战页面
-        JOptionPane.showMessageDialog(this, "人机对战功能开发中...", "提示", JOptionPane.INFORMATION_MESSAGE);
-    }
 
     // 获取屏幕尺寸，设置一个不铺满屏幕的正方形窗口
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -52,6 +29,9 @@ public class WelcomePage extends JFrame{
 
         setSize(squareSize, squareSize);
 
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         // 加载背景图片
         try {
             ImageIcon icon = new ImageIcon("src/main/image/WelcomePageBackground.png");
@@ -63,17 +43,43 @@ public class WelcomePage extends JFrame{
             // 如果图片加载失败，使用默认大小
             setSize(768, 768);
             getContentPane().setBackground(new Color(220, 179, 92));
-        }
-
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        }        
         setResizable(false);
         try{
             DBOperationBoard.createTable();
             DBOperationUser.createTable();
+            DBOperationBoard.deleteBoardsOfNull();
+            DBOperationUser.logoutAll();
         }catch(SQLException e){
             e.printStackTrace();
         }
+
+        loginButton = new JButton("登录");
+        loginButton.setLocation(650, 10);
+        loginButton.setSize(100, 40);
+        loginButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                switchToLoginPage(true);
+            }
+        });
+
+        userInUse = new JLabel();
+        userInUse.setLocation(530, 10);
+        userInUse.setSize(100, 40);
+        userInUse.setVisible(false);
+        
+
+        logoutButton = new JButton("登出");
+        logoutButton.setLocation(650, 10);
+        logoutButton.setSize(100, 40);
+        logoutButton.setVisible(false);
+        logoutButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                switchToLogoutPage();
+            }
+        });
 
         // 创建自定义背景面板
         JPanel backgroundPanel = new JPanel() {
@@ -88,9 +94,108 @@ public class WelcomePage extends JFrame{
         };
         backgroundPanel.setLayout(null);
         setContentPane(backgroundPanel);
-
+        getContentPane().add(loginButton);
+        getContentPane().add(logoutButton);
+        getContentPane().add(userInUse);
         // 根据图片上文字的位置创建透明按钮
         createTransparentButtons();
+
+    }
+
+    public void switchToLoginPage(boolean force){
+        LoginPage loginPage = new LoginPage(force);
+        loginPage.setVisible(true);
+        loginPage.getLoginButton().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e){
+                try{
+                    User userTmp = DBOperationUser.getUserByName(loginPage.getUserName().getText());
+                    if(DBOperationUser.calHash(loginPage.getPassword().getText()).equals(userTmp.getPswordHash())){
+                        DBOperationUser.logoutAll();
+                        userTmp.setType((userTmp.getType()|4));
+                        DBOperationUser.updateUserType(userTmp.getId(), userTmp.getType());
+                        userInUse.setText(userTmp.getName());
+                        userInUse.setVisible(true);
+                        loginPage.dispose();
+                        loginButton.setVisible(false);
+                        logoutButton.setVisible(true);
+                    }
+                }catch(SQLException e2){
+                    e2.printStackTrace();
+                }
+            }
+        });
+        loginPage.getTourLoginButton().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e){
+                loginPage.dispose();
+                switchToTourWarning();
+            }
+        });
+    }
+
+    private void switchToLogoutPage(){
+        LogoutPage logoutPage = new LogoutPage();
+        logoutPage.setVisible(true);
+        logoutPage.getSubmitLogout().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try{
+                    User tmp = DBOperationUser.getUserInUse();
+                    tmp.setType((tmp.getType()^4));
+                    DBOperationUser.updateUserType(tmp.getId(),tmp.getType());
+                }catch(SQLException e2){
+                    e2.printStackTrace();
+                }
+                logoutButton.setVisible(false);
+                userInUse.setVisible(false);
+                loginButton.setVisible(true);
+                logoutPage.dispose();
+                switchToTourWarning();
+            }
+        });
+        logoutPage.getCancelLogout().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                logoutPage.dispose();
+            }
+        });
+    }
+
+    private void switchToTourWarning(){
+        TourWarning tourWarning = new TourWarning();
+        tourWarning.setVisible(true);
+        tourWarning.getCancelAcknow().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                tourWarning.dispose();
+                switchToLoginPage(true);
+            }
+        });
+        tourWarning.getSubmitAcknow().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                tourWarning.dispose();
+            }
+        });
+    }
+
+    private void switchToArchMgr() throws SQLException{
+        List<ChessBoardModel> archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
+        ArchiveManager archiveManager = new ArchiveManager(archives);
+        setVisible(false);
+        archiveManager.setVisible(true);
+    }
+
+    private void switchToConnection(){
+        Connection connection = new Connection();
+        connection.setVisible(true);
+        setVisible(false);
+    }
+
+    private void switchToAIPage() {
+        // 人机对战页面跳转到人机对战页面
+        JOptionPane.showMessageDialog(this, "人机对战功能开发中...", "提示", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void createTransparentButtons() {
@@ -104,6 +209,12 @@ public class WelcomePage extends JFrame{
         archiveButton.setBounds(archiveButtonX, archiveButtonY, 150, 40);
         archiveButton.addActionListener(e1->{
             try {
+                if(DBOperationUser.getUserInUse()==null){
+                    User userTmp = DBOperationUser.getUserByName("null");
+                    DBOperationUser.logoutAll();
+                    userTmp.setType(userTmp.getType()|4);
+                    DBOperationUser.updateUserType(userTmp.getId(), userTmp.getType());
+                }
                 switchToArchMgr();
             }
             catch (SQLException e){
@@ -119,7 +230,7 @@ public class WelcomePage extends JFrame{
         pvpButton.setBounds(pvpButtonX, pvpButtonY, 150, 40);
         pvpButton.addActionListener(e1->{
             try {
-                switchToPvPPage();
+                switchToConnection();
             }
             catch (Exception e){
                 e.printStackTrace();
@@ -173,7 +284,7 @@ public class WelcomePage extends JFrame{
             public void mouseEntered(MouseEvent e) {
                 // 鼠标悬停时显示半透明边框，提示按钮位置
                 button.setBorder(BorderFactory.createLineBorder(
-                        new Color(255, 255, 255, 100), 2
+                        new Color(255, 255, 255, 100), 20
                 ));
             }
 

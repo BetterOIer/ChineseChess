@@ -81,7 +81,7 @@ public class ArchiveManager extends JFrame{
             delArchive.getSubmitMod().addActionListener(e1 -> {
                 try{
                     DBOperationBoard.deleteBoardById(Idx);
-                    archives = DBOperationBoard.getAllBoards();
+                    archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
                     archivePanel.setArchives(archives);
                     archivePanel.revalidate();
                     archivePanel.repaint();
@@ -113,8 +113,8 @@ public class ArchiveManager extends JFrame{
                 });
                 newArchive.getSubmitMod().addActionListener(e1 -> {
                     try{
-                        DBOperationBoard.insertBoard(new ChessBoardModel(DBOperationBoard.getBoardCount(),newArchive.getBoardName().getText(), 1, newArchive.getDescription().getText(),DBOperationUser.getUserByName("Red"), DBOperationUser.getUserByName("Black"), true));// 从 DB 重新读取所有存档并更新面板
-                        archives = DBOperationBoard.getAllBoards();
+                        DBOperationBoard.insertBoard(new ChessBoardModel(DBOperationBoard.getBoardCount(),newArchive.getBoardName().getText(), 1, newArchive.getDescription().getText(),DBOperationUser.getUserByName("Red"), DBOperationUser.getUserByName("Black"), DBOperationUser.getUserInUse() , true));// 从 DB 重新读取所有存档并更新面板
+                        archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
                         archivePanel.setArchives(archives);
                         archivePanel.revalidate();
                         archivePanel.repaint();
@@ -149,7 +149,7 @@ public class ArchiveManager extends JFrame{
                     DBOperationBoard.updateBoardName(Idx, modifyArchive.getBoardName().getText());
                     DBOperationBoard.updateBoardDescription(Idx, modifyArchive.getDescription().getText());
                     // 从 DB 重新读取所有存档并更新面板
-                    archives = DBOperationBoard.getAllBoards();
+                    archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
                     archivePanel.setArchives(archives);
                     archivePanel.revalidate();
                     archivePanel.repaint();

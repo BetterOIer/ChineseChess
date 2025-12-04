@@ -9,10 +9,15 @@ import edu.sustech.xiangqi.model.DBOperationUser;
 import edu.sustech.xiangqi.model.User;
 
 public class LoginPage extends JFrame{
-    public LoginPage(){
+
+    JButton loginButton,tourLoginButton;
+    JTextField userName,password;
+    boolean force;
+
+    public LoginPage(boolean force){
         setTitle("中国象棋-登录");
         setLayout(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setSize(683,384);
         setLocationRelativeTo(null);
 
@@ -21,7 +26,7 @@ public class LoginPage extends JFrame{
         userNameTip.setSize(120,40);
         add(userNameTip);
 
-        JTextField userName = new JTextField();
+        userName = new JTextField();
         userName.setLocation(60, 60);
         userName.setSize(100, 40);
         add(userName);
@@ -31,26 +36,21 @@ public class LoginPage extends JFrame{
         passwordTip.setSize(120,40);
         add(passwordTip);
 
-        JTextField password = new JTextField();
+        password = new JTextField();
         password.setLocation(60, 110);
         password.setSize(100, 40);
         add(password);
 
-        JButton loginButton = new JButton("登录");
+        loginButton = new JButton("登录");
         loginButton.setLocation(10, 160);
         loginButton.setSize(100, 40);
         add(loginButton);
-        loginButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e){
-                try{
-                    User userTmp = DBOperationUser.getUserByName(userName.getText());
-                    if(DBOperationUser.calHash(password.getText()).equals(userTmp.getPswordHash()))switchToConnection(userTmp);
-                }catch(SQLException e2){
-                    e2.printStackTrace();
-                }
-            }
-        });
+
+        tourLoginButton = new JButton("仅游客登录");
+        tourLoginButton.setLocation(10, 220);
+        tourLoginButton.setSize(100, 40);
+        tourLoginButton.setVisible(!force);
+        add(tourLoginButton);
 
         JLabel signUpLink = new JLabel("<html><u>还没有账号？点击注册</u></html>");
         signUpLink.setLocation(130, 160);
@@ -82,7 +82,7 @@ public class LoginPage extends JFrame{
                     }else if(signUpPage.getPassWord().getText().equals("")){
                         signUpPage.getPasswordInvalid().setVisible(true);
                     }else{
-                        DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), signUpPage.getUserName().getText(), signUpPage.getPassWord().getText()));
+                        DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), signUpPage.getUserName().getText(), signUpPage.getPassWord().getText(), 1));
                         signUpPage.dispose();
                     }
                 }catch(SQLException e2){
@@ -91,9 +91,17 @@ public class LoginPage extends JFrame{
             }
         });
     }
-    private void switchToConnection(User user){
-        Connection connection = new Connection(user);
-        connection.setVisible(true);
-        setVisible(false);
+
+    public JButton getLoginButton(){
+        return this.loginButton;
+    }
+    public JButton getTourLoginButton(){
+        return this.tourLoginButton;
+    }
+    public JTextField getUserName(){
+        return this.userName;
+    }
+    public JTextField getPassword(){
+        return this.password;
     }
 }

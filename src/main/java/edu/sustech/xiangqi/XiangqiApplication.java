@@ -9,6 +9,7 @@ public class XiangqiApplication {
         WelcomePage newWelcomePage = new WelcomePage();
         SwingUtilities.invokeLater(() -> {
             newWelcomePage.setVisible(true);
+            newWelcomePage.switchToLoginPage(false);
         });
     }
 }

@@ -12,6 +12,7 @@ public class DBOperationUser {
             + "    id INTEGER,\n"
             + "    name TEXT NOT NULL,\n"
             + "    pswordhash TEXT,\n"
+            + "    type INTEGER,\n"
             + "    description TEXT\n"
             + ")";
         
@@ -21,21 +22,25 @@ public class DBOperationUser {
         }
 
         if(getUserByName("Red")==null){
-            insertUser(new User(getUserCount(), "Red", null));
+            insertUser(new User(getUserCount(), "Red", null, 2));
         }
         if(getUserByName("Black")==null){
-            insertUser(new User(getUserCount(), "Black", null));
+            insertUser(new User(getUserCount(), "Black", null, 2));
+        }
+        if(getUserByName("null")==null){
+            insertUser(new User(getUserCount(), "null", null, 2));
         }
     }
 
     public static int insertUser(User user) throws SQLException {
-        String sql = "INSERT INTO users(id, name, pswordhash, description) VALUES(?,?,?,?)";
+        String sql = "INSERT INTO users(id, name, pswordhash, type, description) VALUES(?,?,?,?,?)";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, user.getId());
             ps.setString(2, user.getName());
             ps.setString(3, user.getPswordHash());
-            ps.setString(4, user.getDescription());
+            ps.setInt(4, user.getType());
+            ps.setString(5, user.getDescription());
             int affected = ps.executeUpdate();
             return affected > 0 ? user.getId() : -1;
         }
@@ -52,13 +57,14 @@ public class DBOperationUser {
     }
     
     public static boolean updateUserById(int id, User newUser) throws SQLException {
-        String sql = "UPDATE users SET name = ?, pswordhash = ?, description = ? WHERE id = ?";
+        String sql = "UPDATE users SET name = ?, pswordhash = ?, type = ?, description = ? WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, newUser.getName());
             ps.setString(2, newUser.getPswordHash());
             ps.setString(3, newUser.getDescription());
-            ps.setInt(4, id);
+            ps.setInt(4, newUser.getType());
+            ps.setInt(5, id);
             return ps.executeUpdate() > 0;
         }
     }
@@ -78,6 +84,16 @@ public class DBOperationUser {
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, hash);
+            ps.setInt(2, id);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public static boolean updateUserType(int id, int type) throws SQLException {
+        String sql = "UPDATE users SET type = ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, type);
             ps.setInt(2, id);
             return ps.executeUpdate() > 0;
         }
@@ -104,6 +120,7 @@ public class DBOperationUser {
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("pswordhash"),
+                        rs.getInt("type"),
                         rs.getString("description")
                     );
                 } else {
@@ -124,6 +141,7 @@ public class DBOperationUser {
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("pswordhash"),
+                        rs.getInt("type"),
                         rs.getString("description")
                     );
                 } else {
@@ -131,6 +149,15 @@ public class DBOperationUser {
                 }
             }
         }
+    }
+
+    public static User getUserInUse() throws SQLException {
+        int tot = getUserCount();
+        for (int i = 0; i < tot; i++) {
+            User u = getUserById(i);
+            if ((u.getType()&4)!=0) return u;
+        }
+        return null;
     }
 
     public static List<User> getAllUsers() throws SQLException {
@@ -157,5 +184,17 @@ public class DBOperationUser {
     public static String calHash(String password){
         String hash=password;
         return hash;
+    }
+
+    //用户功能
+    public static void logoutAll() throws SQLException{
+        int tot = getUserCount();
+        for (int i = 0; i < tot; i++) {
+            User u = getUserById(i);
+            if ((u.getType()&4)!=0){
+                u.setType((u.getType()^4));
+                updateUserType(i, u.getType());
+            }
+        }
     }
 }

@@ -3,18 +3,22 @@ package edu.sustech.xiangqi.model;
 public class User {
     
     private int id;
+    private int type;
+    /* 1 normal account 2 unloginable account 4 in use or not*/
     private String username;
     private String pswordHash;
     private String description;
 
-    public User(int id, String username, String password){
+    public User(int id, String username, String password, int type){
         this.id=id;
         this.username = username;
+        this.type=type;
         this.pswordHash = DBOperationUser.calHash(password);
     }
-    public User(int id, String username, String password, String description){
+    public User(int id, String username, String password, int type, String description){
         this.id=id;
         this.username = username;
+        this.type=type;
         this.pswordHash = DBOperationUser.calHash(password);
         this.description = description;
     }
@@ -43,6 +47,14 @@ public class User {
     }
     public void setPswordHash(String hash){
         this.pswordHash = hash;
+    }
+
+    //type
+    public int getType(){
+        return this.type;
+    }
+    public void setType(int type){
+        this.type=type;
     }
 
     //描述

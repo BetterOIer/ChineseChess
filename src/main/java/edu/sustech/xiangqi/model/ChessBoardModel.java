@@ -32,6 +32,7 @@ public class ChessBoardModel {
     //用户信息
     private User userRed;
     private User userBlack;
+    private User userOwner;
     private boolean whoseTurn;
 
     @Override
@@ -40,7 +41,7 @@ public class ChessBoardModel {
     }
 
     //构造函数
-    public ChessBoardModel(int id, int boardType, User userRed, User userBlack, boolean whoseTurn) {
+    public ChessBoardModel(int id, int boardType, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
         this.boardType = boardType;
         this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -51,9 +52,10 @@ public class ChessBoardModel {
         initBoardStatus(pieces);
         this.userRed=userRed;
         this.userBlack=userBlack;
+        this.userOwner=owner;
         this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, String name, int boardType, User userRed, User userBlack, boolean whoseTurn) {
+    public ChessBoardModel(int id, String name, int boardType, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
         this.boardType = boardType;
         this.name = name;
@@ -64,9 +66,10 @@ public class ChessBoardModel {
         initBoardStatus(pieces);
         this.userRed=userRed;
         this.userBlack=userBlack;
+        this.userOwner=owner;
         this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, int boardType, String description, User userRed, User userBlack, boolean whoseTurn) {
+    public ChessBoardModel(int id, int boardType, String description, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
         this.description = description;
         this.boardType = boardType;
@@ -78,9 +81,10 @@ public class ChessBoardModel {
         initBoardStatus(pieces);
         this.userRed=userRed;
         this.userBlack=userBlack;
+        this.userOwner=owner;
         this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, String name, int boardType, String description, User userRed, User userBlack, boolean whoseTurn) {
+    public ChessBoardModel(int id, String name, int boardType, String description, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
         this.description = description;
         this.boardType = boardType;
@@ -92,9 +96,10 @@ public class ChessBoardModel {
         initBoardStatus(pieces);
         this.userRed=userRed;
         this.userBlack=userBlack;
+        this.userOwner=owner;
         this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, int boardType, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, boolean whoseTurn) {
+    public ChessBoardModel(int id, int boardType, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
         this.boardType = boardType;
         this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -104,9 +109,10 @@ public class ChessBoardModel {
         initBoardStatus(pieces);
         this.userRed=userRed;
         this.userBlack=userBlack;
+        this.userOwner=owner;
         this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, String name, int boardType, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, boolean whoseTurn) {
+    public ChessBoardModel(int id, String name, int boardType, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
         this.boardType = boardType;
         this.name = name;
@@ -116,9 +122,10 @@ public class ChessBoardModel {
         initBoardStatus(pieces);
         this.userRed=userRed;
         this.userBlack=userBlack;
+        this.userOwner=owner;
         this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, boolean whoseTurn) {
+    public ChessBoardModel(int id, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
         this.description = description;
         this.boardType = boardType;
@@ -129,9 +136,10 @@ public class ChessBoardModel {
         initBoardStatus(pieces);
         this.userRed=userRed;
         this.userBlack=userBlack;
+        this.userOwner=owner;
         this.whoseTurn = whoseTurn;
     }
-    public ChessBoardModel(int id, String name, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, boolean whoseTurn) {
+    public ChessBoardModel(int id, String name, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
         this.description = description;
         this.boardType = boardType;
@@ -142,6 +150,7 @@ public class ChessBoardModel {
         initBoardStatus(pieces);
         this.userRed=userRed;
         this.userBlack=userBlack;
+        this.userOwner=owner;
         this.whoseTurn = whoseTurn;
     }
     
@@ -296,6 +305,9 @@ public class ChessBoardModel {
     }
     public User getUserBlack(){
         return this.userBlack;
+    }
+    public User getUserOwner(){
+        return this.userOwner;
     }
     public boolean getWhoseTurn(){
         return this.whoseTurn;

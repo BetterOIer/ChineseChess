@@ -18,6 +18,7 @@ public class DBOperationBoard {
             + "    description TEXT,\n"
             + "    userred TEXT,\n"
             + "    userblack TEXT,\n"
+            + "    onwer TEXT,\n"
             + "    whoseturn BOOL\n"
             + ")";
         
@@ -28,7 +29,7 @@ public class DBOperationBoard {
         }
     }
     public static int insertBoard(ChessBoardModel board) throws SQLException {
-        String sql = "INSERT INTO boards(id, name, date, nowstatus, history, boardtype, description, userred, userblack, whoseturn) VALUES(?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO boards(id, name, date, nowstatus, history, boardtype, description, userred, userblack, onwer, whoseturn) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, board.getId());
@@ -40,7 +41,8 @@ public class DBOperationBoard {
             ps.setString(7, board.getDescription());
             ps.setString(8, board.getUserRed().getName());
             ps.setString(9, board.getUserBlack().getName());
-            ps.setBoolean(10, board.getWhoseTurn());
+            ps.setString(10, board.getUserOwner().getName());
+            ps.setBoolean(11, board.getWhoseTurn());
             int affected = ps.executeUpdate();
             if (affected == 0) {
                 return -1;
@@ -83,6 +85,17 @@ public class DBOperationBoard {
                 throw ex;
             } finally {
                 conn.setAutoCommit(prevAuto);
+            }
+        }
+    }
+
+    public static void deleteBoardsOfNull() throws SQLException{
+        int totBoard = getBoardCount();
+        for(int i = 0;i<totBoard;i++){
+            ChessBoardModel tmp = getBoardById(i);
+            if(tmp.getUserOwner().getName().equals("null")){
+                deleteBoardById(i);
+                i--;totBoard--;
             }
         }
     }
@@ -184,7 +197,7 @@ public class DBOperationBoard {
             
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    ChessBoardModel board = new ChessBoardModel(rs.getInt("id"), rs.getInt("boardtype"), DBOperationUser.getUserByName(rs.getString("userred")), DBOperationUser.getUserByName(rs.getString("userblack")),rs.getBoolean("whoseturn"));
+                    ChessBoardModel board = new ChessBoardModel(rs.getInt("id"), rs.getInt("boardtype"), DBOperationUser.getUserByName(rs.getString("userred")), DBOperationUser.getUserByName(rs.getString("userblack")),DBOperationUser.getUserByName(rs.getString("onwer")),rs.getBoolean("whoseturn"));
                     board.setName(rs.getString("name"));
                     board.setLastModTime(rs.getString("date"));
                     
@@ -213,6 +226,16 @@ public class DBOperationBoard {
         int totBoard = getBoardCount();
         for(int i = 0;i<totBoard;i++){
             boards.add(getBoardById(i));
+        }
+        return boards; 
+    }
+
+    public static List<ChessBoardModel> getBoardsByUser(User user) throws SQLException {
+        List<ChessBoardModel> boards = new ArrayList<>();
+        int totBoard = getBoardCount();
+        for(int i = 0;i<totBoard;i++){
+            ChessBoardModel tmp = getBoardById(i);
+            if(tmp.getUserOwner().getName().equals(user.getName()))boards.add(tmp);
         }
         return boards; 
     }
