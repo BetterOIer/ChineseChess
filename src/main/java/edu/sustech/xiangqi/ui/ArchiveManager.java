@@ -112,7 +112,7 @@ public class ArchiveManager extends JFrame{
                 });
                 newArchive.getSubmitMod().addActionListener(e1 -> {
                     try{
-                        DBOperationBoard.insertBoard(new ChessBoardModel(DBOperationBoard.getBoardCount(),newArchive.getBoardName().getText(), 1, newArchive.getDescription().getText(),DBOperationUser.getUserByName("Red"), DBOperationUser.getUserByName("Black"), DBOperationUser.getUserInUse() , true));// 从 DB 重新读取所有存档并更新面板
+                        DBOperationBoard.insertBoard(new ChessBoardModel(DBOperationBoard.getBoardCount(),newArchive.getBoardName().getText(), 1, newArchive.getDescription().getText(),DBOperationUser.getUserByName("Red"), DBOperationUser.getUserByName("Black"), DBOperationUser.getUserInUse() , newArchive.getWhoseTurn()));// 从 DB 重新读取所有存档并更新面板
                         archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
                         archivePanel.setArchives(archives);
                         archivePanel.revalidate();

@@ -18,6 +18,7 @@ public class ChessBoard extends JFrame {
     private Image backgroundImage;
 
     private boolean playBackOn= false;
+    private int selectedIdx = -1;
 
     static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     static int screenWidth = (int)(screenSize.width*0.7);
@@ -79,6 +80,7 @@ public class ChessBoard extends JFrame {
                 reset.setVisible(false);
                 playBack.setVisible(false);
                 playBackOn=false;
+                chessBoardPanel.setPlayBackOn(false);
                 if (playBackPanel != null) {
                     remove(playBackPanel);
                 }
@@ -119,11 +121,13 @@ public class ChessBoard extends JFrame {
         if (playBackPanel != null) {
             remove(playBackPanel);
         }
-        playBackPanel = new PlayBackPanel(model.getSteps());
+        playBackPanel = new PlayBackPanel(model.getTrueSteps());
         add(playBackPanel, 0);
         playBack.setVisible(false);
         playBackOn=true;
+        chessBoardPanel.setPlayBackOn(true);
         playBackPanel.repaint();
+        repaint();
         playBackPanel.getContentPanel().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -133,8 +137,9 @@ public class ChessBoard extends JFrame {
     }
     
     private void handleMouseClickOnPlayBackPanel(int x, int y){
-
-        playBackPanel.setSelectedIdx(y / playBackPanel.getStepHeight());
+        selectedIdx = y / playBackPanel.getStepHeight();
+        playBackPanel.setSelectedIdx(selectedIdx);
+        chessBoardPanel.setSelectedIdx(selectedIdx);
         replacePieces(playBackPanel.getSelectedIdx());
         playBackPanel.getContentPanel().repaint();
     }
@@ -151,10 +156,12 @@ class ChessBoardPanel extends JPanel {
     static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     static int screenWidth = (int)(screenSize.width*0.7);
     static int screenHeight = (int)(screenSize.height*0.7);
+    private boolean playBackOn=false;
+    private int selectedIdx=-1;
     /**
      * 单个棋盘格子的尺寸（px）
      */
-    private static final int CELL_SIZE = screenHeight / 13;
+    private static final int CELL_SIZE = 64;
 
     /**
      * 棋盘边界与窗口边界的边距
@@ -166,7 +173,12 @@ class ChessBoardPanel extends JPanel {
      */
     private static final int PIECE_RADIUS = 25;
 
+    public void setPlayBackOn(boolean playBackOn){
+        this.playBackOn=playBackOn;
+    }
+
     private AbstractPiece selectedPiece = null;
+    
 
     public ChessBoardPanel(ChessBoardModel model) {
         this.model = model;
@@ -179,6 +191,10 @@ class ChessBoardPanel extends JPanel {
                 handleMouseClick(e.getX(), e.getY());
             }
         });
+    }
+
+    public void setSelectedIdx(int selectedIdx){
+        this.selectedIdx=selectedIdx;
     }
 
     public void handleMouseClick(int x, int y) {
@@ -347,84 +363,53 @@ class ChessBoardPanel extends JPanel {
     private void drawCannonMarks(Graphics2D g, int row, int col, int length) {
         int x = MARGIN + col * CELL_SIZE;
         int y = MARGIN + row * CELL_SIZE;
+        int gap = 4; // 标记与交叉点的间距
 
-        // 炮位标记：在交叉点的四个角都绘制小L形
-        if (row == 2) { // 红方炮位（棋盘上方）
-            // 左上角L形
-            g.drawLine(x - length, y, x, y);
-            g.drawLine(x, y - length, x, y);
-            // 右上角L形
-            g.drawLine(x, y - length, x, y);
-            g.drawLine(x, y, x + length, y);
-            // 左下角L形
-            g.drawLine(x - length, y, x, y);
-            g.drawLine(x, y, x, y + length);
-            // 右下角L形
-            g.drawLine(x, y, x + length, y);
-            g.drawLine(x, y, x, y + length);
-        }
-        else if (row == 7) { // 黑方炮位（棋盘下方）
-            // 左上角L形
-            g.drawLine(x - length, y, x, y);
-            g.drawLine(x, y, x, y - length);
-            // 右上角L形
-            g.drawLine(x, y, x + length, y);
-            g.drawLine(x, y, x, y - length);
-            // 左下角L形
-            g.drawLine(x - length, y, x, y);
-            g.drawLine(x, y, x, y + length);
-            // 右下角L形
-            g.drawLine(x, y, x + length, y);
-            g.drawLine(x, y, x, y + length);
-        }
+        // 左上角L形
+        g.drawLine(x - gap - length, y - gap, x - gap, y - gap);
+        g.drawLine(x - gap, y - gap - length, x - gap, y - gap);
+
+        // 右上角L形
+        g.drawLine(x + gap, y - gap, x + gap + length, y - gap);
+        g.drawLine(x + gap, y - gap, x + gap, y - gap - length);
+
+        // 左下角L形
+        g.drawLine(x - gap - length, y + gap, x - gap, y + gap);
+        g.drawLine(x - gap, y + gap, x - gap, y + gap + length);
+
+        // 右下角L形
+        g.drawLine(x + gap, y + gap, x + gap + length, y + gap);
+        g.drawLine(x + gap, y + gap, x + gap, y + gap + length);
     }
 
     /**
-     * 绘制兵/卒位的L形标记（指向棋盘中心的L形）
+     * 绘制兵/卒位的L形标记
      */
     private void drawSoldierMarks(Graphics2D g, int row, int col, int length) {
         int x = MARGIN + col * CELL_SIZE;
         int y = MARGIN + row * CELL_SIZE;
+        int gap = 4; // 标记与交叉点的间距
 
-        if (row == 3) { // 红方兵位
-            // 兵位标记：L形指向棋盘中心（向下）
-            if (col == 0) {
-                // 最左边兵位：右下L形
-                g.drawLine(x, y, x + length, y);
-                g.drawLine(x, y, x, y + length);
-            }
-            else if (col == 8) {
-                // 最右边兵位：左下L形
-                g.drawLine(x, y, x - length, y);
-                g.drawLine(x, y, x, y + length);
-            }
-            else {
-                // 中间兵位：向下L形
-                g.drawLine(x - length/
-                                2, y, x + length/2
-                        , y);
-                g.drawLine(x, y, x, y + length);
-            }
+        // 兵/卒位标记逻辑：除了最左和最右列只有两个角外，其余位置四个角都有标记
+        
+        if (col != 0) {
+            // 绘制左边的标记
+            // 左上角L形
+            g.drawLine(x - gap - length, y - gap, x - gap, y - gap);
+            g.drawLine(x - gap, y - gap - length, x - gap, y - gap);
+            // 左下角L形
+            g.drawLine(x - gap - length, y + gap, x - gap, y + gap);
+            g.drawLine(x - gap, y + gap, x - gap, y + gap + length);
         }
-        else if (row == 6) { // 黑方卒位
-            // 卒位标记：L形指向棋盘中心（向上）
-            if (col == 0) {
-                // 最左边卒位：右上L形
-                g.drawLine(x, y, x + length, y);
-                g.drawLine(x, y, x, y - length);
-            }
-            else if (col == 8) {
-                // 最右边卒位：左上L形
-                g.drawLine(x, y, x - length, y);
-                g.drawLine(x, y, x, y - length);
-            }
-            else {
-                // 中间卒位：向上L形
-                g.drawLine(x - length/
-                                2, y, x + length/2
-                        , y);
-                g.drawLine(x, y, x, y - length);
-            }
+
+        if (col != 8) {
+            // 绘制右边的标记
+            // 右上角L形
+            g.drawLine(x + gap, y - gap, x + gap + length, y - gap);
+            g.drawLine(x + gap, y - gap, x + gap, y - gap - length);
+            // 右下角L形
+            g.drawLine(x + gap, y + gap, x + gap + length, y + gap);
+            g.drawLine(x + gap, y + gap, x + gap, y + gap + length);
         }
     }
 
@@ -432,7 +417,10 @@ class ChessBoardPanel extends JPanel {
      * 绘制棋子
      */
     private void drawPieces(Graphics2D g) {
-        if(!model.getSteps().isEmpty())drawPrePos(g, model.getSteps().getLast());
+        if((!model.getAllSteps().isEmpty())&&(!playBackOn))drawPrePos(g, model.getAllSteps().getLast());
+        else if((!model.getAllSteps().isEmpty())&&(playBackOn)&&this.selectedIdx==-1)drawPrePos(g, model.getTrueSteps().getLast());
+        else if((!model.getAllSteps().isEmpty())&&(playBackOn))drawPrePos(g, model.getTrueSteps().get(selectedIdx));
+        
         if(selectedPiece!=null)drawHitRange(g);
         // 遍历棋盘上的每一个棋子，每次循环绘制该棋子
         for (AbstractPiece piece : model.getPieces()) {
@@ -629,7 +617,7 @@ class PlayBackPanel extends JScrollPane {
             g.setColor(Color.BLACK);
             g.setFont(new Font("SimHei", Font.BOLD, 20));
             // 调整文字y坐标使其居中 (y是顶部，加上偏移量)
-            g.drawString(stepNow.toString(), 20, y + 28);
+            g.drawString((stepIdx+1)+" "+stepNow.getStepNameInCh(), 20, y + 28);
 
             // 绘制选中指示器
             if (stepIdx == selectedIdx) {

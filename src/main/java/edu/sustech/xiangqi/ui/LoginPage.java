@@ -12,6 +12,7 @@ public class LoginPage extends JFrame{
 
     JButton loginButton,tourLoginButton;
     JTextField userName,password;
+    JLabel namePwdWA;
     boolean force;
 
     public LoginPage(boolean force){
@@ -51,6 +52,13 @@ public class LoginPage extends JFrame{
         tourLoginButton.setSize(100, 40);
         tourLoginButton.setVisible(!force);
         add(tourLoginButton);
+
+        namePwdWA = new JLabel("用户名或密码不正确！");
+        namePwdWA.setForeground(java.awt.Color.RED);
+        namePwdWA.setVisible(false);
+        namePwdWA.setLocation(180, 60);
+        namePwdWA.setSize(120,40);
+        add(namePwdWA);
 
         JLabel signUpLink = new JLabel("<html><u>还没有账号？点击注册</u></html>");
         signUpLink.setLocation(130, 160);
@@ -103,5 +111,8 @@ public class LoginPage extends JFrame{
     }
     public JTextField getPassword(){
         return this.password;
+    }
+    public JLabel getNamePwdWA(){
+        return this.namePwdWA;
     }
 }

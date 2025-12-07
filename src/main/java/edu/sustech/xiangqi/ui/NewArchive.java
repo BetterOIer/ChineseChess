@@ -14,6 +14,11 @@ public class NewArchive extends JFrame {
     JButton cancelMod;
     JTextField boardName;
     JTextField description;
+    
+    private javax.swing.JRadioButton redFirst;
+    private javax.swing.JRadioButton randomFirst;
+    private javax.swing.JRadioButton blackFirst;
+
     public NewArchive(){
         setTitle("新建存档");
         setLayout(null);
@@ -43,14 +48,40 @@ public class NewArchive extends JFrame {
         description.setSize(100, 40);
         add(description);
 
+        JLabel firstTip = new JLabel("先手：");
+        firstTip.setLocation(10, 180);
+        firstTip.setSize(120,40);
+        add(firstTip);
+
+        redFirst = new javax.swing.JRadioButton("红先");
+        redFirst.setLocation(60, 180);
+        redFirst.setSize(60, 40);
+        redFirst.setSelected(true);
+        add(redFirst);
+
+        randomFirst = new javax.swing.JRadioButton("随机");
+        randomFirst.setLocation(120, 180);
+        randomFirst.setSize(60, 40);
+        add(randomFirst);
+
+        blackFirst = new javax.swing.JRadioButton("黑先");
+        blackFirst.setLocation(180, 180);
+        blackFirst.setSize(60, 40);
+        add(blackFirst);
+
+        javax.swing.ButtonGroup group = new javax.swing.ButtonGroup();
+        group.add(redFirst);
+        group.add(randomFirst);
+        group.add(blackFirst);
+
         cancelMod = new JButton("取消");
-        cancelMod.setLocation(10, 160);
+        cancelMod.setLocation(10, 240);
         cancelMod.setSize(60,30);
         add(cancelMod);
         
 
         submitMod = new JButton("保存");
-        submitMod.setLocation(80, 160);
+        submitMod.setLocation(80, 240);
         submitMod.setSize(60, 30);
         add(submitMod);
     }
@@ -65,5 +96,11 @@ public class NewArchive extends JFrame {
     }
     public JTextField getDescription(){
         return description;
+    }
+
+    public boolean getWhoseTurn(){
+        if(redFirst.isSelected()) return true;
+        if(blackFirst.isSelected()) return false;
+        return Math.random()>0.5;
     }
 }

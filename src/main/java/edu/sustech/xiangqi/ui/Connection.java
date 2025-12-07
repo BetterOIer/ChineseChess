@@ -227,6 +227,7 @@ public class Connection extends JFrame{
                         DBOperationBoard.insertBoard(chessBoardModel);
                         chessBoard = new ChessBoard(chessBoardModel);
                         this.connected=true;
+                        this.active=0;
                         chessBoard.setVisible(true);
                         setVisible(false);
                     }catch(SQLException e){
@@ -242,8 +243,8 @@ public class Connection extends JFrame{
         if(aim.equals("Board")){
             try{
                 chessBoardModel = convert2Board(message);
-                chessBoard = new ChessBoard(chessBoardModel);
                 DBOperationBoard.insertBoard(chessBoardModel);
+                chessBoard = new ChessBoard(chessBoardModel);
                 this.connected=true;
                 chessBoard.setVisible(true);
                 setVisible(false);
@@ -273,12 +274,16 @@ public class Connection extends JFrame{
             if (parts.length < 6) return null;
 
             String name = parts[0];
+            System.out.println(name);
             int boardType = Integer.parseInt(parts[1]);
-
+            System.out.println(boardType);
             int len = parts.length;
             boolean whoseTurn = Boolean.parseBoolean(parts[len - 1]);
+            System.out.println(whoseTurn);
             String userBlack = parts[len - 2];
+            System.out.println(userBlack);
             String userRed = parts[len - 3];
+            System.out.println(userRed);
 
             String description;
             if (len > 6) {
@@ -291,6 +296,7 @@ public class Connection extends JFrame{
             } else {
                 description = parts[2];
             }
+            System.out.println(description);
 
             User redUser = null;
             User blackUser = null;
@@ -305,6 +311,7 @@ public class Connection extends JFrame{
                     DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), userBlack, null, 2));
                     blackUser = DBOperationUser.getUserByName(userBlack);
                 }
+                System.out.println("Here");
                 ChessBoardModel model = new ChessBoardModel(DBOperationBoard.getBoardCount(), name, boardType, description, redUser, blackUser, DBOperationUser.getUserInUse(), whoseTurn);
                 return model;
             } catch (SQLException e) {

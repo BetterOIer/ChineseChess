@@ -64,7 +64,7 @@ public class DBOperationBoard {
             ps.setString(2, board.getName());
             ps.setString(3, board.getLastModTime());
             ps.setString(4, piece2Str(board.getPieces()));
-            ps.setString(5, steps2Str(board.getSteps()));
+            ps.setString(5, steps2Str(board.getAllSteps()));
             ps.setInt(6, board.getType());
             ps.setString(7, board.getDescription());
             ps.setString(8, board.getUserRed().getName());
@@ -135,7 +135,7 @@ public class DBOperationBoard {
             ps.setString(1, newBoard.getName());
             ps.setString(2, newBoard.getLastModTime());
             ps.setString(3, piece2Str(newBoard.getPieces()));
-            ps.setString(4, steps2Str(newBoard.getSteps()));
+            ps.setString(4, steps2Str(newBoard.getAllSteps()));
             ps.setInt(5, newBoard.getType());
             ps.setString(6, newBoard.getDescription());
             ps.setBoolean(7, newBoard.getWhoseTurn());
@@ -293,6 +293,7 @@ public class DBOperationBoard {
         String s="";
         for(Step step:steps){
             s+=(step.getPieceType()+" ");
+            s+=(step.getIsRed()+" ");
             s+=(step.getFromRow()+" ");
             s+=(step.getFromCol()+" ");
             s+=(step.getToRow()+" ");
@@ -338,12 +339,13 @@ public class DBOperationBoard {
         Scanner in = new Scanner(stepsStr);
         while(in.hasNext()){
             int pieceType = in.nextInt();
+            boolean isRed = in.nextBoolean();
             int fromRow = in.nextInt();
             int fromCol = in.nextInt();
             int toRow = in.nextInt();
             int toCol = in.nextInt();
             int mode = in.nextInt();
-            steps.add(new Step(pieceType, fromRow, fromCol, toRow, toCol, mode));
+            steps.add(new Step(pieceType, isRed, fromRow, fromCol, toRow, toCol, mode));
         }
         in.close();
         return steps;
