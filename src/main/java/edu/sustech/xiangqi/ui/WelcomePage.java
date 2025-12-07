@@ -110,9 +110,10 @@ public class WelcomePage extends JFrame{
             public void mouseClicked(MouseEvent e){
                 try{
                     User userTmp = DBOperationUser.getUserByName(loginPage.getUserName().getText());
-                    if(userTmp==null || (!DBOperationUser.calHash(loginPage.getPassword().getText()).equals(userTmp.getPswordHash()))){
+                    String inputPwd = new String(loginPage.getPassword().getPassword());
+                    if(userTmp==null || (!DBOperationUser.calHash(inputPwd).equals(userTmp.getPswordHash()))){
                         loginPage.getNamePwdWA().setVisible(true);
-                    }else if(DBOperationUser.calHash(loginPage.getPassword().getText()).equals(userTmp.getPswordHash())){
+                    }else if(DBOperationUser.calHash(inputPwd).equals(userTmp.getPswordHash())){
                         loginPage.getNamePwdWA().setVisible(false);
                         DBOperationUser.logoutAll();
                         userTmp.setType((userTmp.getType()|4));

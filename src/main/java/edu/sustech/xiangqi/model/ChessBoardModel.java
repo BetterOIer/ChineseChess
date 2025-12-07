@@ -414,6 +414,7 @@ public class ChessBoardModel {
             Step nowStep = trueSteps.get(i);
             if(nowStep.getMode()!=steps.get(j).getMode()){
                 Step eatStep = steps.get(j);
+                getPieceAt(eatStep.getFromRow(), eatStep.getFromCol()).setStatus(false);
                 updateBoards(eatStep, false);
                 getPieceAt(eatStep.getFromRow(), eatStep.getFromCol()).moveTo(eatStep.getToRow(), eatStep.getToCol());
                 j++;

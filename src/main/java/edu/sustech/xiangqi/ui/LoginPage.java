@@ -11,7 +11,8 @@ import edu.sustech.xiangqi.model.User;
 public class LoginPage extends JFrame{
 
     JButton loginButton,tourLoginButton;
-    JTextField userName,password;
+    JTextField userName;
+    JPasswordField password;
     JLabel namePwdWA;
     boolean force;
 
@@ -37,7 +38,7 @@ public class LoginPage extends JFrame{
         passwordTip.setSize(120,40);
         add(passwordTip);
 
-        password = new JTextField();
+        password = new JPasswordField();
         password.setLocation(60, 110);
         password.setSize(100, 40);
         add(password);
@@ -87,10 +88,10 @@ public class LoginPage extends JFrame{
                         signUpPage.getPassWord().setText("");
                     }else if(signUpPage.getUserName().getText().equals("")){
                         signUpPage.getUserNameInvalid().setVisible(true);
-                    }else if(signUpPage.getPassWord().getText().equals("")){
+                    }else if(new String(signUpPage.getPassWord().getPassword()).equals("")){
                         signUpPage.getPasswordInvalid().setVisible(true);
                     }else{
-                        DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), signUpPage.getUserName().getText(), signUpPage.getPassWord().getText(), 1));
+                        DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), signUpPage.getUserName().getText(), new String(signUpPage.getPassWord().getPassword()), 1));
                         signUpPage.dispose();
                     }
                 }catch(SQLException e2){
@@ -109,7 +110,7 @@ public class LoginPage extends JFrame{
     public JTextField getUserName(){
         return this.userName;
     }
-    public JTextField getPassword(){
+    public JPasswordField getPassword(){
         return this.password;
     }
     public JLabel getNamePwdWA(){

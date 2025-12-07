@@ -5,7 +5,7 @@ import javax.swing.*;
 public class SignUpPage extends JFrame{
 
     private JTextField userName;
-    private JTextField password;
+    private JPasswordField password;
     private JButton signUp;
     private JLabel userNameOccupied;
     private JLabel userNameInvalid;
@@ -54,7 +54,7 @@ public class SignUpPage extends JFrame{
         passwordTip.setSize(120,40);
         add(passwordTip);
 
-        password = new JTextField();
+        password = new JPasswordField();
         password.setLocation(60, 110);
         password.setSize(100, 40);
         add(password);
@@ -67,7 +67,7 @@ public class SignUpPage extends JFrame{
     public JTextField getUserName(){
         return this.userName;
     }
-    public JTextField getPassWord(){
+    public JPasswordField getPassWord(){
         return this.password;
     }
     public JButton getSignUpButton(){

@@ -423,10 +423,22 @@ class ChessBoardPanel extends JPanel {
         
         if(selectedPiece!=null)drawHitRange(g);
         // 遍历棋盘上的每一个棋子，每次循环绘制该棋子
+        int redEaten=0,blackEaten=0;
         for (AbstractPiece piece : model.getPieces()) {
             // 计算每一个棋子的坐标
             int x = MARGIN + piece.getCol() * CELL_SIZE;
             int y = MARGIN + piece.getRow() * CELL_SIZE;
+
+            if(!piece.getStatus()){
+                if(piece.isRed()){
+                    y=MARGIN+redEaten*(PIECE_RADIUS);
+                    redEaten++;
+                }else{
+                    y=MARGIN+ChessBoardModel.getCols() * CELL_SIZE-blackEaten*(PIECE_RADIUS);
+                    x = MARGIN + (ChessBoardModel.getRows()-1) * CELL_SIZE;
+                    blackEaten++;
+                }
+            }
 
             boolean isSelected = (piece == selectedPiece);
 
