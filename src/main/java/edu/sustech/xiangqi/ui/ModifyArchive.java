@@ -11,10 +11,10 @@ import edu.sustech.xiangqi.model.DBOperationBoard;
 
 public class ModifyArchive extends JFrame {
 
-    JButton submitMod;
-    JButton cancelMod;
-    JTextField boardName;
-    JTextField description;
+    JRoundButton submitMod;
+    JRoundButton cancelMod;
+    JRoundTextField boardName;
+    JRoundTextField description;
     public ModifyArchive(int idx){
         setTitle("修改存档");
         setLayout(null);
@@ -28,7 +28,7 @@ public class ModifyArchive extends JFrame {
         BoardNameTip.setSize(120,40);
         add(BoardNameTip);
         
-        boardName = new JTextField();
+        boardName = new JRoundTextField();
         try{
             String n = DBOperationBoard.getBoardById(idx).getName();
             if(n != null) boardName.setText(n);
@@ -36,7 +36,7 @@ public class ModifyArchive extends JFrame {
             e.printStackTrace();
         }
         boardName.setLocation(60, 60);
-        boardName.setSize(100, 40);
+        boardName.setSize(200, 40);
         add(boardName);
 
         JLabel descriptionTip = new JLabel("描述：");
@@ -44,7 +44,7 @@ public class ModifyArchive extends JFrame {
         descriptionTip.setSize(120,40);
         add(descriptionTip);
         
-        description = new JTextField();
+        description = new JRoundTextField();
         try{
             String d = DBOperationBoard.getBoardById(idx).getDescription();
             if(d != null) description.setText(d);
@@ -52,16 +52,16 @@ public class ModifyArchive extends JFrame {
             e.printStackTrace();
         }
         description.setLocation(60, 120);
-        description.setSize(100, 40);
+        description.setSize(200, 40);
         add(description);
 
-        cancelMod = new JButton("取消");
+        cancelMod = new JRoundButton("取消");
         cancelMod.setLocation(10, 160);
         cancelMod.setSize(60,30);
         add(cancelMod);
         
 
-        submitMod = new JButton("保存");
+        submitMod = new JRoundButton("保存");
         submitMod.setLocation(80, 160);
         submitMod.setSize(60, 30);
         add(submitMod);

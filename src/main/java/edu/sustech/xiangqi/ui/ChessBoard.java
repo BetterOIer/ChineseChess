@@ -14,7 +14,7 @@ public class ChessBoard extends JFrame {
 
     private final ChessBoardPanel chessBoardPanel;
     private PlayBackPanel playBackPanel;
-    private JButton reset, playBack;
+    private JRoundButton reset, playBack;
     private Image backgroundImage;
 
     private boolean playBackOn= false;
@@ -31,7 +31,7 @@ public class ChessBoard extends JFrame {
         setTitle("中国象棋-"+model.getName());
         // 加载背景图片
         try {
-            backgroundImage = new ImageIcon("src/main/image/ChessBoardBackground.png").getImage();
+            backgroundImage = new ImageIcon("src/main/java/edu/sustech/xiangqi/assets/images/ChessBoardBackground.png").getImage();
         }
         catch (Exception e) {
             System.out.println("背景图片加载失败: " + e.getMessage());
@@ -58,13 +58,13 @@ public class ChessBoard extends JFrame {
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        reset = new JButton("重置棋盘");
+        reset = new JRoundButton("重置棋盘");
         reset.setLocation(10, 160);
         reset.setSize(100, 40);
         if((model.getType()&(1<<3))==0)reset.setVisible(false);
         add(reset);
 
-        playBack = new JButton("复盘");
+        playBack = new JRoundButton("复盘");
         playBack.setLocation(10,220);
         playBack.setSize(100,40);
         if((model.getType()&(1<<3))==0)playBack.setVisible(false);
@@ -627,7 +627,7 @@ class PlayBackPanel extends JScrollPane {
 
             // 绘制标题
             g.setColor(Color.BLACK);
-            g.setFont(new Font("SimHei", Font.BOLD, 20));
+            g.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 20));
             // 调整文字y坐标使其居中 (y是顶部，加上偏移量)
             g.drawString((stepIdx+1)+" "+stepNow.getStepNameInCh(), 20, y + 28);
 

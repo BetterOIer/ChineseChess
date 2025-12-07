@@ -10,10 +10,10 @@ import javax.swing.JButton;
 
 public class NewArchive extends JFrame {
 
-    JButton submitMod;
-    JButton cancelMod;
-    JTextField boardName;
-    JTextField description;
+    JRoundButton submitMod;
+    JRoundButton cancelMod;
+    JRoundTextField boardName;
+    JRoundTextField description;
     
     private javax.swing.JRadioButton redFirst;
     private javax.swing.JRadioButton randomFirst;
@@ -32,10 +32,10 @@ public class NewArchive extends JFrame {
         BoardNameTip.setSize(120,40);
         add(BoardNameTip);
         
-        boardName = new JTextField();
+        boardName = new JRoundTextField();
         boardName.setText(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         boardName.setLocation(60, 60);
-        boardName.setSize(100, 40);
+        boardName.setSize(200, 40);
         add(boardName);
 
         JLabel descriptionTip = new JLabel("描述：");
@@ -43,9 +43,9 @@ public class NewArchive extends JFrame {
         descriptionTip.setSize(120,40);
         add(descriptionTip);
         
-        description = new JTextField();
+        description = new JRoundTextField();
         description.setLocation(60, 120);
-        description.setSize(100, 40);
+        description.setSize(200, 40);
         add(description);
 
         JLabel firstTip = new JLabel("先手：");
@@ -74,13 +74,13 @@ public class NewArchive extends JFrame {
         group.add(randomFirst);
         group.add(blackFirst);
 
-        cancelMod = new JButton("取消");
+        cancelMod = new JRoundButton("取消");
         cancelMod.setLocation(10, 240);
         cancelMod.setSize(60,30);
         add(cancelMod);
         
 
-        submitMod = new JButton("保存");
+        submitMod = new JRoundButton("保存");
         submitMod.setLocation(80, 240);
         submitMod.setSize(60, 30);
         add(submitMod);

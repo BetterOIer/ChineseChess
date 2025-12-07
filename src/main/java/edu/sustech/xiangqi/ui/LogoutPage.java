@@ -7,8 +7,8 @@ import javax.swing.JButton;
 
 public class LogoutPage extends JFrame {
 
-    JButton submitLogout;
-    JButton cancelLogout;
+    JRoundButton submitLogout;
+    JRoundButton cancelLogout;
 
     public LogoutPage(){
         setTitle("登出");
@@ -24,13 +24,13 @@ public class LogoutPage extends JFrame {
         add(delConfirm);
 
 
-        cancelLogout = new JButton("取消");
+        cancelLogout = new JRoundButton("取消");
         cancelLogout.setLocation(10, 160);
         cancelLogout.setSize(60,30);
         add(cancelLogout);
         
 
-        submitLogout = new JButton("确定");
+        submitLogout = new JRoundButton("确定");
         submitLogout.setLocation(80, 160);
         submitLogout.setSize(60, 30);
         add(submitLogout);

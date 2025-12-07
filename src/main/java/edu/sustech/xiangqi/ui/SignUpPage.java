@@ -4,9 +4,9 @@ import javax.swing.*;
 
 public class SignUpPage extends JFrame{
 
-    private JTextField userName;
-    private JPasswordField password;
-    private JButton signUp;
+    private JRoundTextField userName;
+    private JRoundPasswordField password;
+    private JRoundButton signUp;
     private JLabel userNameOccupied;
     private JLabel userNameInvalid;
     private JLabel passwordInvalid;
@@ -23,7 +23,7 @@ public class SignUpPage extends JFrame{
         userNameTip.setSize(120,40);
         add(userNameTip);
 
-        userName = new JTextField();
+        userName = new JRoundTextField();
         userName.setLocation(60, 60);
         userName.setSize(100, 40);
         add(userName);
@@ -54,12 +54,12 @@ public class SignUpPage extends JFrame{
         passwordTip.setSize(120,40);
         add(passwordTip);
 
-        password = new JPasswordField();
+        password = new JRoundPasswordField();
         password.setLocation(60, 110);
         password.setSize(100, 40);
         add(password);
 
-        signUp = new JButton("注册");
+        signUp = new JRoundButton("注册");
         signUp.setLocation(10, 160);
         signUp.setSize(100, 40);
         add(signUp);
@@ -67,7 +67,7 @@ public class SignUpPage extends JFrame{
     public JTextField getUserName(){
         return this.userName;
     }
-    public JPasswordField getPassWord(){
+    public JRoundPasswordField getPassWord(){
         return this.password;
     }
     public JButton getSignUpButton(){

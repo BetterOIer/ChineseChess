@@ -13,8 +13,8 @@ public class Connection extends JFrame{
     private ChessBoardModel chessBoardModel;
     private ChessBoard chessBoard;
 
-    private JTextField room;
-    private JButton join;
+    private JRoundTextField room;
+    private JRoundButton join;
     private JLabel waitInfo;
 
     private static final int PORT = 1029;
@@ -40,12 +40,12 @@ public class Connection extends JFrame{
         roomTip.setSize(120,40);
         add(roomTip);
 
-        room = new JTextField();
+        room = new JRoundTextField();
         room.setLocation(130, 60);
         room.setSize(40, 40);
         add(room);
 
-        join = new JButton("加入");
+        join = new JRoundButton("加入");
         join.setLocation(190, 60);
         join.setSize(60, 40);
         add(join);

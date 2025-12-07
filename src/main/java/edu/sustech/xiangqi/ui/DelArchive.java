@@ -11,8 +11,8 @@ import javax.swing.JButton;
 
 public class DelArchive extends JFrame {
 
-    JButton submitMod;
-    JButton cancelMod;
+    JRoundButton submitMod;
+    JRoundButton cancelMod;
 
     public DelArchive(int idx){
         setTitle("新建存档");
@@ -30,13 +30,13 @@ public class DelArchive extends JFrame {
             e.printStackTrace();
         }
 
-        cancelMod = new JButton("取消");
+        cancelMod = new JRoundButton("取消");
         cancelMod.setLocation(10, 160);
         cancelMod.setSize(60,30);
         add(cancelMod);
         
 
-        submitMod = new JButton("确定");
+        submitMod = new JRoundButton("确定");
         submitMod.setLocation(80, 160);
         submitMod.setSize(60, 30);
         add(submitMod);

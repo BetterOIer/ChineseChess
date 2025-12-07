@@ -1,9 +1,12 @@
 package edu.sustech.xiangqi.ui;
 
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.List;
 
 import edu.sustech.xiangqi.model.*;
@@ -11,7 +14,8 @@ import edu.sustech.xiangqi.model.*;
 public class WelcomePage extends JFrame{
 
     private Image backgroundImage;
-    private JButton archiveButton, pvpButton, aiButton, loginButton, logoutButton;
+    private JButton archiveButton, pvpButton, aiButton;
+    private JRoundButton loginButton, logoutButton;
     private JLabel userInUse;
 
 
@@ -24,6 +28,7 @@ public class WelcomePage extends JFrame{
     int squareSize = (int) (Math.min(screenWidth, screenHeight) * 0.7);
 
     public WelcomePage(){
+        initGlobalFont();
         setTitle("中国象棋");
         setLayout(null);
 
@@ -34,7 +39,7 @@ public class WelcomePage extends JFrame{
 
         // 加载背景图片
         try {
-            ImageIcon icon = new ImageIcon("src/main/image/WelcomePageBackground.png");
+            ImageIcon icon = new ImageIcon("src/main/java/edu/sustech/xiangqi/assets/images/WelcomePageBackground.png");
             backgroundImage = icon.getImage();
         }
         catch
@@ -54,7 +59,7 @@ public class WelcomePage extends JFrame{
             e.printStackTrace();
         }
 
-        loginButton = new JButton("登录");
+        loginButton = new JRoundButton("登录");
         loginButton.setLocation(650, 10);
         loginButton.setSize(100, 40);
         loginButton.addMouseListener(new MouseAdapter() {
@@ -70,7 +75,7 @@ public class WelcomePage extends JFrame{
         userInUse.setVisible(false);
         
 
-        logoutButton = new JButton("登出");
+        logoutButton = new JRoundButton("登出");
         logoutButton.setLocation(650, 10);
         logoutButton.setSize(100, 40);
         logoutButton.setVisible(false);
@@ -100,6 +105,28 @@ public class WelcomePage extends JFrame{
         // 根据图片上文字的位置创建透明按钮
         createTransparentButtons();
 
+    }
+
+    private void initGlobalFont() {
+        try {
+            File fontFile = new File("src/main/java/edu/sustech/xiangqi/assets/fonts/vivoSansSCVF.ttf");
+            if(fontFile.exists()){
+                Font customFont = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(12f);
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                ge.registerFont(customFont);
+                
+                Enumeration<Object> keys = UIManager.getDefaults().keys();
+                while (keys.hasMoreElements()) {
+                    Object key = keys.nextElement();
+                    Object value = UIManager.get(key);
+                    if (value instanceof FontUIResource) {
+                        UIManager.put(key, new FontUIResource(customFont));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("字体加载失败: " + e.getMessage());
+        }
     }
 
     public void switchToLoginPage(boolean force){

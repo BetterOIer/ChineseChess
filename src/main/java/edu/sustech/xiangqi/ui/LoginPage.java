@@ -10,9 +10,9 @@ import edu.sustech.xiangqi.model.User;
 
 public class LoginPage extends JFrame{
 
-    JButton loginButton,tourLoginButton;
-    JTextField userName;
-    JPasswordField password;
+    JRoundButton loginButton,tourLoginButton;
+    JRoundTextField userName;
+    JRoundPasswordField password;
     JLabel namePwdWA;
     boolean force;
 
@@ -28,9 +28,9 @@ public class LoginPage extends JFrame{
         userNameTip.setSize(120,40);
         add(userNameTip);
 
-        userName = new JTextField();
+        userName = new JRoundTextField();
         userName.setLocation(60, 60);
-        userName.setSize(100, 40);
+        userName.setSize(150, 40);
         add(userName);
 
         JLabel passwordTip = new JLabel("密码：");
@@ -38,17 +38,17 @@ public class LoginPage extends JFrame{
         passwordTip.setSize(120,40);
         add(passwordTip);
 
-        password = new JPasswordField();
+        password = new JRoundPasswordField();
         password.setLocation(60, 110);
-        password.setSize(100, 40);
+        password.setSize(150, 40);
         add(password);
 
-        loginButton = new JButton("登录");
+        loginButton = new JRoundButton("登录");
         loginButton.setLocation(10, 160);
         loginButton.setSize(100, 40);
         add(loginButton);
 
-        tourLoginButton = new JButton("仅游客登录");
+        tourLoginButton = new JRoundButton("仅游客登录");
         tourLoginButton.setLocation(10, 220);
         tourLoginButton.setSize(100, 40);
         tourLoginButton.setVisible(!force);
@@ -110,7 +110,7 @@ public class LoginPage extends JFrame{
     public JTextField getUserName(){
         return this.userName;
     }
-    public JPasswordField getPassword(){
+    public JRoundPasswordField getPassword(){
         return this.password;
     }
     public JLabel getNamePwdWA(){

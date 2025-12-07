@@ -7,8 +7,8 @@ import javax.swing.JButton;
 
 public class TourWarning extends JFrame {
 
-    JButton submitAcknow;
-    JButton cancelAcknow;
+    JRoundButton submitAcknow;
+    JRoundButton cancelAcknow;
 
     public TourWarning(){
         setTitle("提示");
@@ -24,14 +24,14 @@ public class TourWarning extends JFrame {
         add(delConfirm);
 
 
-        cancelAcknow = new JButton("去登录");
+        cancelAcknow = new JRoundButton("去登录");
         cancelAcknow.setLocation(10, 160);
-        cancelAcknow.setSize(60,30);
+        cancelAcknow.setSize(90,30);
         add(cancelAcknow);
         
 
-        submitAcknow = new JButton("了解");
-        submitAcknow.setLocation(80, 160);
+        submitAcknow = new JRoundButton("了解");
+        submitAcknow.setLocation(110, 160);
         submitAcknow.setSize(60, 30);
         add(submitAcknow);
     }

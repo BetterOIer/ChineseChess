@@ -194,7 +194,6 @@ public class DBOperationUser {
                 if (hex.length() == 1) hexString.append('0');
                 hexString.append(hex);
             }
-            System.out.println(hexString);
             return hexString.toString();
         } catch (Exception e) {
             e.printStackTrace();
