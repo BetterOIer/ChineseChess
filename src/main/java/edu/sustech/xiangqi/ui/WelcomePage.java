@@ -37,13 +37,12 @@ public class WelcomePage extends JFrame{
             ImageIcon icon = new ImageIcon("src/main/image/WelcomePageBackground.png");
             backgroundImage = icon.getImage();
         }
-        catch
-        (Exception e) {
+        catch (Exception e) {
             JOptionPane.showMessageDialog(this, "背景图片加载失败: " + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
             // 如果图片加载失败，使用默认大小
             setSize(768, 768);
             getContentPane().setBackground(new Color(220, 179, 92));
-        }        
+        }
         setResizable(false);
         try{
             DBOperationBoard.createTable();
@@ -68,7 +67,6 @@ public class WelcomePage extends JFrame{
         userInUse.setLocation(530, 10);
         userInUse.setSize(100, 40);
         userInUse.setVisible(false);
-        
 
         logoutButton = new JButton("登出");
         logoutButton.setLocation(650, 10);
@@ -188,9 +186,17 @@ public class WelcomePage extends JFrame{
     }
 
     private void switchToConnection(){
-        Connection connection = new Connection();
-        connection.setVisible(true);
-        setVisible(false);
+        try{
+            if(DBOperationUser.getUserInUse()==null || DBOperationUser.getUserInUse().getName()=="null"){
+                switchToTourWarning();
+            }else{
+                Connection connection = new Connection();
+                connection.setVisible(true);
+                setVisible(false);
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 
     private void switchToAIPage() {

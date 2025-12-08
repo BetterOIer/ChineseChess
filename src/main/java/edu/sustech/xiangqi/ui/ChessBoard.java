@@ -16,10 +16,13 @@ public class ChessBoard extends JFrame {
 
     private final ChessBoardPanel chessBoardPanel;
     private PlayBackPanel playBackPanel;
-    private JButton reset, playBack;
+    private JButton reset, playBack, backToArchive, musicOn, surrender;
     private Image backgroundImage;
 
     private boolean playBackOn= false;
+
+    private JLabel whoseTurnLabel;
+
 
     static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     static int screenWidth = (int)(screenSize.width*0.7);
@@ -30,6 +33,8 @@ public class ChessBoard extends JFrame {
         this.model=model;
 
         setTitle("中国象棋-"+model.getName());
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
         // 加载背景图片
         try {
             backgroundImage = new ImageIcon("src/main/image/ChessBoardBackground.png").getImage();
@@ -39,40 +44,107 @@ public class ChessBoard extends JFrame {
             backgroundImage = null;
         }
 
-        // 设置自定义ContentPane以绘制背景
-        JPanel contentPane = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (backgroundImage != null) {
-                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-                } else {
-                    g.setColor(new Color(220, 179, 92));
-                    g.fillRect(0, 0, getWidth(), getHeight());
-                }
-            }
-        };
-        contentPane.setLayout(null);
-        setContentPane(contentPane);
+        // 创建主面板
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setOpaque(false);
 
-        setSize(ChessBoardPanel.screenWidth, ChessBoardPanel.screenHeight);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        // 创建顶部状态栏
+        JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        statusBar.setPreferredSize(new Dimension(ChessBoardPanel.screenWidth, 60));
+        statusBar.setBackground(new Color(0, 0, 0,0));
+        statusBar.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(111, 78, 55), 2),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        whoseTurnLabel = new JLabel("红方回合", SwingConstants.CENTER);
+        whoseTurnLabel.setFont(new Font("隶书", Font.BOLD, 28));
+        whoseTurnLabel.setForeground(new Color(200, 0, 0));
+        statusBar.add(whoseTurnLabel);
 
+        // 创建棋盘面板
+        this.chessBoardPanel = new ChessBoardPanel(model);
+
+        // 创建右侧控制面板
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
+        controlPanel.setBackground(new Color(193, 154, 107, 200));
+        controlPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+        controlPanel.setPreferredSize(new Dimension(150, ChessBoardPanel.screenHeight));
+
+        // 创建按钮
         reset = new JButton("重置棋盘");
-        reset.setLocation(10, 160);
-        reset.setSize(100, 40);
-        if((model.getType()&(1<<3))==0)reset.setVisible(false);
-        add(reset);
-
+        reset.setPreferredSize(new Dimension(120, 40));
+        reset.setMaximumSize(new Dimension(120, 40));
+        reset.setFont(new Font("隶书", Font.BOLD, 16));
+        reset.setBackground(new Color(139, 69, 19));
+        reset.setForeground(Color.WHITE);
+        reset.setFocusPainted(false);
+        reset.setAlignmentX(Component.CENTER_ALIGNMENT);
         playBack = new JButton("复盘");
-        playBack.setLocation(10,220);
-        playBack.setSize(100,40);
-        if((model.getType()&(1<<3))==0)playBack.setVisible(false);
-        add(playBack);
+        playBack.setPreferredSize(new Dimension(120, 40));
+        playBack.setMaximumSize(new Dimension(120, 40));
+        playBack.setFont(new Font("隶书", Font.BOLD, 16));
+        playBack.setBackground(new Color(139, 69, 19));
+        playBack.setForeground(Color.WHITE);
+        playBack.setFocusPainted(false);
+        playBack.setAlignmentX(Component.CENTER_ALIGNMENT);
+        backToArchive = new JButton("返回存档");
+        backToArchive.setPreferredSize(new Dimension(120, 40));
+        backToArchive.setMaximumSize(new Dimension(120, 40));
+        backToArchive.setFont(new Font("隶书", Font.BOLD, 16));
+        backToArchive.setBackground(new Color(139, 69, 19));
+        backToArchive.setForeground(Color.WHITE);
+        backToArchive.setFocusPainted(false);
+        backToArchive.setAlignmentX(Component.CENTER_ALIGNMENT);
+        musicOn = new JButton("音乐");
+        musicOn.setPreferredSize(new Dimension(120, 40));
+        musicOn.setMaximumSize(new Dimension(120, 40));
+        musicOn.setFont(new Font("隶书", Font.BOLD, 16));
+        musicOn.setBackground(new Color(139, 69, 19));
+        musicOn.setForeground(Color.WHITE);
+        musicOn.setFocusPainted(false);
+        musicOn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        surrender = new JButton("投降");
+        surrender.setPreferredSize(new Dimension(120, 40));
+        surrender.setMaximumSize(new Dimension(120, 40));
+        surrender.setFont(new Font("隶书", Font.BOLD, 16));
+        surrender.setBackground(new Color(139, 69, 19));
+        surrender.setForeground(Color.WHITE);
+        surrender.setFocusPainted(false);
+        surrender.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        this.chessBoardPanel =  new ChessBoardPanel(model);
-        add(chessBoardPanel);
+        // 添加按钮到控制面板
+        controlPanel.add(Box.createVerticalStrut(20));
+        controlPanel.add(reset);
+        controlPanel.add(Box.createVerticalStrut(15));
+        controlPanel.add(backToArchive);
+        controlPanel.add(Box.createVerticalStrut(15));
+        controlPanel.add(musicOn);
+        controlPanel.add(Box.createVerticalStrut(15));
+        controlPanel.add(surrender);
+        controlPanel.add(Box.createVerticalStrut(15));
+        playBack.setVisible(false);  // 初始状态下复盘按钮不可见
+        controlPanel.add(playBack);
+        controlPanel.add(Box.createVerticalGlue());  // 空白填充
+
+        // 创建中心区域
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setOpaque(false);
+        centerPanel.add(chessBoardPanel, BorderLayout.CENTER);
+        centerPanel.add(controlPanel, BorderLayout.EAST);
+
+        //将组件添加到主面板
+        mainPanel.add(statusBar, BorderLayout.NORTH);
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+
+        // 创建背景面板并设置为主容器
+        BackgroundPanel backgroundPanel = new BackgroundPanel(backgroundImage);
+        backgroundPanel.add(mainPanel, BorderLayout.CENTER);
+        setContentPane(backgroundPanel);
+
+        //设置窗口尺寸
+        setSize(ChessBoardPanel.screenWidth + 150, ChessBoardPanel.screenHeight + 60);
+        setLocationRelativeTo(null);
 
         reset.addMouseListener(new MouseAdapter() {
             @Override
@@ -95,6 +167,25 @@ public class ChessBoard extends JFrame {
             }
         });
 
+        backToArchive.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                returnToArchiveManager();
+            }
+        });
+
+        musicOn.addMouseListener(new MouseAdapter() {
+
+        });
+
+        surrender.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                whoseTurnLabel.setText("黑方胜利！");
+                whoseTurnLabel.setForeground(Color.BLACK);;
+            }
+        });
+
         chessBoardPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -106,7 +197,72 @@ public class ChessBoard extends JFrame {
         });
 
     }
-    
+
+    // 背景图片的面板
+    private class BackgroundPanel extends JPanel {
+        private Image backgroundImage;
+        public BackgroundPanel(Image backgroundImage) {
+            this.backgroundImage = backgroundImage;
+            setLayout(new BorderLayout());
+        }
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (backgroundImage != null) {
+                // 绘制背景图片
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            } else {
+                // 如果没有背景图片，使用默认颜色
+                g.setColor(new Color(220, 179, 92));
+                g.fillRect(0, 0, getWidth(), getHeight());
+            }
+        }
+    }
+
+    /**
+     * 更新回合显示
+     */
+    public void updateTurnDisplay() {
+        String currentPlayer = model.getCurrentPlayer();
+        String gameResult = model.getGameResult();
+        SwingUtilities.invokeLater(() -> {
+            if (gameResult != null && !gameResult.isEmpty()) {
+                // 游戏结束，显示结果
+                switch(gameResult) {
+                    case "RED_WIN":
+                        whoseTurnLabel.setText("红方胜利！");
+                        whoseTurnLabel.setForeground(new Color(200, 0, 0)); // 红色
+                        break;
+                    case "BLACK_WIN":
+                        whoseTurnLabel.setText("黑方胜利！");
+                        whoseTurnLabel.setForeground(Color.BLACK); // 黑色
+                        break;
+                    case "DRAW":
+                        whoseTurnLabel.setText("和棋！");
+                        whoseTurnLabel.setForeground(new Color(0, 100, 0)); // 绿色
+                        break;
+                    default:
+                        updateTurnByCurrentPlayer(currentPlayer);
+                }
+            } else {
+                // 游戏进行中，显示当前回合
+                updateTurnByCurrentPlayer(currentPlayer);
+            }
+        });
+    }
+    /**
+     * 根据当前玩家更新回合显示
+     */
+    private void updateTurnByCurrentPlayer(String currentPlayer) {
+        if ("RED".equals(currentPlayer)) {
+            whoseTurnLabel.setText("红方回合");
+            whoseTurnLabel.setForeground(new Color(200, 0, 0)); // 红色
+        } else if ("BLACK".equals(currentPlayer)) {
+            whoseTurnLabel.setText("黑方回合");
+            whoseTurnLabel.setForeground(Color.BLACK); // 黑色
+        }
+    }
+
     public ChessBoardPanel getPanel(){
         return chessBoardPanel;
     }
@@ -133,9 +289,8 @@ public class ChessBoard extends JFrame {
             }
         });
     }
-    
-    private void handleMouseClickOnPlayBackPanel(int x, int y){
 
+    private void handleMouseClickOnPlayBackPanel(int x, int y){
         playBackPanel.setSelectedIdx(y / playBackPanel.getStepHeight());
         replacePieces(playBackPanel.getSelectedIdx());
         playBackPanel.getContentPanel().repaint();
@@ -145,7 +300,33 @@ public class ChessBoard extends JFrame {
         model.tryPlayBack(stepIdx);
         chessBoardPanel.repaint();
     }
+
+    private void returnToArchiveManager(){
+        try {
+            // 获取当前用户的存档列表
+            User currentUser = DBOperationUser.getUserInUse();
+            if (currentUser == null) {
+                JOptionPane.showMessageDialog(this,
+                        "没有找到登录用户，请重新登录",
+                        "提示",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            List<ChessBoardModel> archives = DBOperationBoard.getBoardsByUser(currentUser);
+            ArchiveManager archiveManager = new ArchiveManager(archives);
+            archiveManager.setVisible(true);
+            this.dispose();  // 关闭当前棋盘窗口
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "无法返回到存档管理器: " + e.getMessage(),
+                    "错误",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }
+
+
 
 class ChessBoardPanel extends JPanel {
     private final ChessBoardModel model;
@@ -156,7 +337,7 @@ class ChessBoardPanel extends JPanel {
     /**
      * 单个棋盘格子的尺寸（px）
      */
-    private static final int CELL_SIZE = 64;
+    private static final int CELL_SIZE = screenHeight / 12;
 
     /**
      * 棋盘边界与窗口边界的边距
@@ -173,7 +354,9 @@ class ChessBoardPanel extends JPanel {
     public ChessBoardPanel(ChessBoardModel model) {
         this.model = model;
         setSize(new Dimension(screenWidth, screenHeight));
+
         setOpaque(false);
+        setBackground(new Color(0, 0, 0, 0));
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -192,19 +375,38 @@ class ChessBoardPanel extends JPanel {
         }else if(selectedPiece == null){
             selectedPiece= model.trySelectPiece(row, col);
         }else if(selectedPiece != null){
+            boolean moveSuccess = false;
             if(model.getPieceAt(row, col)==null){
                 model.tryMovePiece(row, col);
+                moveSuccess = true;
             }else{
                 model.tryEatPiece(row, col);
+                moveSuccess = true;
             }
             selectedPiece=null;
             model.caneclSelection();
+
+            if
+            (moveSuccess) {
+                updateParentTurnDisplay();
+            }
         }
         // 处理完点击事件后，需要重新绘制ui界面才能让界面上的棋子“移动”起来
         // Swing 会将多个请求合并后再重新绘制，因此调用 repaint 后gui不会立刻变更
         // repaint 中会调用 paintComponent，从而重新绘制gui上棋子的位置等
         repaint();
         /* System.out.println(model.getSteps()); */
+    }
+
+    private void updateParentTurnDisplay() {
+        // 获取父窗口（ChessBoard）
+        Container parent = this.getParent();
+        while (parent != null && !(parent instanceof ChessBoard)) {
+            parent = parent.getParent();
+        }
+        if (parent instanceof ChessBoard) {
+            ((ChessBoard) parent).updateTurnDisplay();
+        }
     }
 
     @Override

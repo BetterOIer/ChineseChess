@@ -11,7 +11,7 @@ public abstract class AbstractPiece {
     private int row;
     private int col;
     private int id;
-    private boolean alive;
+    public boolean alive;
     private static int idCnt;
 
     public AbstractPiece(int type, int row, int col, boolean isRed, boolean alive) {

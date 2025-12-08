@@ -190,7 +190,7 @@ class ArchivePanel extends JPanel{
 
     public ArchivePanel(List<ChessBoardModel> archives){
         this.archives = archives;
-        setBackground(new Color(220, 179, 92));
+        setBackground(new Color(245, 222, 179));
         setPreferredSize(new Dimension(400, archives.size() * archiveHeight));
     }
 

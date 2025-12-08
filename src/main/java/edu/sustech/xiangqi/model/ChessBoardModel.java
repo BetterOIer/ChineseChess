@@ -35,6 +35,18 @@ public class ChessBoardModel {
     private User userOwner;
     private boolean whoseTurn;
 
+    //游戏结果
+    private String gameResult;
+
+    // 游戏状态
+    private enum GameState {
+        PLAYING, // 游戏进行中
+        RED_WIN, // 红方胜利
+        BLACK_WIN, // 黑方胜利
+        DRAW // 和棋
+    }
+    private GameState gameState = GameState.PLAYING;
+
     @Override
     public String toString(){
         return name+" "+boardType+" "+description+" "+userRed+" "+userBlack+" "+whoseTurn;
@@ -54,6 +66,7 @@ public class ChessBoardModel {
         this.userBlack=userBlack;
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
+        this.gameResult = null;
     }
     public ChessBoardModel(int id, String name, int boardType, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
@@ -153,7 +166,7 @@ public class ChessBoardModel {
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
     }
-    
+
 
     //初始化
     private void initPieces() {
@@ -324,7 +337,7 @@ public class ChessBoardModel {
     }
     public AbstractPiece trySelectPiece(int row, int col){
         if(((this.boardType&8)!=0)) return null;
-        if(getPieceAt(row, col)!=null && getPieceAt(row, col).isRed()!=whoseTurn) return null;
+        if(getPieceAt(row, col)!=null && getPieceAt(row, col).isRed() != whoseTurn) return null;
         this.selectedPiece=getPieceAt(row, col);
         refreshTar();
         return this.selectedPiece;
@@ -363,20 +376,23 @@ public class ChessBoardModel {
             }
         }
     }
-    
+
     public void tryEatPiece(int row, int col){
         if(this.selectedPiece==null) return;
         if(!isValidPosition(row, col)) return;
         if(eatRange != null && eatRange.contains(new Coordinate(row, col))){
             AbstractPiece eatenPiece = this.getPieceAt(row, col);
+
             Step step1 = new Step(eatenPiece.getType(),eatenPiece.getRow(),eatenPiece.getCol(), -1, -1, 1);
             eatenPiece.setStatus(false);
             eatenPiece.moveTo(-1, -1);
             updateBoards(step1,true);
+
             Step step2 = new Step(selectedPiece.getType(),selectedPiece.getRow(),selectedPiece.getCol(), row, col, 0);
             updateBoards(step2,true);
             this.selectedPiece.moveTo(row, col);
-            this.whoseTurn=!this.whoseTurn;
+            this.whoseTurn = !this.whoseTurn;
+
             setLastModTime(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             try{
                 DBOperationBoard.updateBoardNowStatus(this.id, this.pieces);
@@ -385,8 +401,16 @@ public class ChessBoardModel {
             }catch(SQLException e){
                 e.printStackTrace();
             }
-            if(eatenPiece.getType()==7){
-                this.boardType|=8;
+            if(eatenPiece.getType() == 7){
+                this.boardType |= 8;
+
+                // 设置 gameState
+                if (eatenPiece.isRed()) {
+                    this.gameState = GameState.BLACK_WIN;  // 红方将被吃掉，黑方胜利
+                } else {
+                    this.gameState = GameState.RED_WIN;    // 黑方将被吃掉，红方胜利
+                }
+
                 try{
                     DBOperationBoard.updateBoardType(this.id, boardType);
                 }catch(SQLException e){
@@ -423,4 +447,43 @@ public class ChessBoardModel {
             e.printStackTrace();
         }
     }
+
+    /*public void surrender() {
+        // 设置游戏结束标志
+        this.boardType |= 8;  // 设置已终结标志
+
+        // 设置游戏结果
+        this.gameState = GameState.BLACK_WIN;  // 红方投降，黑方胜利
+
+        // 记录最后修改时间
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+        // 保存到数据库
+        try {
+            DBOperationBoard.updateBoardById(
+                    this.id, this
+            );
+        } catch
+        (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("红方已投降，黑方胜利");
+    }
+
+     */
+
+    public String getGameResult() {
+        switch (gameState) {
+            case RED_WIN: return "RED_WIN";
+            case BLACK_WIN: return "BLACK_WIN";
+            case DRAW: return "DRAW";
+            default: return null;
+        }
+    }
+
+    public String getCurrentPlayer() {
+        return whoseTurn ? "RED" : "BLACK";
+    }
+
+
 }
