@@ -112,7 +112,7 @@ public class ArchiveManager extends JFrame{
                 });
                 newArchive.getSubmitMod().addActionListener(e1 -> {
                     try{
-                        DBOperationBoard.insertBoard(new ChessBoardModel(DBOperationBoard.getBoardCount(),newArchive.getBoardName().getText(), 1, newArchive.getDescription().getText(),DBOperationUser.getUserByName("Red"), DBOperationUser.getUserByName("Black"), DBOperationUser.getUserInUse() , true));// 从 DB 重新读取所有存档并更新面板
+                        DBOperationBoard.insertBoard(new ChessBoardModel(DBOperationBoard.getBoardCount(),newArchive.getBoardName().getText(), 1, newArchive.getDescription().getText(),DBOperationUser.getUserByName("Red"), DBOperationUser.getUserByName("Black"), DBOperationUser.getUserInUse() , newArchive.getWhoseTurn()));// 从 DB 重新读取所有存档并更新面板
                         archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
                         archivePanel.setArchives(archives);
                         archivePanel.revalidate();
@@ -232,12 +232,12 @@ class ArchivePanel extends JPanel{
             
             // 绘制标题
             g.setColor(Color.BLACK);
-            g.setFont(new Font("SimHei", Font.BOLD, 20));
+            g.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 20));
             g.drawString(archNow.getName(), 20, y + 30);
 
             //绘制时间
             g.setColor(Color.GRAY);
-            g.setFont(new Font("SimHei", Font.PLAIN, 13));
+            g.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 13));
             g.drawString(archNow.getLastModTime(), 20, y + 60);
             
 
@@ -266,26 +266,26 @@ class ArchivePanel extends JPanel{
 
 class bottomPlaceHolderPanel extends JPanel{
 
-    private JButton modifyButton;
-    private JButton newButton;
-    private JButton delButton;
+    private JRoundButton modifyButton;
+    private JRoundButton newButton;
+    private JRoundButton delButton;
 
     public bottomPlaceHolderPanel(){
 
         setPreferredSize(new Dimension(0, 60)); // 宽度由布局决定，高度固定为 60
         setLayout(null);
 
-        newButton = new JButton("新建");
+        newButton = new JRoundButton("新建");
         newButton.setSize(60, 30);
         newButton.setLocation(1161,15);
         add(newButton);
 
-        modifyButton = new JButton("修改");
+        modifyButton = new JRoundButton("修改");
         modifyButton.setSize(60, 30);
         modifyButton.setLocation(1226,15);
         add(modifyButton);
 
-        delButton = new JButton("删除");
+        delButton = new JRoundButton("删除");
         delButton.setSize(60, 30);
         delButton.setLocation(1291,15);
         add(delButton);

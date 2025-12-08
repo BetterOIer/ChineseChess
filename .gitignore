@@ -32,3 +32,6 @@ replay_pid*
 
 # database files
 *.db
+
+#target files
+target/*

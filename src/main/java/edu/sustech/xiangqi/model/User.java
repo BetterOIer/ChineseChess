@@ -10,16 +10,27 @@ public class User {
     private String description;
 
     public User(int id, String username, String password, int type){
-        this.id=id;
-        this.username = username;
-        this.type=type;
-        this.pswordHash = DBOperationUser.calHash(password);
+        this(id, username, password, type, false);
     }
-    public User(int id, String username, String password, int type, String description){
+
+    public User(int id, String username, String password, int type, boolean isHashed){
         this.id=id;
         this.username = username;
         this.type=type;
-        this.pswordHash = DBOperationUser.calHash(password);
+        if(isHashed) this.pswordHash = password;
+        else this.pswordHash = DBOperationUser.calHash(password);
+    }
+
+    public User(int id, String username, String password, int type, String description){
+        this(id, username, password, type, description, false);
+    }
+
+    public User(int id, String username, String password, int type, String description, boolean isHashed){
+        this.id=id;
+        this.username = username;
+        this.type=type;
+        if(isHashed) this.pswordHash = password;
+        else this.pswordHash = DBOperationUser.calHash(password);
         this.description = description;
     }
 

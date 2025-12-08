@@ -166,7 +166,7 @@ public class ChessBoardModel {
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
     }
-
+    
 
     //初始化
     private void initPieces() {
@@ -231,8 +231,16 @@ public class ChessBoardModel {
     }
 
     //历史
-    public List<Step> getSteps(){
+    public List<Step> getAllSteps(){
         return steps;
+    }
+    public List<Step> getTrueSteps(){
+        List<Step> trueSteps = new ArrayList<>();
+        for(Step step:steps){
+            if(step.getMode()==1)continue;
+            trueSteps.add(step);
+        }
+        return trueSteps;
     }
     public void setSteps(List<Step> steps){
         this.steps = steps;
@@ -337,7 +345,7 @@ public class ChessBoardModel {
     }
     public AbstractPiece trySelectPiece(int row, int col){
         if(((this.boardType&8)!=0)) return null;
-        if(getPieceAt(row, col)!=null && getPieceAt(row, col).isRed() != whoseTurn) return null;
+        if(getPieceAt(row, col)!=null && getPieceAt(row, col).isRed()!=whoseTurn) return null;
         this.selectedPiece=getPieceAt(row, col);
         refreshTar();
         return this.selectedPiece;
@@ -362,7 +370,7 @@ public class ChessBoardModel {
         if(this.selectedPiece==null) return;
         if(!isValidPosition(row, col)) return;
         if(moveRange != null && moveRange.contains(new Coordinate(row, col))){
-            Step nowStep = new Step(selectedPiece.getType(),selectedPiece.getRow(),selectedPiece.getCol(), row, col, 0);
+            Step nowStep = new Step(selectedPiece.getType(),selectedPiece.isRed(),selectedPiece.getRow(),selectedPiece.getCol(), row, col, 0);
             updateBoards(nowStep,true);
             this.selectedPiece.moveTo(row, col);
             this.whoseTurn=!this.whoseTurn;
@@ -371,33 +379,32 @@ public class ChessBoardModel {
                 DBOperationBoard.updateBoardNowStatus(this.id, this.pieces);
                 DBOperationBoard.updateBoardHistory(this.id,steps);
                 DBOperationBoard.updateBoardDate(this.id, this.lastModTime);
+                DBOperationBoard.updateBoardWhoseTurn(this.id, whoseTurn);
             }catch(SQLException e){
                 e.printStackTrace();
             }
         }
     }
-
+    
     public void tryEatPiece(int row, int col){
         if(this.selectedPiece==null) return;
         if(!isValidPosition(row, col)) return;
         if(eatRange != null && eatRange.contains(new Coordinate(row, col))){
             AbstractPiece eatenPiece = this.getPieceAt(row, col);
-
-            Step step1 = new Step(eatenPiece.getType(),eatenPiece.getRow(),eatenPiece.getCol(), -1, -1, 1);
+            Step step1 = new Step(eatenPiece.getType(),eatenPiece.isRed(),eatenPiece.getRow(),eatenPiece.getCol(), -1, -1, 1);
             eatenPiece.setStatus(false);
             eatenPiece.moveTo(-1, -1);
             updateBoards(step1,true);
-
-            Step step2 = new Step(selectedPiece.getType(),selectedPiece.getRow(),selectedPiece.getCol(), row, col, 0);
+            Step step2 = new Step(selectedPiece.getType(),selectedPiece.isRed(),selectedPiece.getRow(),selectedPiece.getCol(), row, col, 0);
             updateBoards(step2,true);
             this.selectedPiece.moveTo(row, col);
-            this.whoseTurn = !this.whoseTurn;
-
+            this.whoseTurn=!this.whoseTurn;
             setLastModTime(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             try{
                 DBOperationBoard.updateBoardNowStatus(this.id, this.pieces);
                 DBOperationBoard.updateBoardHistory(this.id,steps);
                 DBOperationBoard.updateBoardDate(this.id, this.lastModTime);
+                DBOperationBoard.updateBoardWhoseTurn(this.id, whoseTurn);
             }catch(SQLException e){
                 e.printStackTrace();
             }
@@ -423,8 +430,16 @@ public class ChessBoardModel {
     public void tryPlayBack(int StepIdx){
         this.pieces = new ArrayList<>();
         initPieces();initBoardStatus(pieces);
-        for(int i = 0;i<=StepIdx;i++){
-            Step nowStep = steps.get(i);
+        List<Step> trueSteps = getTrueSteps();
+        for(int i = 0,j=0;i<=StepIdx;i++,j++){
+            Step nowStep = trueSteps.get(i);
+            if(nowStep.getMode()!=steps.get(j).getMode()){
+                Step eatStep = steps.get(j);
+                getPieceAt(eatStep.getFromRow(), eatStep.getFromCol()).setStatus(false);
+                updateBoards(eatStep, false);
+                getPieceAt(eatStep.getFromRow(), eatStep.getFromCol()).moveTo(eatStep.getToRow(), eatStep.getToCol());
+                j++;
+            }
             updateBoards(nowStep,false);
             getPieceAt(nowStep.getFromRow(), nowStep.getFromCol()).moveTo(nowStep.getToRow(), nowStep.getToCol());
         }

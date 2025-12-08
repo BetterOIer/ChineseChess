@@ -12,7 +12,9 @@ import edu.sustech.xiangqi.model.User;
 public class LoginPage extends JFrame{
 
     JButton loginButton,tourLoginButton;
-    JTextField userName,password;
+    JRoundTextField userName;
+    JRoundPasswordField password;
+    JLabel namePwdWA;
     boolean force;
     private Image backgroundImage;
 
@@ -35,7 +37,7 @@ public class LoginPage extends JFrame{
 
         // 加载背景图片
         try {
-            ImageIcon icon = new ImageIcon("src/main/image/LoginPage.png");
+            ImageIcon icon = new ImageIcon("src/main/java/edu/sustech/xiangqi/assets/images/LoginPage.png");
             backgroundImage = icon.getImage();
 
         }
@@ -74,8 +76,7 @@ public class LoginPage extends JFrame{
         add(userNameTip);
 
          */
-
-        userName = new JTextField();
+        userName = new JRoundTextField();
         userName.setLocation(280, 360);
         userName.setSize(160, 50);
         add(userName);
@@ -87,23 +88,28 @@ public class LoginPage extends JFrame{
 
          */
 
-        password = new JTextField();
+        password = new JRoundPasswordField();
         password.setLocation(280, 425);
         password.setSize(160, 50);
         add(password);
 
-        loginButton = new JButton("登录");
         loginButton = createTransparentButton("", 150, 40);
         loginButton.setLocation(160, 495);
         loginButton.setSize(100, 40);
         add(loginButton);
 
-        tourLoginButton = new JButton("仅游客登录");
         tourLoginButton = createTransparentButton("", 150, 40);
         tourLoginButton.setLocation(400, 495);
         tourLoginButton.setSize(100, 40);
         tourLoginButton.setVisible(!force);
         add(tourLoginButton);
+
+        namePwdWA = new JLabel("用户名或密码不正确！");
+        namePwdWA.setForeground(java.awt.Color.RED);
+        namePwdWA.setVisible(false);
+        namePwdWA.setLocation(180, 60);
+        namePwdWA.setSize(120,40);
+        add(namePwdWA);
 
         JLabel signUpLink = new JLabel("<html><u>还没有账号？点击注册</u></html>");
         signUpLink.setLocation(145, 540);
@@ -115,7 +121,6 @@ public class LoginPage extends JFrame{
                 switchToSignUp();
             }
         });
-
     }
 
     private void switchToSignUp(){
@@ -134,10 +139,10 @@ public class LoginPage extends JFrame{
                         signUpPage.getPassWord().setText("");
                     }else if(signUpPage.getUserName().getText().equals("")){
                         signUpPage.getUserNameInvalid().setVisible(true);
-                    }else if(signUpPage.getPassWord().getText().equals("")){
+                    }else if(new String(signUpPage.getPassWord().getPassword()).equals("")){
                         signUpPage.getPasswordInvalid().setVisible(true);
                     }else{
-                        DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), signUpPage.getUserName().getText(), signUpPage.getPassWord().getText(), 1));
+                        DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), signUpPage.getUserName().getText(), new String(signUpPage.getPassWord().getPassword()), 1));
                         signUpPage.dispose();
                     }
                 }catch(SQLException e2){
@@ -156,7 +161,7 @@ public class LoginPage extends JFrame{
     public JTextField getUserName(){
         return this.userName;
     }
-    public JTextField getPassword(){
+    public JRoundPasswordField getPassword(){
         return this.password;
     }
 
@@ -192,5 +197,8 @@ public class LoginPage extends JFrame{
             }
         });
         return button;
+    }
+    public JLabel getNamePwdWA(){
+        return this.namePwdWA;
     }
 }

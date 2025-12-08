@@ -7,8 +7,8 @@ import java.awt.event.MouseEvent;
 
 public class SignUpPage extends JFrame{
 
-    private JTextField userName;
-    private JTextField password;
+    private JRoundTextField userName;
+    private JRoundPasswordField password;
     private JButton signUp;
     private JLabel userNameOccupied;
     private JLabel userNameInvalid;
@@ -35,7 +35,7 @@ public class SignUpPage extends JFrame{
 
         // 加载背景图片
         try {
-            ImageIcon icon = new ImageIcon("src/main/image/SignUpPage.png");
+            ImageIcon icon = new ImageIcon("src/main/java/edu/sustech/xiangqi/assets/images/SignUpPage.png");
             backgroundImage = icon.getImage();
 
         }
@@ -75,7 +75,7 @@ public class SignUpPage extends JFrame{
 
          */
 
-        userName = new JTextField();
+        userName = new JRoundTextField();
         userName.setLocation(280, 360);
         userName.setSize(160, 50);
         add(userName);
@@ -108,7 +108,7 @@ public class SignUpPage extends JFrame{
 
          */
 
-        password = new JTextField();
+        password = new JRoundPasswordField();
         password.setLocation(280, 425);
         password.setSize(160, 50);
         add(password);
@@ -122,7 +122,7 @@ public class SignUpPage extends JFrame{
     public JTextField getUserName(){
         return this.userName;
     }
-    public JTextField getPassWord(){
+    public JRoundPasswordField getPassWord(){
         return this.password;
     }
     public JButton getSignUpButton(){

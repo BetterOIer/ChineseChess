@@ -1,9 +1,12 @@
 package edu.sustech.xiangqi.ui;
 
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.List;
 
 import edu.sustech.xiangqi.model.*;
@@ -11,7 +14,8 @@ import edu.sustech.xiangqi.model.*;
 public class WelcomePage extends JFrame{
 
     private Image backgroundImage;
-    private JButton archiveButton, pvpButton, aiButton, loginButton, logoutButton;
+    private JButton archiveButton, pvpButton, aiButton;
+    private JRoundButton loginButton, logoutButton;
     private JLabel userInUse;
 
 
@@ -21,9 +25,10 @@ public class WelcomePage extends JFrame{
     int screenHeight = screenSize.height;
 
     // 设置窗口大小为屏幕较小边长的70%，确保不铺满屏幕
-    int squareSize = (int) (Math.min(screenWidth, screenHeight) * 0.7);
+    int squareSize = (int) (Math.min(screenWidth, screenHeight) * 0.9);
 
     public WelcomePage(){
+        initGlobalFont();
         setTitle("中国象棋");
         setLayout(null);
 
@@ -34,7 +39,7 @@ public class WelcomePage extends JFrame{
 
         // 加载背景图片
         try {
-            ImageIcon icon = new ImageIcon("src/main/image/WelcomePageBackground.png");
+            ImageIcon icon = new ImageIcon("src/main/java/edu/sustech/xiangqi/assets/images/WelcomePageBackground.png");
             backgroundImage = icon.getImage();
         }
         catch (Exception e) {
@@ -53,7 +58,7 @@ public class WelcomePage extends JFrame{
             e.printStackTrace();
         }
 
-        loginButton = new JButton("登录");
+        loginButton = new JRoundButton("登录");
         loginButton.setLocation(650, 10);
         loginButton.setSize(100, 40);
         loginButton.addMouseListener(new MouseAdapter() {
@@ -68,7 +73,7 @@ public class WelcomePage extends JFrame{
         userInUse.setSize(100, 40);
         userInUse.setVisible(false);
 
-        logoutButton = new JButton("登出");
+        logoutButton = new JRoundButton("登出");
         logoutButton.setLocation(650, 10);
         logoutButton.setSize(100, 40);
         logoutButton.setVisible(false);
@@ -100,6 +105,28 @@ public class WelcomePage extends JFrame{
 
     }
 
+    private void initGlobalFont() {
+        try {
+            File fontFile = new File("src/main/java/edu/sustech/xiangqi/assets/fonts/vivoSansSCVF.ttf");
+            if(fontFile.exists()){
+                Font customFont = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(12f);
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                ge.registerFont(customFont);
+                
+                Enumeration<Object> keys = UIManager.getDefaults().keys();
+                while (keys.hasMoreElements()) {
+                    Object key = keys.nextElement();
+                    Object value = UIManager.get(key);
+                    if (value instanceof FontUIResource) {
+                        UIManager.put(key, new FontUIResource(customFont));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("字体加载失败: " + e.getMessage());
+        }
+    }
+
     public void switchToLoginPage(boolean force){
         LoginPage loginPage = new LoginPage(force);
         loginPage.setVisible(true);
@@ -108,7 +135,11 @@ public class WelcomePage extends JFrame{
             public void mouseClicked(MouseEvent e){
                 try{
                     User userTmp = DBOperationUser.getUserByName(loginPage.getUserName().getText());
-                    if(DBOperationUser.calHash(loginPage.getPassword().getText()).equals(userTmp.getPswordHash())){
+                    String inputPwd = new String(loginPage.getPassword().getPassword());
+                    if(userTmp==null || (!DBOperationUser.calHash(inputPwd).equals(userTmp.getPswordHash()))){
+                        loginPage.getNamePwdWA().setVisible(true);
+                    }else if(DBOperationUser.calHash(inputPwd).equals(userTmp.getPswordHash())){
+                        loginPage.getNamePwdWA().setVisible(false);
                         DBOperationUser.logoutAll();
                         userTmp.setType((userTmp.getType()|4));
                         DBOperationUser.updateUserType(userTmp.getId(), userTmp.getType());

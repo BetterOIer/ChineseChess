@@ -6,8 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ChessBoard extends JFrame {
@@ -16,10 +14,11 @@ public class ChessBoard extends JFrame {
 
     private final ChessBoardPanel chessBoardPanel;
     private PlayBackPanel playBackPanel;
-    private JButton reset, playBack, backToArchive, musicOn, surrender;
+    private JRoundButton reset, playBack, backToArchive, musicOn, surrender;
     private Image backgroundImage;
 
     private boolean playBackOn= false;
+    private int selectedIdx = -1;
 
     private JLabel whoseTurnLabel;
 
@@ -37,7 +36,7 @@ public class ChessBoard extends JFrame {
 
         // 加载背景图片
         try {
-            backgroundImage = new ImageIcon("src/main/image/ChessBoardBackground.png").getImage();
+            backgroundImage = new ImageIcon("src/main/java/edu/sustech/xiangqi/assets/images/ChessBoardBackground.png").getImage();
         }
         catch (Exception e) {
             System.out.println("背景图片加载失败: " + e.getMessage());
@@ -72,44 +71,37 @@ public class ChessBoard extends JFrame {
         controlPanel.setPreferredSize(new Dimension(150, ChessBoardPanel.screenHeight));
 
         // 创建按钮
-        reset = new JButton("重置棋盘");
+        reset = new JRoundButton("重置棋盘");
         reset.setPreferredSize(new Dimension(120, 40));
         reset.setMaximumSize(new Dimension(120, 40));
         reset.setFont(new Font("隶书", Font.BOLD, 16));
-        reset.setBackground(new Color(139, 69, 19));
-        reset.setForeground(Color.WHITE);
         reset.setFocusPainted(false);
         reset.setAlignmentX(Component.CENTER_ALIGNMENT);
-        playBack = new JButton("复盘");
+        if((model.getType()&(1<<3))==0)reset.setVisible(false);
+
+        playBack = new JRoundButton("复盘");
         playBack.setPreferredSize(new Dimension(120, 40));
         playBack.setMaximumSize(new Dimension(120, 40));
         playBack.setFont(new Font("隶书", Font.BOLD, 16));
-        playBack.setBackground(new Color(139, 69, 19));
-        playBack.setForeground(Color.WHITE);
         playBack.setFocusPainted(false);
         playBack.setAlignmentX(Component.CENTER_ALIGNMENT);
-        backToArchive = new JButton("返回存档");
+        if((model.getType()&(1<<3))==0)playBack.setVisible(false);
+        backToArchive = new JRoundButton("返回存档");
         backToArchive.setPreferredSize(new Dimension(120, 40));
         backToArchive.setMaximumSize(new Dimension(120, 40));
         backToArchive.setFont(new Font("隶书", Font.BOLD, 16));
-        backToArchive.setBackground(new Color(139, 69, 19));
-        backToArchive.setForeground(Color.WHITE);
         backToArchive.setFocusPainted(false);
         backToArchive.setAlignmentX(Component.CENTER_ALIGNMENT);
-        musicOn = new JButton("音乐");
+        musicOn = new JRoundButton("音乐");
         musicOn.setPreferredSize(new Dimension(120, 40));
         musicOn.setMaximumSize(new Dimension(120, 40));
         musicOn.setFont(new Font("隶书", Font.BOLD, 16));
-        musicOn.setBackground(new Color(139, 69, 19));
-        musicOn.setForeground(Color.WHITE);
         musicOn.setFocusPainted(false);
         musicOn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        surrender = new JButton("投降");
+        surrender = new JRoundButton("投降");
         surrender.setPreferredSize(new Dimension(120, 40));
         surrender.setMaximumSize(new Dimension(120, 40));
         surrender.setFont(new Font("隶书", Font.BOLD, 16));
-        surrender.setBackground(new Color(139, 69, 19));
-        surrender.setForeground(Color.WHITE);
         surrender.setFocusPainted(false);
         surrender.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -153,6 +145,7 @@ public class ChessBoard extends JFrame {
                 reset.setVisible(false);
                 playBack.setVisible(false);
                 playBackOn=false;
+                chessBoardPanel.setPlayBackOn(false);
                 if (playBackPanel != null) {
                     remove(playBackPanel);
                 }
@@ -277,11 +270,13 @@ public class ChessBoard extends JFrame {
         if (playBackPanel != null) {
             remove(playBackPanel);
         }
-        playBackPanel = new PlayBackPanel(model.getSteps());
+        playBackPanel = new PlayBackPanel(model.getTrueSteps());
         add(playBackPanel, 0);
         playBack.setVisible(false);
         playBackOn=true;
+        chessBoardPanel.setPlayBackOn(true);
         playBackPanel.repaint();
+        repaint();
         playBackPanel.getContentPanel().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -289,9 +284,11 @@ public class ChessBoard extends JFrame {
             }
         });
     }
-
+    
     private void handleMouseClickOnPlayBackPanel(int x, int y){
-        playBackPanel.setSelectedIdx(y / playBackPanel.getStepHeight());
+        selectedIdx = y / playBackPanel.getStepHeight();
+        playBackPanel.setSelectedIdx(selectedIdx);
+        chessBoardPanel.setSelectedIdx(selectedIdx);
         replacePieces(playBackPanel.getSelectedIdx());
         playBackPanel.getContentPanel().repaint();
     }
@@ -334,6 +331,8 @@ class ChessBoardPanel extends JPanel {
     static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     static int screenWidth = (int)(screenSize.width*0.7);
     static int screenHeight = (int)(screenSize.height*0.7);
+    private boolean playBackOn=false;
+    private int selectedIdx=-1;
     /**
      * 单个棋盘格子的尺寸（px）
      */
@@ -349,12 +348,15 @@ class ChessBoardPanel extends JPanel {
      */
     private static final int PIECE_RADIUS = 25;
 
+    public void setPlayBackOn(boolean playBackOn){
+        this.playBackOn=playBackOn;
+    }
+
     private AbstractPiece selectedPiece = null;
 
     public ChessBoardPanel(ChessBoardModel model) {
         this.model = model;
         setSize(new Dimension(screenWidth, screenHeight));
-
         setOpaque(false);
         setBackground(new Color(0, 0, 0, 0));
 
@@ -364,6 +366,10 @@ class ChessBoardPanel extends JPanel {
                 handleMouseClick(e.getX(), e.getY());
             }
         });
+    }
+
+    public void setSelectedIdx(int selectedIdx){
+        this.selectedIdx=selectedIdx;
     }
 
     public void handleMouseClick(int x, int y) {
@@ -551,84 +557,53 @@ class ChessBoardPanel extends JPanel {
     private void drawCannonMarks(Graphics2D g, int row, int col, int length) {
         int x = MARGIN + col * CELL_SIZE;
         int y = MARGIN + row * CELL_SIZE;
+        int gap = 4; // 标记与交叉点的间距
 
-        // 炮位标记：在交叉点的四个角都绘制小L形
-        if (row == 2) { // 红方炮位（棋盘上方）
-            // 左上角L形
-            g.drawLine(x - length, y, x, y);
-            g.drawLine(x, y - length, x, y);
-            // 右上角L形
-            g.drawLine(x, y - length, x, y);
-            g.drawLine(x, y, x + length, y);
-            // 左下角L形
-            g.drawLine(x - length, y, x, y);
-            g.drawLine(x, y, x, y + length);
-            // 右下角L形
-            g.drawLine(x, y, x + length, y);
-            g.drawLine(x, y, x, y + length);
-        }
-        else if (row == 7) { // 黑方炮位（棋盘下方）
-            // 左上角L形
-            g.drawLine(x - length, y, x, y);
-            g.drawLine(x, y, x, y - length);
-            // 右上角L形
-            g.drawLine(x, y, x + length, y);
-            g.drawLine(x, y, x, y - length);
-            // 左下角L形
-            g.drawLine(x - length, y, x, y);
-            g.drawLine(x, y, x, y + length);
-            // 右下角L形
-            g.drawLine(x, y, x + length, y);
-            g.drawLine(x, y, x, y + length);
-        }
+        // 左上角L形
+        g.drawLine(x - gap - length, y - gap, x - gap, y - gap);
+        g.drawLine(x - gap, y - gap - length, x - gap, y - gap);
+
+        // 右上角L形
+        g.drawLine(x + gap, y - gap, x + gap + length, y - gap);
+        g.drawLine(x + gap, y - gap, x + gap, y - gap - length);
+
+        // 左下角L形
+        g.drawLine(x - gap - length, y + gap, x - gap, y + gap);
+        g.drawLine(x - gap, y + gap, x - gap, y + gap + length);
+
+        // 右下角L形
+        g.drawLine(x + gap, y + gap, x + gap + length, y + gap);
+        g.drawLine(x + gap, y + gap, x + gap, y + gap + length);
     }
 
     /**
-     * 绘制兵/卒位的L形标记（指向棋盘中心的L形）
+     * 绘制兵/卒位的L形标记
      */
     private void drawSoldierMarks(Graphics2D g, int row, int col, int length) {
         int x = MARGIN + col * CELL_SIZE;
         int y = MARGIN + row * CELL_SIZE;
+        int gap = 4; // 标记与交叉点的间距
 
-        if (row == 3) { // 红方兵位
-            // 兵位标记：L形指向棋盘中心（向下）
-            if (col == 0) {
-                // 最左边兵位：右下L形
-                g.drawLine(x, y, x + length, y);
-                g.drawLine(x, y, x, y + length);
-            }
-            else if (col == 8) {
-                // 最右边兵位：左下L形
-                g.drawLine(x, y, x - length, y);
-                g.drawLine(x, y, x, y + length);
-            }
-            else {
-                // 中间兵位：向下L形
-                g.drawLine(x - length/
-                                2, y, x + length/2
-                        , y);
-                g.drawLine(x, y, x, y + length);
-            }
+        // 兵/卒位标记逻辑：除了最左和最右列只有两个角外，其余位置四个角都有标记
+
+        if (col != 0) {
+            // 绘制左边的标记
+            // 左上角L形
+            g.drawLine(x - gap - length, y - gap, x - gap, y - gap);
+            g.drawLine(x - gap, y - gap - length, x - gap, y - gap);
+            // 左下角L形
+            g.drawLine(x - gap - length, y + gap, x - gap, y + gap);
+            g.drawLine(x - gap, y + gap, x - gap, y + gap + length);
         }
-        else if (row == 6) { // 黑方卒位
-            // 卒位标记：L形指向棋盘中心（向上）
-            if (col == 0) {
-                // 最左边卒位：右上L形
-                g.drawLine(x, y, x + length, y);
-                g.drawLine(x, y, x, y - length);
-            }
-            else if (col == 8) {
-                // 最右边卒位：左上L形
-                g.drawLine(x, y, x - length, y);
-                g.drawLine(x, y, x, y - length);
-            }
-            else {
-                // 中间卒位：向上L形
-                g.drawLine(x - length/
-                                2, y, x + length/2
-                        , y);
-                g.drawLine(x, y, x, y - length);
-            }
+
+        if (col != 8) {
+            // 绘制右边的标记
+            // 右上角L形
+            g.drawLine(x + gap, y - gap, x + gap + length, y - gap);
+            g.drawLine(x + gap, y - gap, x + gap, y - gap - length);
+            // 右下角L形
+            g.drawLine(x + gap, y + gap, x + gap + length, y + gap);
+            g.drawLine(x + gap, y + gap, x + gap, y + gap + length);
         }
     }
 
@@ -636,13 +611,28 @@ class ChessBoardPanel extends JPanel {
      * 绘制棋子
      */
     private void drawPieces(Graphics2D g) {
-        if(!model.getSteps().isEmpty())drawPrePos(g, model.getSteps().getLast());
+        if((!model.getAllSteps().isEmpty())&&(!playBackOn))drawPrePos(g, model.getAllSteps().getLast());
+        else if((!model.getAllSteps().isEmpty())&&(playBackOn)&&this.selectedIdx==-1)drawPrePos(g, model.getTrueSteps().getLast());
+        else if((!model.getAllSteps().isEmpty())&&(playBackOn))drawPrePos(g, model.getTrueSteps().get(selectedIdx));
+
         if(selectedPiece!=null)drawHitRange(g);
         // 遍历棋盘上的每一个棋子，每次循环绘制该棋子
+        int redEaten=0,blackEaten=0;
         for (AbstractPiece piece : model.getPieces()) {
             // 计算每一个棋子的坐标
             int x = MARGIN + piece.getCol() * CELL_SIZE;
             int y = MARGIN + piece.getRow() * CELL_SIZE;
+
+            if(!piece.getStatus()){
+                if(piece.isRed()){
+                    y=MARGIN+redEaten*(PIECE_RADIUS);
+                    redEaten++;
+                }else{
+                    y=MARGIN+ChessBoardModel.getCols() * CELL_SIZE-blackEaten*(PIECE_RADIUS);
+                    x = MARGIN + (ChessBoardModel.getRows()-1) * CELL_SIZE;
+                    blackEaten++;
+                }
+            }
 
             boolean isSelected = (piece == selectedPiece);
 
@@ -831,9 +821,9 @@ class PlayBackPanel extends JScrollPane {
 
             // 绘制标题
             g.setColor(Color.BLACK);
-            g.setFont(new Font("SimHei", Font.BOLD, 20));
+            g.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 20));
             // 调整文字y坐标使其居中 (y是顶部，加上偏移量)
-            g.drawString(stepNow.toString(), 20, y + 28);
+            g.drawString((stepIdx+1)+" "+stepNow.getStepNameInCh(), 20, y + 28);
 
             // 绘制选中指示器
             if (stepIdx == selectedIdx) {

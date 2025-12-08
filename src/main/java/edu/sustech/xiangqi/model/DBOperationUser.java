@@ -22,13 +22,13 @@ public class DBOperationUser {
         }
 
         if(getUserByName("Red")==null){
-            insertUser(new User(getUserCount(), "Red", null, 2));
+            insertUser(new User(getUserCount(), "Red", null, 2, true));
         }
         if(getUserByName("Black")==null){
-            insertUser(new User(getUserCount(), "Black", null, 2));
+            insertUser(new User(getUserCount(), "Black", null, 2, true));
         }
         if(getUserByName("null")==null){
-            insertUser(new User(getUserCount(), "null", null, 2));
+            insertUser(new User(getUserCount(), "null", null, 2, true));
         }
     }
 
@@ -121,7 +121,8 @@ public class DBOperationUser {
                         rs.getString("name"),
                         rs.getString("pswordhash"),
                         rs.getInt("type"),
-                        rs.getString("description")
+                        rs.getString("description"),
+                        true
                     );
                 } else {
                     return null;
@@ -142,7 +143,8 @@ public class DBOperationUser {
                         rs.getString("name"),
                         rs.getString("pswordhash"),
                         rs.getInt("type"),
-                        rs.getString("description")
+                        rs.getString("description"),
+                        true
                     );
                 } else {
                     return null;
@@ -182,8 +184,21 @@ public class DBOperationUser {
     }
 
     public static String calHash(String password){
-        String hash=password;
-        return hash;
+        if (password == null) return null;
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     //用户功能
