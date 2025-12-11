@@ -12,6 +12,7 @@ public class ChessBoardModel {
     private static final int ROWS = 10;
     private static final int COLS = 9;
     private int id;
+    private boolean playBackOn= false;
     private int boardType;
     //采用位运算叠加
     //xxx 仅棋盘1 远程2 AI4 已终结8
@@ -27,6 +28,7 @@ public class ChessBoardModel {
 
     //过程信息
     private List<Step> steps;
+    private int selectedIdx;
     private int[][] boardStatus = new int[ROWS][COLS];
 
     //用户信息
@@ -66,6 +68,8 @@ public class ChessBoardModel {
         this.userBlack=userBlack;
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
+        this.playBackOn=false;
+        this.selectedIdx = getTrueSteps().size()-1;
         this.gameResult = null;
     }
     public ChessBoardModel(int id, String name, int boardType, User userRed, User userBlack, User owner, boolean whoseTurn) {
@@ -81,6 +85,8 @@ public class ChessBoardModel {
         this.userBlack=userBlack;
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
+        this.playBackOn=false;
+        this.selectedIdx = getTrueSteps().size()-1;
     }
     public ChessBoardModel(int id, int boardType, String description, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
@@ -96,6 +102,8 @@ public class ChessBoardModel {
         this.userBlack=userBlack;
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
+        this.playBackOn=false;
+        this.selectedIdx = getTrueSteps().size()-1;
     }
     public ChessBoardModel(int id, String name, int boardType, String description, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
@@ -111,6 +119,8 @@ public class ChessBoardModel {
         this.userBlack=userBlack;
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
+        this.playBackOn=false;
+        this.selectedIdx = getTrueSteps().size()-1;
     }
     public ChessBoardModel(int id, int boardType, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
@@ -124,6 +134,8 @@ public class ChessBoardModel {
         this.userBlack=userBlack;
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
+        this.playBackOn=false;
+        this.selectedIdx = getTrueSteps().size()-1;
     }
     public ChessBoardModel(int id, String name, int boardType, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
@@ -137,6 +149,8 @@ public class ChessBoardModel {
         this.userBlack=userBlack;
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
+        this.playBackOn=false;
+        this.selectedIdx = getTrueSteps().size()-1;
     }
     public ChessBoardModel(int id, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
@@ -151,6 +165,8 @@ public class ChessBoardModel {
         this.userBlack=userBlack;
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
+        this.playBackOn=false;
+        this.selectedIdx = getTrueSteps().size()-1;
     }
     public ChessBoardModel(int id, String name, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
@@ -165,6 +181,8 @@ public class ChessBoardModel {
         this.userBlack=userBlack;
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
+        this.playBackOn=false;
+        this.selectedIdx = getTrueSteps().size()-1;
     }
     
 
@@ -229,6 +247,12 @@ public class ChessBoardModel {
     public static int getCols(){
         return COLS;
     }
+    public boolean getPlayBackOn(){
+        return this.playBackOn;
+    }
+    public void setPlayBackOn(boolean playBackOn){
+        this.playBackOn=playBackOn;
+    }
 
     //历史
     public List<Step> getAllSteps(){
@@ -244,6 +268,12 @@ public class ChessBoardModel {
     }
     public void setSteps(List<Step> steps){
         this.steps = steps;
+    }
+    public int getSelectedIdx(){
+        return this.selectedIdx;
+    }
+    public void setSelectedIdx(int selectedIdx){
+        this.selectedIdx=selectedIdx;
     }
 
     //ID
@@ -366,9 +396,9 @@ public class ChessBoardModel {
     public void caneclSelection(){
         this.selectedPiece = null;
     }
-    public void tryMovePiece(int row, int col){
-        if(this.selectedPiece==null) return;
-        if(!isValidPosition(row, col)) return;
+    public boolean tryMovePiece(int row, int col){
+        if(this.selectedPiece==null) return false;
+        if(!isValidPosition(row, col)) return false;
         if(moveRange != null && moveRange.contains(new Coordinate(row, col))){
             Step nowStep = new Step(selectedPiece.getType(),selectedPiece.isRed(),selectedPiece.getRow(),selectedPiece.getCol(), row, col, 0);
             updateBoards(nowStep,true);
@@ -383,12 +413,14 @@ public class ChessBoardModel {
             }catch(SQLException e){
                 e.printStackTrace();
             }
+            return true;
         }
+        return false;
     }
     
-    public void tryEatPiece(int row, int col){
-        if(this.selectedPiece==null) return;
-        if(!isValidPosition(row, col)) return;
+    public boolean tryEatPiece(int row, int col){
+        if(this.selectedPiece==null) return false;
+        if(!isValidPosition(row, col)) return false;
         if(eatRange != null && eatRange.contains(new Coordinate(row, col))){
             AbstractPiece eatenPiece = this.getPieceAt(row, col);
             Step step1 = new Step(eatenPiece.getType(),eatenPiece.isRed(),eatenPiece.getRow(),eatenPiece.getCol(), -1, -1, 1);
@@ -424,7 +456,9 @@ public class ChessBoardModel {
                     e.printStackTrace();
                 }
             }
+            return true;
         }
+        return false;
     }
 
     public void tryPlayBack(int StepIdx){
@@ -447,6 +481,8 @@ public class ChessBoardModel {
 
     public void resetBoard(){
         this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        this.playBackOn=false;
+        this.whoseTurn=!this.whoseTurn;
         this.boardType = (this.boardType&(1<<3))==0? this.boardType:(this.boardType^(1<<3));
         this.pieces = new ArrayList<>();
         initPieces();

@@ -261,7 +261,7 @@ public class Connection extends JFrame{
             if (parts.length >= 2) {
                 int x = Integer.parseInt(parts[0].trim());
                 int y = Integer.parseInt(parts[1].trim());
-                chessBoard.getPanel().handleMouseClick(x,y);
+                chessBoard.getChessBoardPanel().handleMouseClick(x,y);
             }
         }
     }

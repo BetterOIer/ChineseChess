@@ -178,6 +178,7 @@ public class ArchiveManager extends JFrame{
             ChessBoard chessBoard = new ChessBoard(model);
             archivePanel.setSelectedIdx(-1);
             chessBoard.setVisible(true);
+            dispose();
         }
     }
 }

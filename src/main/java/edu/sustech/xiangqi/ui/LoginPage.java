@@ -11,33 +11,28 @@ import edu.sustech.xiangqi.model.User;
 
 public class LoginPage extends JFrame{
 
-    JButton loginButton,tourLoginButton;
+    JRoundButton loginButton,tourLoginButton;
     JRoundTextField userName;
     JRoundPasswordField password;
     JLabel namePwdWA;
     boolean force;
     private Image backgroundImage;
 
-    // 获取屏幕尺寸，设置一个不铺满屏幕的正方形窗口
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    int screenWidth = screenSize.width;
-    int screenHeight = screenSize.height;
 
-    // 设置窗口大小为屏幕较小边长的70%，确保不铺满屏幕
-    int squareSize = (int) (Math.min(screenWidth, screenHeight) * 0.7);
+    int windowWidth = (int)(Style.screenSize.height*0.7);
+    int windowHeight = (int)(Style.screenSize.height*0.7);
 
     public LoginPage(boolean force){
+        System.out.println(windowHeight);
         setTitle("中国象棋-登录");
         setLayout(null);
-
-        setSize(squareSize, squareSize);
-
+        setSize(windowWidth,windowHeight);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationRelativeTo(null);
 
         // 加载背景图片
         try {
-            ImageIcon icon = new ImageIcon("src/main/java/edu/sustech/xiangqi/assets/images/LoginPage.png");
+            ImageIcon icon = new ImageIcon("src/main/java/edu/sustech/iangqi/assets/images/LoginPage.png");
             backgroundImage = icon.getImage();
 
         }
@@ -61,15 +56,8 @@ public class LoginPage extends JFrame{
         };
         backgroundPanel.setLayout(null);
         setContentPane(backgroundPanel);
-
-        // 设置组件位置和大小（使用相对定位）
-        setupComponents(backgroundPanel);
-
         setResizable(false);
 
-        }
-
-    private void setupComponents(JPanel backgroundPanel) {
         /*JLabel userNameTip = new JLabel("用户名：");
         userNameTip.setLocation(145, 360);
         userNameTip.setSize(100,40);
@@ -77,8 +65,8 @@ public class LoginPage extends JFrame{
 
          */
         userName = new JRoundTextField();
-        userName.setLocation(280, 360);
-        userName.setSize(160, 50);
+        userName.setSize((int)(windowWidth/4.5), (int)(windowHeight/15.5));
+        userName.setLocation((int)(windowWidth/2), (int)(windowHeight/5*3));
         add(userName);
 
         /*JLabel passwordTip = new JLabel("密码：");
@@ -89,18 +77,18 @@ public class LoginPage extends JFrame{
          */
 
         password = new JRoundPasswordField();
-        password.setLocation(280, 425);
-        password.setSize(160, 50);
+        password.setSize((int)(windowWidth/4.5), (int)(windowHeight/15.5));
+        password.setLocation((int)(windowWidth/2), (int)(windowHeight/5*3.5));
         add(password);
 
-        loginButton = createTransparentButton("", 150, 40);
-        loginButton.setLocation(160, 495);
-        loginButton.setSize(100, 40);
+        loginButton = new JRoundButton("登录");
+        loginButton.setLocation((int)(windowHeight/1.89), (int)(windowHeight/5*4));
+        loginButton.setSize((int)(windowWidth/7.3), (int)(windowWidth/18));
         add(loginButton);
 
-        tourLoginButton = createTransparentButton("", 150, 40);
-        tourLoginButton.setLocation(400, 495);
-        tourLoginButton.setSize(100, 40);
+        tourLoginButton = new JRoundButton("仅游客登录");
+        tourLoginButton.setLocation((int)(windowHeight/4.725),(int)(windowHeight/5*4));
+        tourLoginButton.setSize((int)(windowWidth/7.3), (int)(windowWidth/18));
         tourLoginButton.setVisible(!force);
         add(tourLoginButton);
 
