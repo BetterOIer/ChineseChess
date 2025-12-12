@@ -10,6 +10,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ArchiveManager extends JFrame{
 
@@ -239,7 +241,7 @@ class ArchivePanel extends JPanel{
             //绘制时间
             g.setColor(Color.GRAY);
             g.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 13));
-            g.drawString(archNow.getLastModTime(), 20, y + 60);
+            g.drawString(LocalDateTime.parse(archNow.getLastModTime(),DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), 20, y + 60);
 
             //绘制描述
             g.setColor(Color.BLACK);

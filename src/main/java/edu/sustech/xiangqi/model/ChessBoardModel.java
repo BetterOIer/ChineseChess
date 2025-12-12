@@ -59,7 +59,7 @@ public class ChessBoardModel {
         this.id=id;
         this.boardType = boardType;
         this.name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        this.lastModTime = this.name;
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.pieces = new ArrayList<>();
         initPieces();
         this.steps = new ArrayList<>();
@@ -76,7 +76,7 @@ public class ChessBoardModel {
         this.id=id;
         this.boardType = boardType;
         this.name = name;
-        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.pieces = new ArrayList<>();
         initPieces();
         this.steps = new ArrayList<>();
@@ -93,7 +93,7 @@ public class ChessBoardModel {
         this.description = description;
         this.boardType = boardType;
         this.name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        this.lastModTime = this.name;
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.pieces = new ArrayList<>();
         initPieces();
         this.steps = new ArrayList<>();
@@ -110,7 +110,7 @@ public class ChessBoardModel {
         this.description = description;
         this.boardType = boardType;
         this.name = name;
-        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.pieces = new ArrayList<>();
         initPieces();
         this.steps = new ArrayList<>();
@@ -126,7 +126,7 @@ public class ChessBoardModel {
         this.id=id;
         this.boardType = boardType;
         this.name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        this.lastModTime = this.name;
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.pieces = pieces;
         this.steps = steps;
         initBoardStatus(pieces);
@@ -141,7 +141,7 @@ public class ChessBoardModel {
         this.id=id;
         this.boardType = boardType;
         this.name = name;
-        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.pieces = pieces;
         this.steps = steps;
         initBoardStatus(pieces);
@@ -157,7 +157,7 @@ public class ChessBoardModel {
         this.description = description;
         this.boardType = boardType;
         this.name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        this.lastModTime = this.name;
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.pieces = pieces;
         this.steps = steps;
         initBoardStatus(pieces);
@@ -173,7 +173,7 @@ public class ChessBoardModel {
         this.description = description;
         this.boardType = boardType;
         this.name = name;
-        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.pieces = pieces;
         this.steps = steps;
         initBoardStatus(pieces);
@@ -405,7 +405,7 @@ public class ChessBoardModel {
             updateBoards(nowStep,true);
             this.selectedPiece.moveTo(row, col);
             this.whoseTurn=!this.whoseTurn;
-            setLastModTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            setLastModTime(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             try{
                 DBOperationBoard.updateBoardNowStatus(this.id, this.pieces);
                 DBOperationBoard.updateBoardHistory(this.id,steps);
@@ -432,7 +432,7 @@ public class ChessBoardModel {
             updateBoards(step2,true);
             this.selectedPiece.moveTo(row, col);
             this.whoseTurn=!this.whoseTurn;
-            setLastModTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            setLastModTime(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             try{
                 DBOperationBoard.updateBoardNowStatus(this.id, this.pieces);
                 DBOperationBoard.updateBoardHistory(this.id,steps);
@@ -481,7 +481,7 @@ public class ChessBoardModel {
     }
 
     public void resetBoard(){
-        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.playBackOn=false;
         this.whoseTurn=!this.whoseTurn;
         this.boardType = (this.boardType&(1<<3))==0? this.boardType:(this.boardType^(1<<3));
@@ -508,7 +508,7 @@ public class ChessBoardModel {
         this.gameState = GameState.BLACK_WIN;  // 红方投降，黑方胜利
 
         // 记录最后修改时间
-        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
         // 保存到数据库
         try {
