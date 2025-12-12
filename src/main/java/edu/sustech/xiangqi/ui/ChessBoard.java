@@ -4,6 +4,7 @@ import edu.sustech.xiangqi.model.*;
 
 import javax.swing.*;
 import java.awt.event.*;
+import java.sql.SQLException;
 
 public class ChessBoard extends JFrame {
 
@@ -27,7 +28,7 @@ public class ChessBoard extends JFrame {
 
         //设置窗口
         setTitle("中国象棋-"+model.getName());
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(null);
         setSize(windowWidth,windowHeight+windowHeightOffset);
         setLocationRelativeTo(null);
@@ -75,6 +76,17 @@ public class ChessBoard extends JFrame {
                 if (chessBoardPanel != null) chessBoardPanel.resizeComponents();
                 if (controlPanel != null) controlPanel.resizeComponents();
                 if (playBackPanel != null) playBackPanel.resizeComponents();
+            }
+        });
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e){
+                try{
+                    new ArchiveManager(DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse())).setVisible(true);
+                }catch(SQLException ex){
+                    ex.printStackTrace();
+                }
             }
         });
     }

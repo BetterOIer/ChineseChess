@@ -1,12 +1,9 @@
 package edu.sustech.xiangqi.ui;
 
 import javax.swing.*;
-import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.sql.SQLException;
-import java.util.Enumeration;
 import java.util.List;
 
 import edu.sustech.xiangqi.model.*;
@@ -15,8 +12,7 @@ public class WelcomePage extends JFrame{
 
     private Image backgroundImage;
     private JButton archiveButton, pvpButton, aiButton;
-    private JRoundButton loginButton, logoutButton;
-    private JLabel userInUse;
+    private JLabel loginButton, logoutButton, userInUse, changePwd;
 
 
     // 获取屏幕尺寸，设置一个不铺满屏幕的正方形窗口
@@ -27,8 +23,12 @@ public class WelcomePage extends JFrame{
     // 设置窗口大小为屏幕较小边长的70%，确保不铺满屏幕
     int squareSize = (int) (Math.min(screenWidth, screenHeight) * 0.9);
 
-    public WelcomePage(){
-        initGlobalFont();
+    public WelcomePage() {
+        this(true);
+    }
+
+    public WelcomePage(boolean shouldLogout){
+        Style.initGlobalFont();
         setTitle("中国象棋");
         setLayout(null);
 
@@ -53,14 +53,17 @@ public class WelcomePage extends JFrame{
             DBOperationBoard.createTable();
             DBOperationUser.createTable();
             DBOperationBoard.deleteBoardsOfNull();
-            DBOperationUser.logoutAll();
+            if (shouldLogout) {
+                DBOperationUser.logoutAll();
+            }
         }catch(SQLException e){
             e.printStackTrace();
         }
 
-        loginButton = new JRoundButton("登录");
-        loginButton.setLocation(650, 10);
+        loginButton = new JLabel("登录");
+        loginButton.setLocation(squareSize - 120, 10);
         loginButton.setSize(100, 40);
+        loginButton.setFont(new Font("隶书", Font.PLAIN, 20));
         loginButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -68,19 +71,63 @@ public class WelcomePage extends JFrame{
             }
         });
 
-        userInUse = new JLabel();
-        userInUse.setLocation(530, 10);
-        userInUse.setSize(100, 40);
+        userInUse = new JLabel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                String text = getText();
+                if (text == null || text.isEmpty()) return;
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setFont(UIManager.getFont("Button.font").deriveFont(Font.BOLD, 20f));
+                int textWidth = g2.getFontMetrics().stringWidth(text);
+                int h = getHeight();
+                int w = getWidth();
+                
+                g2.setStroke(new BasicStroke(2));
+                g2.setColor(Color.GRAY);
+                g2.drawRoundRect(w - textWidth - 15, (h - 30) / 2, textWidth + 10, 30, 10, 10);
+                g2.setColor(Color.GRAY);
+                g2.drawString(text, w - textWidth - 10, (h - 30) / 2 + 21);
+                g2.dispose();
+            }
+        };
+        userInUse.setSize(300, 35);
+        userInUse.setLocation(squareSize - 320, 20);
         userInUse.setVisible(false);
 
-        logoutButton = new JRoundButton("登出");
-        logoutButton.setLocation(650, 10);
+        changePwd = new JLabel("修改密码");
+        changePwd.setHorizontalAlignment(SwingConstants.RIGHT);
+        changePwd.setLocation(squareSize-125, 60);
+        changePwd.setSize(100, 30);
+        changePwd.setFont(new Font("隶书", Font.PLAIN, 20));
+        changePwd.setVisible(false);
+        changePwd.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                switchToChangePwdPage();
+            }
+        });
+
+        logoutButton = new JLabel("登出");
+        logoutButton.setHorizontalAlignment(SwingConstants.RIGHT);
+        logoutButton.setLocation(squareSize-125, 90);
         logoutButton.setSize(100, 40);
+        logoutButton.setFont(new Font("隶书", Font.PLAIN, 20));
         logoutButton.setVisible(false);
         logoutButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 switchToLogoutPage();
+            }
+        });
+
+        userInUse.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (userInUse.isVisible()) {
+                    logoutButton.setVisible(!logoutButton.isVisible());
+                    changePwd.setVisible(!changePwd.isVisible());
+                }
             }
         });
 
@@ -99,32 +146,24 @@ public class WelcomePage extends JFrame{
         setContentPane(backgroundPanel);
         getContentPane().add(loginButton);
         getContentPane().add(logoutButton);
+        getContentPane().add(changePwd);
         getContentPane().add(userInUse);
         // 根据图片上文字的位置创建透明按钮
         createTransparentButtons();
 
-    }
-
-    private void initGlobalFont() {
-        try {
-            File fontFile = new File("src/main/java/edu/sustech/xiangqi/assets/fonts/vivoSansSCVF.ttf");
-            if(fontFile.exists()){
-                Font customFont = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(12f);
-                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                ge.registerFont(customFont);
-                
-                Enumeration<Object> keys = UIManager.getDefaults().keys();
-                while (keys.hasMoreElements()) {
-                    Object key = keys.nextElement();
-                    Object value = UIManager.get(key);
-                    if (value instanceof FontUIResource) {
-                        UIManager.put(key, new FontUIResource(customFont));
-                    }
+        if (!shouldLogout) {
+            try {
+                User currentUser = DBOperationUser.getUserInUse();
+                if (currentUser != null) {
+                    userInUse.setText("当前用户：" + currentUser.getName());
+                    userInUse.setVisible(true);
+                    loginButton.setVisible(false);
                 }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            System.out.println("字体加载失败: " + e.getMessage());
         }
+
     }
 
     public void switchToLoginPage(boolean force){
@@ -143,11 +182,11 @@ public class WelcomePage extends JFrame{
                         DBOperationUser.logoutAll();
                         userTmp.setType((userTmp.getType()|4));
                         DBOperationUser.updateUserType(userTmp.getId(), userTmp.getType());
-                        userInUse.setText(userTmp.getName());
+                        userInUse.setText("当前用户："+userTmp.getName());
+
                         userInUse.setVisible(true);
                         loginPage.dispose();
                         loginButton.setVisible(false);
-                        logoutButton.setVisible(true);
                     }
                 }catch(SQLException e2){
                     e2.printStackTrace();
@@ -161,6 +200,11 @@ public class WelcomePage extends JFrame{
                 switchToTourWarning();
             }
         });
+    }
+
+    private void switchToChangePwdPage() {
+        ChangePwd changePwdPage = new ChangePwd();
+        changePwdPage.setVisible(true);
     }
 
     private void switchToLogoutPage(){
@@ -177,6 +221,7 @@ public class WelcomePage extends JFrame{
                     e2.printStackTrace();
                 }
                 logoutButton.setVisible(false);
+                changePwd.setVisible(false);
                 userInUse.setVisible(false);
                 loginButton.setVisible(true);
                 logoutPage.dispose();
@@ -223,7 +268,7 @@ public class WelcomePage extends JFrame{
             }else{
                 Connection connection = new Connection();
                 connection.setVisible(true);
-                setVisible(false);
+                dispose();
             }
         }catch (SQLException e){
             e.printStackTrace();

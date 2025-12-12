@@ -1,9 +1,9 @@
 package edu.sustech.xiangqi.ui;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.*;
+import java.awt.*;
 
-import javax.swing.JButton;
+import java.awt.Font;
 
 public class TourWarning extends JFrame {
 
@@ -13,26 +13,30 @@ public class TourWarning extends JFrame {
     public TourWarning(){
         setTitle("提示");
         setLayout(null);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        setSize(683,384);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setSize(400,190);
         setLocationRelativeTo(null);
+        setResizable(false);
 
         
-        JLabel delConfirm = new JLabel("使用游客模式登录，你将只能开启单人模式");
-        delConfirm.setLocation(10, 60);
-        delConfirm.setSize(500,40);
+        JLabel delConfirm = new JLabel("使用游客模式登录，你只能开启单人模式！");
+        delConfirm.setLocation(10, 40);
+        delConfirm.setSize(400,30);
+        delConfirm.setFont(UIManager.getFont("Button.font").deriveFont(Font.PLAIN, 17f));
         add(delConfirm);
 
 
         cancelAcknow = new JRoundButton("去登录");
-        cancelAcknow.setLocation(10, 160);
-        cancelAcknow.setSize(90,30);
+        cancelAcknow.setLocation(10, 90);
+        cancelAcknow.setSize(80,30);
+        cancelAcknow.setFont(new Font("隶书", Font.PLAIN, 20));
         add(cancelAcknow);
         
 
         submitAcknow = new JRoundButton("了解");
-        submitAcknow.setLocation(110, 160);
-        submitAcknow.setSize(60, 30);
+        submitAcknow.setLocation(110, 90);
+        submitAcknow.setSize(80, 30);
+        submitAcknow.setFont(new Font("隶书", Font.PLAIN, 20));
         add(submitAcknow);
     }
     public JButton getSubmitAcknow(){

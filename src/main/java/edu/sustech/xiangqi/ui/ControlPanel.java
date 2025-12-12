@@ -32,7 +32,7 @@ public class ControlPanel extends JPanel{
         reset.setPreferredSize(buttonSize);
         reset.setMaximumSize(buttonSize);
         reset.setMinimumSize(buttonSize);
-        reset.setFont(new Font("隶书", Font.BOLD, 16));
+        reset.setFont(new Font("隶书", Font.BOLD, (int)(board.getWindowHeight()/37.8)));
         reset.setFocusPainted(false);
         reset.setAlignmentX(Component.CENTER_ALIGNMENT);
         if(model.getAllSteps().isEmpty())reset.setVisible(false);
@@ -42,7 +42,7 @@ public class ControlPanel extends JPanel{
         playBack.setPreferredSize(buttonSize);
         playBack.setMaximumSize(buttonSize);
         playBack.setMinimumSize(buttonSize);
-        playBack.setFont(new Font("隶书", Font.BOLD, 16));
+        playBack.setFont(new Font("隶书", Font.BOLD, (int)(board.getWindowHeight()/37.8)));
         playBack.setFocusPainted(false);
         playBack.setAlignmentX(Component.CENTER_ALIGNMENT);
         if((model.getType()&(1<<3))==0)playBack.setVisible(false);
@@ -51,7 +51,7 @@ public class ControlPanel extends JPanel{
         backToArchive.setPreferredSize(buttonSize);
         backToArchive.setMaximumSize(buttonSize);
         backToArchive.setMinimumSize(buttonSize);
-        backToArchive.setFont(new Font("隶书", Font.BOLD, 16));
+        backToArchive.setFont(new Font("隶书", Font.BOLD, (int)(board.getWindowHeight()/37.8)));
         backToArchive.setFocusPainted(false);
         backToArchive.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -59,7 +59,7 @@ public class ControlPanel extends JPanel{
         musicOn.setPreferredSize(buttonSize);
         musicOn.setMaximumSize(buttonSize);
         musicOn.setMinimumSize(buttonSize);
-        musicOn.setFont(new Font("隶书", Font.BOLD, 16));
+        musicOn.setFont(new Font("隶书", Font.BOLD, (int)(board.getWindowHeight()/37.8)));
         musicOn.setFocusPainted(false);
         musicOn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -67,7 +67,7 @@ public class ControlPanel extends JPanel{
         surrender.setPreferredSize(buttonSize);
         surrender.setMaximumSize(buttonSize);
         surrender.setMinimumSize(buttonSize);
-        surrender.setFont(new Font("隶书", Font.BOLD, 16));
+        surrender.setFont(new Font("隶书", Font.BOLD, (int)(board.getWindowHeight()/37.8)));
         surrender.setFocusPainted(false);
         surrender.setAlignmentX(Component.CENTER_ALIGNMENT);
         if((model.getType()&(1<<3))!=0)surrender.setVisible(false);
@@ -128,7 +128,7 @@ public class ControlPanel extends JPanel{
         setSize(board.getWindowWidth()/10, board.getWindowHeight()/13*12);
         setLocation(0,board.getWindowHeight()/13);
         
-        Dimension buttonSize = new Dimension(board.getWindowWidth()/10, (int)(board.getWindowHeight()/20));
+        Dimension buttonSize = new Dimension(board.getWindowWidth()/10, (int)(board.getWindowHeight()/(int)(board.getWindowHeight()/37.8)));
         
         JRoundButton[] buttons = {reset, playBack, backToArchive, musicOn, surrender};
         for (JRoundButton btn : buttons) {

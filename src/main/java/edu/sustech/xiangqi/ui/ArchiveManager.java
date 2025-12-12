@@ -82,7 +82,7 @@ public class ArchiveManager extends JFrame{
             });
             delArchive.getSubmitMod().addActionListener(e1 -> {
                 try{
-                    DBOperationBoard.deleteBoardById(Idx);
+                    DBOperationBoard.deleteBoardById(DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse()).get(Idx).getId());
                     archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
                     archivePanel.setArchives(archives);
                     archivePanel.revalidate();
@@ -146,8 +146,8 @@ public class ArchiveManager extends JFrame{
             modifyArchive.getSubmitMod().addActionListener(e1 -> {
                 try{
                     // 保存到数据库
-                    DBOperationBoard.updateBoardName(Idx, modifyArchive.getBoardName().getText());
-                    DBOperationBoard.updateBoardDescription(Idx, modifyArchive.getDescription().getText());
+                    DBOperationBoard.updateBoardName(DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse()).get(Idx).getId(), modifyArchive.getBoardName().getText());
+                    DBOperationBoard.updateBoardDescription(DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse()).get(Idx).getId(), modifyArchive.getDescription().getText());
                     // 从 DB 重新读取所有存档并更新面板
                     archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
                     archivePanel.setArchives(archives);
@@ -305,14 +305,18 @@ class bottomPlaceHolderPanel extends JPanel{
 
         newButton = new JRoundButton("新建");
         newButton.setSize(60, 30);
+        newButton.setFont(new Font("隶书", Font.PLAIN, 20));
+        /* newButton.setFont(new Font("隶书", Font.PLAIN, 20)); */
         add(newButton);
 
         modifyButton = new JRoundButton("修改");
         modifyButton.setSize(60, 30);
+        modifyButton.setFont(new Font("隶书", Font.PLAIN, 20));
         add(modifyButton);
 
         delButton = new JRoundButton("删除");
         delButton.setSize(60, 30);
+        delButton.setFont(new Font("隶书", Font.PLAIN, 20));
         add(delButton);
     }
 

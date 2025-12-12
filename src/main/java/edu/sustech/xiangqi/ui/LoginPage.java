@@ -27,7 +27,7 @@ public class LoginPage extends JFrame{
         setTitle("中国象棋-登录");
         setLayout(null);
         setSize(windowWidth,windowHeight);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
         // 加载背景图片

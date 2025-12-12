@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 import java.net.*;
 import java.sql.SQLException;
@@ -13,6 +14,7 @@ import java.util.concurrent.*;
 public class Connection extends JFrame {
     private JRoundTextField roomField;
     private JRoundButton confirmButton;
+    private JRoundButton cancelButton;
     private JLabel statusLabel;
 
     private static final int PORT = 1029;
@@ -32,30 +34,46 @@ public class Connection extends JFrame {
     public Connection() {
         setTitle("联机对战");
         setLayout(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(400, 250);
         setResizable(false);
         setLocationRelativeTo(null);
+        
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                stop();
+                new WelcomePage(false).setVisible(true);
+            }
+        });
+
         initUI();
     }
 
     private void initUI() {
         JLabel roomTip = new JLabel("请输入房间号：");
         roomTip.setLocation(50, 60);
-        roomTip.setSize(120, 40);
-        roomTip.setFont(Style.defaultFont);
+        roomTip.setSize(180, 40);
+        roomTip.setFont(new Font("隶书", Font.PLAIN, 20));;
         add(roomTip);
 
         roomField = new JRoundTextField();
-        roomField.setLocation(170, 60);
+        roomField.setLocation(230, 60);
         roomField.setSize(100, 40);
         add(roomField);
 
         confirmButton = new JRoundButton("确定");
-        confirmButton.setLocation(150, 120);
+        confirmButton.setLocation(90, 120);
         confirmButton.setSize(100, 40);
-        confirmButton.setFont(Style.defaultFont);
+        confirmButton.setFont(new Font("隶书", Font.PLAIN, 20));
         add(confirmButton);
+
+        cancelButton = new JRoundButton("取消");
+        cancelButton.setLocation(210, 120);
+        cancelButton.setSize(100, 40);
+        cancelButton.setFont(new Font("隶书", Font.PLAIN, 20));
+        cancelButton.setEnabled(false);
+        add(cancelButton);
 
         statusLabel = new JLabel("等待操作...", SwingConstants.CENTER);
         statusLabel.setLocation(50, 170);
@@ -64,6 +82,15 @@ public class Connection extends JFrame {
         add(statusLabel);
 
         confirmButton.addActionListener(e -> startConnection());
+        cancelButton.addActionListener(e -> stopConnection());
+    }
+
+    private void stopConnection() {
+        stop();
+        confirmButton.setEnabled(true);
+        roomField.setEnabled(true);
+        cancelButton.setEnabled(false);
+        statusLabel.setText("已取消");
     }
 
     private void startConnection() {
@@ -88,6 +115,7 @@ public class Connection extends JFrame {
 
         confirmButton.setEnabled(false);
         roomField.setEnabled(false);
+        cancelButton.setEnabled(true);
         statusLabel.setText("正在寻找对手...");
         
         running = true;
