@@ -1,333 +1,295 @@
 package edu.sustech.xiangqi.ui;
 
-import java.sql.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.io.IOException;
-import java.net.*;
+import edu.sustech.xiangqi.model.*;
 import org.json.JSONObject;
 
-import edu.sustech.xiangqi.model.*;
+import javax.swing.*;
+import java.awt.*;
+import java.io.IOException;
+import java.net.*;
+import java.sql.SQLException;
+import java.util.concurrent.*;
 
-public class Connection extends JFrame{
-    private ChessBoardModel chessBoardModel;
-    private ChessBoard chessBoard;
-
-    private JRoundTextField room;
-    private JRoundButton join;
-    private JLabel waitInfo;
+public class Connection extends JFrame {
+    private JRoundTextField roomField;
+    private JRoundButton confirmButton;
+    private JLabel statusLabel;
 
     private static final int PORT = 1029;
     private DatagramSocket socket;
-    private boolean running;
+    private volatile boolean running = false;
+    private volatile boolean connected = false;
+    private ExecutorService executor;
 
-    // 记录对端信息
+    private String localUserName;
+    private String roomNumber;
     private InetAddress peerAddress;
-    private boolean connected = false;
-    private boolean confirm = false;
-    private int active = 1;
-    private String candidate = null;
-    
-    public Connection(){
-        setTitle("等待连接");
+    private int peerPort;
+
+    private ChessBoard chessBoard;
+    private ChessBoardModel model;
+
+    public Connection() {
+        setTitle("联机对战");
         setLayout(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400,200);
+        setSize(400, 250);
+        setResizable(false);
         setLocationRelativeTo(null);
-        
-        JLabel roomTip = new JLabel("创建或加入房间：");
-        roomTip.setLocation(10, 60);
-        roomTip.setSize(120,40);
+        initUI();
+    }
+
+    private void initUI() {
+        JLabel roomTip = new JLabel("请输入房间号：");
+        roomTip.setLocation(50, 60);
+        roomTip.setSize(120, 40);
+        roomTip.setFont(Style.defaultFont);
         add(roomTip);
 
-        room = new JRoundTextField();
-        room.setLocation(130, 60);
-        room.setSize(40, 40);
-        add(room);
+        roomField = new JRoundTextField();
+        roomField.setLocation(170, 60);
+        roomField.setSize(100, 40);
+        add(roomField);
 
-        join = new JRoundButton("加入");
-        join.setLocation(190, 60);
-        join.setSize(60, 40);
-        add(join);
+        confirmButton = new JRoundButton("确定");
+        confirmButton.setLocation(150, 120);
+        confirmButton.setSize(100, 40);
+        confirmButton.setFont(Style.defaultFont);
+        add(confirmButton);
 
-        waitInfo = new JLabel();
-        waitInfo.setLocation(10, 120);
-        waitInfo.setSize(120,40);
-        add(waitInfo);
+        statusLabel = new JLabel("等待操作...", SwingConstants.CENTER);
+        statusLabel.setLocation(50, 170);
+        statusLabel.setSize(300, 30);
+        statusLabel.setForeground(Color.GRAY);
+        add(statusLabel);
 
-        join.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e){
-                try{
-                    handleMouseClick();
-                }catch(IOException e2){
-                    e2.printStackTrace();
-                }
-            }
-        });
+        confirmButton.addActionListener(e -> startConnection());
     }
 
-    void handleMouseClick() throws IOException{
-        try{
-            socket = new DatagramSocket(PORT);
-        }catch(SocketException ex){
-            ex.printStackTrace();
+    private void startConnection() {
+        roomNumber = roomField.getText().trim();
+        if (roomNumber.isEmpty()) {
+            statusLabel.setText("房间号不能为空！");
+            return;
         }
-        running = true;
-        connected = false;
-        // 启用广播并发送到广播地址（向整个局域网/全网广播）
+
         try {
-            socket.setBroadcast(true);
-        } catch (SocketException se) {
-            se.printStackTrace();
+            User user = DBOperationUser.getUserInUse();
+            if (user == null) {
+                statusLabel.setText("未登录用户！");
+                return;
+            }
+            localUserName = user.getName();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            statusLabel.setText("数据库错误！");
+            return;
         }
-        peerAddress = InetAddress.getByName("255.255.255.255");
-        /* PORT = PORT; */
 
-        // 接收消息线程
-        Thread receiveThread = new Thread(this::receiveMessages);
-        receiveThread.start();
+        confirmButton.setEnabled(false);
+        roomField.setEnabled(false);
+        statusLabel.setText("正在寻找对手...");
         
-        // 发送消息线程（周期性发送 Handshake，连接后可以发送更新）
-        Thread sendThread = new Thread(this::sendMessages);
-        sendThread.start();
+        running = true;
+        executor = Executors.newCachedThreadPool();
+        
+        try {
+            // 尝试绑定固定端口，如果失败则使用随机端口
+            try {
+                socket = new DatagramSocket(null);
+                socket.setReuseAddress(true);
+                socket.bind(new InetSocketAddress(PORT));
+            } catch (SocketException e) {
+                socket = new DatagramSocket();
+            }
+            socket.setBroadcast(true);
+        } catch (SocketException ex) {
+            ex.printStackTrace();
+            statusLabel.setText("网络初始化失败");
+            return;
+        }
 
-        while(true){
-            if(chessBoardModel!=null && ((chessBoardModel.getType()&8)!=0)){
-                chessBoard.dispose();
-                dispose();
-                stop();
+        executor.submit(this::receiveLoop);
+        executor.submit(this::broadcastLoop);
+    }
+
+    private void broadcastLoop() {
+        while (running && !connected) {
+            try {
+                JSONObject json = new JSONObject();
+                json.put("type", "DISCOVER");
+                json.put("room", roomNumber);
+                json.put("user", localUserName);
+                
+                byte[] data = json.toString().getBytes();
+                // 广播到 255.255.255.255:1029
+                DatagramPacket packet = new DatagramPacket(data, data.length, 
+                    InetAddress.getByName("255.255.255.255"), PORT);
+                socket.send(packet);
+                
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                if (running) e.printStackTrace();
             }
         }
     }
 
-    private void sendMessages(){
-        while(running){
-            System.out.println(""+connected+" "+confirm);
-            try{
-                try{
-                    if((!connected)&&(!confirm)){
-                        String handshake = encodeBuff("Handshake",DBOperationUser.getUserInUse(),room.getText());
-                        byte[] data = handshake.getBytes();
-                        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
-                        try{
-                            socket.send(packet);
-                            System.out.println("sent:"+handshake);
-                        }catch(IOException ignore){
-                            ignore.printStackTrace();
-                        }
-                        Thread.sleep(1000); // 间隔发送，避免忙循环
-                    }else if((!connected)&&confirm){
-                        String confirm = encodeBuff("Confirm",DBOperationUser.getUserInUse(),room.getText());
-                        byte[] data = confirm.getBytes();
-                        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
-                        try{
-                            socket.send(packet);
-                            System.out.println("sent:"+confirm);
-                        }catch(IOException ignore){
-                            ignore.printStackTrace();
-                        }
-                        Thread.sleep(1000); // 间隔发送，避免忙循环
-                    }else if(connected && active>0){
-                        String board = encodeBuff("Board", DBOperationUser.getUserInUse(), chessBoardModel.toString());
-                        byte[] data = board.getBytes();
-                        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
-                        try{
-                            socket.send(packet);
-                            System.out.println("sent:"+board);
-                        }catch(IOException ignore){
-                            ignore.printStackTrace();
-                        }
-                        active--;
-                        Thread.sleep(33); // 间隔发送，避免忙循环
-                    }else if(connected){
-                        Thread.sleep(10000);
-                        /* if (chessBoard != null) {
-                            Thread listenerThread = new Thread(() -> {
-                                chessBoard.addMouseListener(new MouseAdapter() {
-                                    @Override
-                                    public void mousePressed(MouseEvent e) {
-                                        try {
-                                            String mouseMsg = encodeBuff("Mouse", user, e.getX() + "," + e.getY());
-                                            byte[] data = mouseMsg.getBytes();
-                                            DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, PORT);
-                                            socket.send(packet);
-                                            System.out.println("sent:" + mouseMsg);
-                                        } catch (IOException ex) {
-                                            ex.printStackTrace();
-                                        }
-                                    }
-                                });
-                            });
-                            listenerThread.start();
-                            break;
-                        } */
-                    }
-                }catch(SQLException e){
-                    e.printStackTrace();
-                }
-            }catch(InterruptedException ie){
-                ie.printStackTrace();
-            }
-        }
-    }
-
-    private void receiveMessages() {
-        byte[] buffer = new byte[2048];
+    private void receiveLoop() {
+        byte[] buffer = new byte[4096];
         while (running) {
             try {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
-                String message = new String(packet.getData(), 0, packet.getLength());
-                System.out.println("receive:"+message);
-                decodeBuff(message);
-            }catch(IOException e){
-                e.printStackTrace();
+                String msg = new String(packet.getData(), 0, packet.getLength());
+                handleMessage(msg, packet.getAddress(), packet.getPort());
+            } catch (IOException e) {
+                if (running) e.printStackTrace();
             }
         }
     }
 
-    private String encodeBuff(String aim, User user, String msg){
-        JSONObject json = new JSONObject();
-        json.put("aim", aim);
-        json.put("user", user.toString());
-        json.put("msg", msg);
-        return json.toString();
-    }
-    private void decodeBuff(String msg) {
-        if (msg==null||msg.trim().isEmpty()) {
-            return;
-        }
-        JSONObject json = new JSONObject(msg);
-        
-        String aim = json.optString("aim", "");
-        String userStr = json.optString("user", "");
-        String message = json.optString("msg", "");
-        try{
-            if(userStr.equals(DBOperationUser.getUserInUse().getName())) return;
-        }catch(SQLException e){
+    private void handleMessage(String msg, InetAddress address, int port) {
+        try {
+            JSONObject json = new JSONObject(msg);
+            String type = json.optString("type");
+            String room = json.optString("room");
+            
+            if ("DISCOVER".equals(type)) {
+                if (connected) return;
+                if (!roomNumber.equals(room)) return;
+                
+                String remoteUser = json.optString("user");
+                if (localUserName.equals(remoteUser)) return; // 忽略自己
+
+                // 发现对手
+                peerAddress = address;
+                peerPort = port;
+
+                // 简单的握手逻辑：用户名大的作为红方（发起方）
+                if (localUserName.compareTo(remoteUser) > 0) {
+                    sendStart(localUserName, remoteUser);
+                    initGame(localUserName, remoteUser);
+                }
+                // 如果用户名小，则等待对方发送START
+                
+            } else if ("START".equals(type)) {
+                if (connected) return;
+                String redName = json.optString("red");
+                String blackName = json.optString("black");
+                
+                // 确认是发给我的
+                if (localUserName.equals(redName) || localUserName.equals(blackName)) {
+                    peerAddress = address;
+                    peerPort = port;
+                    initGame(redName, blackName);
+                }
+                
+            } else if ("MOVE".equals(type)) {
+                if (!connected) return;
+                int row = json.getInt("row");
+                int col = json.getInt("col");
+                
+                SwingUtilities.invokeLater(() -> {
+                    if (chessBoard != null) {
+                        chessBoard.getChessBoardPanel().handleGridClick(row, col);
+                    }
+                });
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        if(aim.equals("Handshake")){
-            if((!this.connected) && (!this.confirm)){
-                if(message.equals(room.getText())){
-                    this.confirm=true;
-                    this.candidate=userStr;
-                }
-            }
-        }
-        if(aim.equals("Confirm")){
-            if((!this.connected) && (this.confirm) && (this.active>0)){
-                if(this.candidate.equals(userStr)){
-                    try{
-                        if(DBOperationUser.getUserByName(userStr)==null){
-                            DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(),userStr,null, 2));
-                        }
-                        chessBoardModel = new ChessBoardModel(DBOperationBoard.getBoardCount(), 2, DBOperationUser.getUserInUse(), DBOperationUser.getUserByName(userStr),DBOperationUser.getUserInUse(), true);
-                        DBOperationBoard.insertBoard(chessBoardModel);
-                        chessBoard = new ChessBoard(chessBoardModel);
-                        this.connected=true;
-                        this.active=0;
-                        chessBoard.setVisible(true);
-                        setVisible(false);
-                    }catch(SQLException e){
-                        e.printStackTrace();
-                    }
-                }
-            }else if((!this.connected) && (!this.confirm)){
-                this.confirm=true;
-                this.candidate=userStr;
-                this.active=0;
-            }
-        }
-        if(aim.equals("Board")){
-            try{
-                chessBoardModel = convert2Board(message);
-                DBOperationBoard.insertBoard(chessBoardModel);
-                chessBoard = new ChessBoard(chessBoardModel);
-                this.connected=true;
-                chessBoard.setVisible(true);
-                setVisible(false);
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
-        }
-        if(aim.equals("Mouse")){
-            String coord = message.trim();
-            if (coord.startsWith("(") && coord.endsWith(")")) {
-                coord = coord.substring(1, coord.length() - 1);
-            }
-            String[] parts = coord.split(",");
-            if (parts.length >= 2) {
-                int x = Integer.parseInt(parts[0].trim());
-                int y = Integer.parseInt(parts[1].trim());
-                chessBoard.getChessBoardPanel().handleMouseClick(x,y);
-            }
+    }
+
+    private void sendStart(String redName, String blackName) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("type", "START");
+            json.put("red", redName);
+            json.put("black", blackName);
+            sendPacket(json.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private ChessBoardModel convert2Board(String msg)throws SQLException{
-        {
-            if (msg == null || msg.trim().isEmpty()) return null;
+    private void sendMove(int row, int col) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("type", "MOVE");
+            json.put("row", row);
+            json.put("col", col);
+            sendPacket(json.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-            String[] parts = msg.split(" ");
-            if (parts.length < 6) return null;
+    private void sendPacket(String msg) throws IOException {
+        if (peerAddress == null) return;
+        byte[] data = msg.getBytes();
+        DatagramPacket packet = new DatagramPacket(data, data.length, peerAddress, peerPort);
+        socket.send(packet);
+    }
 
-            String name = parts[0];
-            System.out.println(name);
-            int boardType = Integer.parseInt(parts[1]);
-            System.out.println(boardType);
-            int len = parts.length;
-            boolean whoseTurn = Boolean.parseBoolean(parts[len - 1]);
-            System.out.println(whoseTurn);
-            String userBlack = parts[len - 2];
-            System.out.println(userBlack);
-            String userRed = parts[len - 3];
-            System.out.println(userRed);
-
-            String description;
-            if (len > 6) {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 2; i <= len - 4; i++) {
-                    if (sb.length() > 0) sb.append(" ");
-                    sb.append(parts[i]);
-                }
-                description = sb.toString();
-            } else {
-                description = parts[2];
-            }
-            System.out.println(description);
-
-            User redUser = null;
-            User blackUser = null;
+    private void initGame(String redName, String blackName) {
+        connected = true;
+        SwingUtilities.invokeLater(() -> {
             try {
-                redUser = DBOperationUser.getUserByName(userRed);
+                statusLabel.setText("连接成功！正在进入游戏...");
+                
+                // 确保用户存在于数据库
+                User redUser = DBOperationUser.getUserByName(redName);
                 if (redUser == null) {
-                    DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), userRed, null, 2));
-                    redUser = DBOperationUser.getUserByName(userRed);
+                    redUser = new User(DBOperationUser.getUserCount(), redName, null, 2);
+                    DBOperationUser.insertUser(redUser);
+                    redUser = DBOperationUser.getUserByName(redName);
                 }
-                blackUser = DBOperationUser.getUserByName(userBlack);
+                
+                User blackUser = DBOperationUser.getUserByName(blackName);
                 if (blackUser == null) {
-                    DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), userBlack, null, 2));
-                    blackUser = DBOperationUser.getUserByName(userBlack);
+                    blackUser = new User(DBOperationUser.getUserCount(), blackName, null, 2);
+                    DBOperationUser.insertUser(blackUser);
+                    blackUser = DBOperationUser.getUserByName(blackName);
                 }
-                System.out.println("Here");
-                ChessBoardModel model = new ChessBoardModel(DBOperationBoard.getBoardCount(), name, boardType, description, redUser, blackUser, DBOperationUser.getUserInUse(), whoseTurn);
-                return model;
+
+                User currentUser = DBOperationUser.getUserInUse();
+                
+                // 创建棋盘模型
+                model = new ChessBoardModel(
+                    DBOperationBoard.getBoardCount(), 
+                    2, // 联机模式
+                    redUser, 
+                    blackUser, 
+                    currentUser, 
+                    true // 红方先手
+                );
+                
+                DBOperationBoard.insertBoard(model);
+                
+                chessBoard = new ChessBoard(model);
+                // 设置本地移动监听，发送给对方
+                chessBoard.getChessBoardPanel().setOnLocalMove(this::sendMove);
+                chessBoard.setVisible(true);
+                
+                // 关闭连接窗口
+                setVisible(false);
+                
             } catch (SQLException e) {
                 e.printStackTrace();
+                statusLabel.setText("游戏初始化失败");
+                connected = false;
             }
-            return null;
-        }
+        });
     }
-        
+    
     public void stop() {
         running = false;
         connected = false;
-        confirm = false;
-        active = 1;
         if (socket != null) {
             socket.close();
+        }
+        if (executor != null) {
+            executor.shutdownNow();
         }
     }
 }

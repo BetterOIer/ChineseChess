@@ -16,6 +16,11 @@ class ChessBoardPanel extends JPanel {
     private  int PIECE_RADIUS;
 
     private AbstractPiece selectedPiece = null;
+    private java.util.function.BiConsumer<Integer, Integer> onLocalMove;
+
+    public void setOnLocalMove(java.util.function.BiConsumer<Integer, Integer> onLocalMove) {
+        this.onLocalMove = onLocalMove;
+    }
 
     public ChessBoardPanel(ChessBoardModel model,ChessBoard board) {
         this.model = model;
@@ -62,6 +67,15 @@ class ChessBoardPanel extends JPanel {
         int col = Math.round((float)(x - MARGINX) / CELL_SIZE);
         int row = Math.round((float)(y - MARGINY) / CELL_SIZE);
 
+        if (model.isValidPosition(row, col)) {
+            if (onLocalMove != null) {
+                onLocalMove.accept(row, col);
+            }
+            handleGridClick(row, col);
+        }
+    }
+
+    public void handleGridClick(int row, int col) {
         if (!model.isValidPosition(row, col)) {
             return;
         }else if(selectedPiece == null){
