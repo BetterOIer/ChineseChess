@@ -373,7 +373,7 @@ class ChessBoardPanel extends JPanel {
      * 绘制选中棋子时的蓝色外边框效果
      */
     private void drawCornerBorders(Graphics2D g, int centerX, int centerY) {
-        g.setColor(new Color(0, 100, 255));
+        g.setColor(new Color(104,184,142));
         g.setStroke(new BasicStroke(3));
 
         int cornerSize = (int)(board.getWindowHeight()/24);
@@ -407,14 +407,14 @@ class ChessBoardPanel extends JPanel {
     }
 
     private void drawHitRange(Graphics2D g){
-        g.setColor(new Color(255, 128, 0));
+        g.setColor(new Color(104,184,142,150));
         int r = (int)(board.getWindowHeight()/75.6);
         for(Coordinate coordinate:model.getMoveRange()){
             int centerY = MARGINY + coordinate.getRow()* CELL_SIZE;
             int centerX = MARGINX + coordinate.getCol()* CELL_SIZE;
             g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
         }
-        g.setColor(new Color(127, 0, 255));
+        g.setColor(new Color(104,184,142));
         r=(int)(board.getWindowHeight()/21);
         for(Coordinate coordinate:model.getEatRange()){
             int centerY = MARGINY + coordinate.getRow()* CELL_SIZE;
@@ -424,12 +424,12 @@ class ChessBoardPanel extends JPanel {
     }
 
     private void drawPrePos(Graphics2D g, Step step){
-        g.setColor(new Color(0, 0, 0));
+        g.setColor(new Color(0, 0, 0,200));
         int r = (int)(board.getWindowHeight()/75.6);
         int centerY = MARGINY + step.getFromRow()* CELL_SIZE;
         int centerX = MARGINX + step.getFromCol()* CELL_SIZE;
         g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
-        g.setColor(new Color(120, 120, 120));
+        g.setColor(new Color(120, 120, 120,200));
         r =(int)(board.getWindowHeight()/21);
         centerY = MARGINY + step.getToRow()* CELL_SIZE;
         centerX = MARGINX + step.getToCol()* CELL_SIZE;

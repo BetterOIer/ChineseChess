@@ -36,6 +36,7 @@ public class ControlPanel extends JPanel{
         reset.setFocusPainted(false);
         reset.setAlignmentX(Component.CENTER_ALIGNMENT);
         if(model.getAllSteps().isEmpty())reset.setVisible(false);
+        if((model.getType()&2)!=0)reset.setVisible(false);
 
         playBack = new JRoundButton("复盘");
         playBack.setPreferredSize(buttonSize);
@@ -165,7 +166,7 @@ public class ControlPanel extends JPanel{
             playBack.setVisible(false);
             surrender.setVisible(false);
         }else{
-            if(model.getAllSteps().isEmpty())reset.setVisible(false);
+            if(model.getAllSteps().isEmpty()||(model.getType()&2)!=0)reset.setVisible(false);
             else reset.setVisible(true);
             playBack.setVisible(false);
             surrender.setVisible(true);

@@ -166,7 +166,7 @@ public class ArchiveManager extends JFrame{
     }
     private void handleMouseClickOnPanel(int x, int y){
 
-        int Idx = y / archivePanel.getArchiveHeight();
+        int Idx = archives.size()-1-y / archivePanel.getArchiveHeight();
         /* System.out.println(Idx); */
         boolean haveChosen = (Idx==archivePanel.getSelectedIdx());
         if ((!haveChosen) && Idx >= 0 && Idx < archives.size()) {
@@ -220,9 +220,9 @@ class ArchivePanel extends JPanel{
         for(int archIdx=0;archIdx<archives.size();archIdx++){
             ChessBoardModel archNow = archives.get(archIdx);
             
-            int y = archIdx*archiveHeight;
-            if(archIdx == selectedIdx) g.setColor(new Color(200, 220, 255));
-            else if(archIdx % 2 == 0) g.setColor(Color.WHITE);
+            int y = (archives.size()-1-archIdx)*archiveHeight;
+            if(archIdx == selectedIdx) g.setColor(new Color(228,255,237));
+            else if (archIdx % 2 == 0) g.setColor(Color.WHITE);
             else g.setColor(new Color(245, 245, 245));
             
             g.fillRect(0, y, getWidth(), archiveHeight);
@@ -240,11 +240,33 @@ class ArchivePanel extends JPanel{
             g.setColor(Color.GRAY);
             g.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 13));
             g.drawString(archNow.getLastModTime(), 20, y + 60);
+
+            //绘制描述
+            g.setColor(Color.BLACK);
+            g.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 14));
+            String description = archNow.getDescription();
+            int descWidth = g.getFontMetrics().stringWidth(description);
+            g.drawString(description, getWidth() - descWidth - 20, y + 30);
+            
+
+            //绘制描述
+            g.setColor(Color.GRAY);
+            g.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 13));
+            String[] typeString = {"本地棋盘", "网络对弈", "AI", "已结束"};
+            int rightEdge=getWidth()-20;
+            for(int i = 1,j=0;i<=8;i<<=1,j++){
+                if((archNow.getType()&i)!=0){
+                    descWidth = g.getFontMetrics().stringWidth(typeString[j]);
+                    g.drawRoundRect(rightEdge - descWidth - 5, y + 45, descWidth + 10, 20, 10, 10);
+                    g.drawString(typeString[j], rightEdge-descWidth, y + 60);
+                    rightEdge-=(descWidth+20);
+                }
+            }
             
 
             // 绘制选中指示器
             if(archIdx == selectedIdx){
-                g.setColor(new Color(0, 120, 215));
+                g.setColor(new Color(104,184,142));
                 g.fillRect(0, y, 5, archiveHeight);
             }
         }
@@ -278,18 +300,29 @@ class bottomPlaceHolderPanel extends JPanel{
 
         newButton = new JRoundButton("新建");
         newButton.setSize(60, 30);
-        newButton.setLocation(1161,15);
         add(newButton);
 
         modifyButton = new JRoundButton("修改");
         modifyButton.setSize(60, 30);
-        modifyButton.setLocation(1226,15);
         add(modifyButton);
 
         delButton = new JRoundButton("删除");
         delButton.setSize(60, 30);
-        delButton.setLocation(1291,15);
         add(delButton);
+    }
+
+    @Override
+    public void doLayout() {
+        super.doLayout();
+        int w = getWidth();
+        int btnW = 60;
+        int gap = 5;
+        int marginR = 15;
+        int y = 15;
+        
+        if (delButton != null) delButton.setLocation(w - marginR - btnW, y);
+        if (modifyButton != null) modifyButton.setLocation(w - marginR - 2*btnW - gap, y);
+        if (newButton != null) newButton.setLocation(w - marginR - 3*btnW - 2*gap, y);
     }
 
     public JButton getModButton(){

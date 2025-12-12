@@ -33,7 +33,7 @@ public class NewArchive extends JFrame {
         add(BoardNameTip);
         
         boardName = new JRoundTextField();
-        boardName.setText(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        boardName.setText("未命名-"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         boardName.setLocation(60, 60);
         boardName.setSize(200, 40);
         add(boardName);

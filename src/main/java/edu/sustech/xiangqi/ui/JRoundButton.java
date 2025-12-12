@@ -41,12 +41,4 @@ public class JRoundButton extends JButton {
         
         super.paintComponent(g);
     }
-    
-    @Override
-    public Dimension getPreferredSize() {
-        Dimension size = super.getPreferredSize();
-        // 确保宽度至少适应文本，并增加一点额外的空间
-        size.width = Math.max(size.width + 10, size.height * 2); 
-        return size;
-    }
 }

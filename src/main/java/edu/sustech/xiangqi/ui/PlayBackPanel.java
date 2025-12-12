@@ -71,7 +71,7 @@ class PlayBackPanel extends JScrollPane {
             Step stepNow = model.getTrueSteps().get(stepIdx);
 
             int y = stepIdx * stepHeight;
-            if (stepIdx == model.getSelectedIdx()) g.setColor(new Color(200, 220, 255));
+            if (stepIdx == model.getSelectedIdx()) g.setColor(new Color(228,255,237));
             else if (stepIdx % 2 == 0) g.setColor(Color.WHITE);
             else g.setColor(new Color(245, 245, 245));
 
@@ -89,7 +89,7 @@ class PlayBackPanel extends JScrollPane {
 
             // 绘制选中指示器
             if (stepIdx ==  model.getSelectedIdx()) {
-                g.setColor(new Color(0, 120, 215));
+                g.setColor(new Color(104,184,142));
                 g.fillRect(0, y, 5, stepHeight);
             }
         }
