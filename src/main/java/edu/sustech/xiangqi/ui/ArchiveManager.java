@@ -243,12 +243,15 @@ class ArchivePanel extends JPanel{
             g.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 13));
             g.drawString(LocalDateTime.parse(archNow.getLastModTime(),DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), 20, y + 60);
 
+            int descWidth;
             //绘制描述
-            g.setColor(Color.BLACK);
-            g.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 14));
-            String description = archNow.getDescription();
-            int descWidth = g.getFontMetrics().stringWidth(description);
-            g.drawString(description, getWidth() - descWidth - 20, y + 30);
+            if(archNow.getDescription()!=null){
+                g.setColor(Color.BLACK);
+                g.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 14));
+                String description = archNow.getDescription();
+                descWidth = g.getFontMetrics().stringWidth(description);
+                g.drawString(description, getWidth() - descWidth - 20, y + 30);
+            }
             
 
             //绘制描述
