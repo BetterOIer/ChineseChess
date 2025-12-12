@@ -1,67 +1,49 @@
-# ChineseChess
-Chinese Chess Group Project of Sustech CS109 2025 Fall.
+# 中国象棋 (Chinese Chess)
 
-## Some Ideas
+南方科技大学 CS109 2025秋季学期 Java 项目。这是一个基于 Java Swing 开发的中国象棋游戏，支持单机存档、复盘以及局域网联机对战。
 
-### 项目架构
+## 快速开始 (Getting Started)
 
-1. 棋盘端
-   1. 旗子移动规则——Basic
-   2. 终点判定——Basic
-   3. 移动提示——Basic
-2. 用户端
-   1. 下棋模式
-      1. 单单棋盘——Basic
-      2. 无线双人游戏(use TCP/IP) ——Advance
-      3. 单人(with AI) ——Advance
-   2. 用户交互
-      1. 登录登出——Basic
-      2. 启动关闭——Basic
-      3. 事件反馈（比如格子不能走、将军提示，下一步提示）——Advance
-         1. 声音——Advance
-         2. 提示栏——Advance——Advance
-   3. 用户信息储存（针对2.1.2, 2.1.3）：数据库——Basic
-      1. 密码方面：哈希值
-   4. 棋盘信息储存：需要棋盘段反馈：数据库——Basic
+运行 `edu.sustech.xiangqi.XiangqiApplication` 类的 `main` 方法即可启动游戏。
 
+## 功能特性 (Features)
 
-## Schedule
+### 1. 核心游戏逻辑 (Core Gameplay)
+*   **完整规则实现**: 实现了中国象棋的所有标准规则，包括：
+    *   所有兵种（帅/将、仕/士、相/象、马、车、炮、兵/卒）的合法移动与吃子规则。
+    *   特殊规则支持：别马腿、塞象眼、隔山打牛、兵卒过河等。
+    *   胜负判定：将军、困毙等游戏结束状态检测。
+*   **游戏状态管理**: 记录每一步走棋历史，支持悔棋和复盘查看。
 
-### 11.10 - 11.23
+### 2. 用户界面 (User Interface)
+*   **图形化界面**: 使用 Java Swing 构建，包含精美的背景和棋子绘制。
+*   **响应式布局**: 棋盘和控件支持窗口大小自适应调整。
+*   **交互体验**:
+    *   **控制面板**: 提供重置、复盘、返回存档、投降等快捷操作。
+    *   **状态显示**: 实时显示当前回合方和游戏结果。
+    *   **复盘模式**: 可视化展示历史走棋记录，支持点击回溯。
+*   **自定义组件**: 统一风格的圆角按钮、输入框，提升视觉体验。
 
-1. ui代码已重构，确保每一个文件格式如下
-   ```java
-   public class frameName extends JFrame{
-      
-      //some subcomponent
-      //basically just thoses very complex component like JPanel 
-      private final panelNamePanel panelName;
+### 3. 用户系统 (User System)
+*   **账户管理**: 支持用户注册、登录和登出。
+*   **安全存储**: 用户密码使用 SHA-256 哈希算法加密存储。
+*   **游客模式**: 支持免登录的游客模式（功能受限）。
 
-      public frameName(what-you-need){
-         setTitle("...");
-         //......
-      }
+### 4. 存档管理 (Save & Load)
+*   **本地持久化**: 使用 SQLite 数据库存储游戏数据。
+*   **存档操作**:
+    *   **新建存档**: 支持自定义存档名、描述，可选择先手方（红/黑/随机）。
+    *   **管理存档**: 支持查看存档列表、修改存档信息、删除存档。
+    *   **加载游戏**: 随时读取存档继续对局。
 
-   }
+### 5. 联机对战 (Multiplayer)
+*   **局域网联机**: 基于 UDP 协议实现的局域网对战功能。
+*   **自动发现**: 通过广播机制自动发现同一房间号的对手。
+*   **实时同步**: 实时同步双方的走棋操作，保证对局一致性。
 
-   //if needed:
-   class panelNamePanel extends JPanel{
-      public panelNamePanel(){
-         //......
-      }
-   }
-   ```
-   这样，在一个窗口切换到另一个窗口时，代码可以几行解决不会显得冗长。
-   ```java
-   setVisible(false); //Hide this window
-   ChessBoardModel model = this.archives.get(Idx);//
-   ChessBoard chessBoard = new ChessBoard(model);//init next window
-   chessBoard.setVisible(true); //show next window
-   ```
+## 项目结构 (Project Structure)
 
-2. 数据库已接入
-   请注意更新你的IDE的项目配置（应该会自动更新的来着。。。）  
-   注意：请在`xiangqi`文件夹下新建`database`文件夹，否则会跑不起来！！！
-   
-
-
+*   **`edu.sustech.xiangqi.model`**: 包含核心业务逻辑、棋子规则定义及数据库操作类。
+*   **`edu.sustech.xiangqi.ui`**: 包含所有图形界面实现、窗口、面板及自定义组件。
+*   **`edu.sustech.xiangqi.database`**: 存放 SQLite 数据库文件。
+*   **`edu.sustech.xiangqi.assets`**: 存放图片、字体等静态资源。
