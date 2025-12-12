@@ -64,6 +64,22 @@ class ChessBoardPanel extends JPanel {
     }
 
     public void handleMouseClick(int x, int y) {
+        // Check turn ownership
+        User owner = model.getUserOwner();
+        User red = model.getUserRed();
+        User black = model.getUserBlack();
+
+        boolean isLocalTurn = true;
+        if (owner != null) {
+            if (owner.getName().equals(red.getName())) {
+                if (!model.getWhoseTurn()) isLocalTurn = false;
+            } else if (owner.equals(black)) {
+                if (model.getWhoseTurn()) isLocalTurn = false;
+            }
+        }
+        
+        if (!isLocalTurn) return;
+
         int col = Math.round((float)(x - MARGINX) / CELL_SIZE);
         int row = Math.round((float)(y - MARGINY) / CELL_SIZE);
 

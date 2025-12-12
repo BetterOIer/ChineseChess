@@ -375,6 +375,7 @@ public class ChessBoardModel {
     }
     public AbstractPiece trySelectPiece(int row, int col){
         if(((this.boardType&8)!=0)) return null;
+
         if(getPieceAt(row, col)!=null && getPieceAt(row, col).isRed()!=whoseTurn) return null;
         this.selectedPiece=getPieceAt(row, col);
         refreshTar();
