@@ -64,6 +64,21 @@ class ChessBoardPanel extends JPanel {
     }
 
     public void handleMouseClick(int x, int y) {
+        if((model.getType()&2)!=0){
+            // Check turn ownership
+            User owner = model.getUserOwner();
+            User red = model.getUserRed();
+            User black = model.getUserBlack();
+            boolean isLocalTurn = true;
+            if (owner != null) {
+                if (owner.getName().equals(red.getName())) {
+                    if (!model.getWhoseTurn()) isLocalTurn = false;
+                } else if (owner.getName().equals(black.getName())) {
+                    if (model.getWhoseTurn()) isLocalTurn = false;
+                }
+            }
+            if (!isLocalTurn) return;
+        }
 
         int col = Math.round((float)(x - MARGINX) / CELL_SIZE);
         int row = Math.round((float)(y - MARGINY) / CELL_SIZE);
@@ -77,22 +92,6 @@ class ChessBoardPanel extends JPanel {
     }
 
     public void handleGridClick(int row, int col) {
-        if((model.getType()&2)!=0){
-            // Check turn ownership
-            User owner = model.getUserOwner();
-            User red = model.getUserRed();
-            User black = model.getUserBlack();
-            boolean isLocalTurn = true;
-            if (owner != null) {
-                if (owner.getName().equals(red.getName())) {
-                    if (!model.getWhoseTurn()) isLocalTurn = false;
-                } else if (owner.equals(black)) {
-                    if (model.getWhoseTurn()) isLocalTurn = false;
-                }
-            }
-            
-            if (!isLocalTurn) return;
-        }
         if (!model.isValidPosition(row, col)) {
             return;
         }else if(selectedPiece == null){
