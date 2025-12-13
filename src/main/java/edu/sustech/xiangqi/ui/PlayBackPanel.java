@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-class PlayBackPanel extends JScrollPane {
+class PlayBackPanel extends JRoundScrollPane {
 
     private ChessBoardModel model;
     private ChessBoard board;
@@ -16,6 +16,7 @@ class PlayBackPanel extends JScrollPane {
     private JPanel contentPanel;
 
     public PlayBackPanel(ChessBoardModel model, ChessBoard board) {
+        super(null);
         this.model = model;
         this.board = board;
 
@@ -52,8 +53,8 @@ class PlayBackPanel extends JScrollPane {
         setViewportView(contentPanel);
         
         // 设置滚动条策略
-        setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        setVerticalScrollBarPolicy(JRoundScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        setHorizontalScrollBarPolicy(JRoundScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         getVerticalScrollBar().setUnitIncrement(16);
     }
 

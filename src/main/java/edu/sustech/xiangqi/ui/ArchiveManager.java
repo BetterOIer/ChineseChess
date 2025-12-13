@@ -17,7 +17,21 @@ public class ArchiveManager extends JFrame{
 
     private List<ChessBoardModel> archives;
     private ArchivePanel archivePanel;
-    private JScrollPane scrollPane;
+    private JRoundScrollPane scrollPane;
+    private NoArchivePanel noArchivePanel;
+
+    private void updateCenterPanel() {
+        if (scrollPane != null) remove(scrollPane);
+        if (noArchivePanel != null) remove(noArchivePanel);
+
+        if (archives.isEmpty()) {
+            add(noArchivePanel, BorderLayout.CENTER);
+        } else {
+            add(scrollPane, BorderLayout.CENTER);
+        }
+        revalidate();
+        repaint();
+    }
     
     public ArchiveManager(List<ChessBoardModel> archives) {
         setTitle("中国象棋-本地存档");
@@ -32,16 +46,17 @@ public class ArchiveManager extends JFrame{
         // 使用 BorderLayout，这样可以在底部留出固定高度的区域
         getContentPane().setLayout(new BorderLayout());
 
-        scrollPane = new JScrollPane(archivePanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane = new JRoundScrollPane(archivePanel);
+        scrollPane.setVerticalScrollBarPolicy(JRoundScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JRoundScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
         // 底部占位面板，用于插入其他组件，固定高度 60
         bottomPlaceHolderPanel bottomplaceholder= new bottomPlaceHolderPanel();
         add(bottomplaceholder, BorderLayout.SOUTH);
         
-        add(scrollPane);
+        noArchivePanel = new NoArchivePanel();
+        updateCenterPanel();
 
         archivePanel.addMouseListener(new MouseAdapter() {
             @Override
@@ -85,13 +100,7 @@ public class ArchiveManager extends JFrame{
                     DBOperationBoard.deleteBoardById(DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse()).get(Idx).getId());
                     archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
                     archivePanel.setArchives(archives);
-                    archivePanel.revalidate();
-                    archivePanel.repaint();
-                    if (scrollPane != null) {
-                        scrollPane.revalidate();
-                    }
-                    // 整体重绘窗口
-                    repaint();
+                    updateCenterPanel();
                 }catch(SQLException e){
                     e.printStackTrace();
                 }finally{
@@ -117,13 +126,7 @@ public class ArchiveManager extends JFrame{
                         DBOperationBoard.insertBoard(new ChessBoardModel(DBOperationBoard.getBoardCount(),newArchive.getBoardName().getText(), 1, newArchive.getDescription().getText(),DBOperationUser.getUserByName("Red"), DBOperationUser.getUserByName("Black"), DBOperationUser.getUserInUse() , newArchive.getWhoseTurn()));// 从 DB 重新读取所有存档并更新面板
                         archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
                         archivePanel.setArchives(archives);
-                        archivePanel.revalidate();
-                        archivePanel.repaint();
-                        if (scrollPane != null) {
-                            scrollPane.revalidate();
-                        }
-                        // 整体重绘窗口
-                        repaint();
+                        updateCenterPanel();
                     }catch(SQLException e){
                         e.printStackTrace();
                     }finally{
@@ -342,5 +345,27 @@ class bottomPlaceHolderPanel extends JPanel{
     }
     public JButton getDelButton(){
         return delButton;
+    }
+}
+
+class NoArchivePanel extends JPanel {
+    public NoArchivePanel() {
+        setLayout(new GridBagLayout());
+        setBackground(new Color(245, 222, 179));
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        JLabel mainLabel = new JLabel("此地无棋三百局");
+       mainLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 42));
+        JLabel subLabel = new JLabel("点击右下角“新建”创建棋盘");
+        subLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 18));
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        add(mainLabel, gbc);
+
+        gbc.gridy = 1;
+        gbc.insets = new Insets(10, 0, 0, 0);
+        add(subLabel, gbc);
     }
 }
