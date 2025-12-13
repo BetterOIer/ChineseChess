@@ -355,7 +355,7 @@ class NoArchivePanel extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
 
         JLabel mainLabel = new JLabel("此地无棋三百局");
-       mainLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 42));
+        mainLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 42));
         JLabel subLabel = new JLabel("点击右下角“新建”创建棋盘");
         subLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 18));
 

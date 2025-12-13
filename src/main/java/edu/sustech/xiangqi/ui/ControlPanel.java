@@ -35,8 +35,8 @@ public class ControlPanel extends JPanel{
         reset.setFont(new Font("隶书", Font.BOLD, (int)(board.getWindowHeight()/37.8)));
         reset.setFocusPainted(false);
         reset.setAlignmentX(Component.CENTER_ALIGNMENT);
-        if(model.getAllSteps().isEmpty())reset.setVisible(false);
-        if((model.getType()&2)!=0)reset.setVisible(false);
+        if(model.getAllSteps().isEmpty())reset.setEnabled(false);
+        if((model.getType()&2)!=0)reset.setEnabled(false);
 
         playBack = new JRoundButton("复盘");
         playBack.setPreferredSize(buttonSize);
@@ -45,7 +45,7 @@ public class ControlPanel extends JPanel{
         playBack.setFont(new Font("隶书", Font.BOLD, (int)(board.getWindowHeight()/37.8)));
         playBack.setFocusPainted(false);
         playBack.setAlignmentX(Component.CENTER_ALIGNMENT);
-        if((model.getType()&(1<<3))==0)playBack.setVisible(false);
+        if((model.getType()&(1<<3))==0)playBack.setEnabled(false);
 
         backToArchive = new JRoundButton("返回存档");
         backToArchive.setPreferredSize(buttonSize);
@@ -70,7 +70,7 @@ public class ControlPanel extends JPanel{
         surrender.setFont(new Font("隶书", Font.BOLD, (int)(board.getWindowHeight()/37.8)));
         surrender.setFocusPainted(false);
         surrender.setAlignmentX(Component.CENTER_ALIGNMENT);
-        if((model.getType()&(1<<3))!=0)surrender.setVisible(false);
+        if((model.getType()&(1<<3))!=0)surrender.setEnabled(false);
 
         // 添加按钮到控制面板
         add(Box.createVerticalStrut((int)(board.getWindowHeight()/37.8)));
@@ -88,6 +88,7 @@ public class ControlPanel extends JPanel{
         reset.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e){
+                if(!reset.isEnabled()) return;
                 model.resetBoard();
                 board.getPlayBackPanel().setVisible(false);;
                 updateControlPanel();
@@ -100,14 +101,14 @@ public class ControlPanel extends JPanel{
         playBack.addMouseListener(new MouseAdapter(){
             @Override
             public void mouseClicked(MouseEvent e){
-                handleClickOnPlayBack(model);
+                if(playBack.isEnabled())handleClickOnPlayBack(model);
             }
         });
 
         backToArchive.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                returnToArchiveManager();
+                if(backToArchive.isEnabled())returnToArchiveManager();
             }
         });
 
@@ -158,18 +159,18 @@ public class ControlPanel extends JPanel{
 
     public void updateControlPanel(){
         if((model.getType()&(1<<3))!=0 && (!model.getPlayBackOn())){
-            reset.setVisible(true);
-            playBack.setVisible(true);
-            surrender.setVisible(false);
+            reset.setEnabled(true);
+            playBack.setEnabled(true);
+            surrender.setEnabled(false);
         }else if((model.getType()&(1<<3))!=0 && model.getPlayBackOn()){
-            reset.setVisible(true);
-            playBack.setVisible(false);
-            surrender.setVisible(false);
+            reset.setEnabled(true);
+            playBack.setEnabled(false);
+            surrender.setEnabled(false);
         }else{
-            if(model.getAllSteps().isEmpty()||(model.getType()&2)!=0)reset.setVisible(false);
-            else reset.setVisible(true);
-            playBack.setVisible(false);
-            surrender.setVisible(true);
+            if(model.getAllSteps().isEmpty()||(model.getType()&2)!=0)reset.setEnabled(false);
+            else reset.setEnabled(true);
+            playBack.setEnabled(false);
+            surrender.setEnabled(true);
         }
         revalidate();
         repaint();
@@ -177,7 +178,7 @@ public class ControlPanel extends JPanel{
 
 
     private void handleClickOnPlayBack(ChessBoardModel model){
-        playBack.setVisible(false);
+        playBack.setEnabled(false);
         model.setPlayBackOn(true);
         board.getPlayBackPanel().resetIdx();
         board.getPlayBackPanel().setVisible(true);
@@ -203,15 +204,6 @@ public class ControlPanel extends JPanel{
     }
 
     private void returnToArchiveManager(){
-        try {
-            // 获取当前用户的存档列表
-            User currentUser = DBOperationUser.getUserInUse();
-            List<ChessBoardModel> archives = DBOperationBoard.getBoardsByUser(currentUser);
-            ArchiveManager archiveManager = new ArchiveManager(archives);
-            archiveManager.setVisible(true);
-            board.dispose(); 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        board.dispose();
     }
 }
