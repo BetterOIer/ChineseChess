@@ -61,32 +61,35 @@ public class LoginPage extends JFrame{
         JLabel userNameTip = createTextField("用户名：", 100, 40);
         int userNameTipX = windowWidth / 4;
         int userNameTipY = windowHeight * 2 / 3 - 60;
-        userNameTip.setBounds(userNameTipX, userNameTipY, 150, 45);
-        userNameTip.setSize(150,40);
+        userNameTip.setLocation(userNameTipX, userNameTipY);
+        userNameTip.setSize(100,40);
         add(userNameTip);
 
         userName = new JRoundTextField();
+        userName.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 20));
         userName.setLocation(userNameTipX + 120, userNameTipY);
-        userName.setSize(160, 42);
+        userName.setSize(windowWidth/4*2-120, 40);
         add(userName);
 
         JLabel passwordTip = createTextField("密码：", 100, 40);
-        passwordTip.setBounds(userNameTipX, userNameTipY + 70, 150, 45);
-        passwordTip.setSize(150,40);
+        passwordTip.setLocation(userNameTipX, userNameTipY + 70);
+        passwordTip.setSize(100,40);
         add(passwordTip);
 
         password = new JRoundPasswordField();
+        password.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 20));
         password.setLocation(userNameTipX + 120, userNameTipY + 70);
-        password.setSize(160, 42);
+        password.setSize(windowWidth/4*2-120, 40);
         add(password);
 
         loginButton = createTransparentButton("登录", 155, 40);
-        loginButton.setLocation(userNameTipX - 30, userNameTipY + 140);
+        if(force) loginButton.setLocation((windowWidth-155)/2, userNameTipY + 170);
+        else loginButton.setLocation(windowWidth/4, userNameTipY + 170);
         loginButton.setSize(155, 40);
         add(loginButton);
 
         tourLoginButton = createTransparentButton("仅游客登录", 155, 40);
-        tourLoginButton.setLocation(userNameTipX + 180, userNameTipY + 140);
+        tourLoginButton.setLocation(windowWidth/4*3-155, userNameTipY + 170);
         tourLoginButton.setSize(155, 40);
         tourLoginButton.setVisible(!force);
         add(tourLoginButton);
@@ -94,12 +97,13 @@ public class LoginPage extends JFrame{
         namePwdWA = new JLabel("用户名或密码不正确！");
         namePwdWA.setForeground(java.awt.Color.RED);
         namePwdWA.setVisible(false);
-        namePwdWA.setLocation(userNameTipX + 300, userNameTipY);
+        namePwdWA.setLocation(userNameTipX+120, userNameTipY+35);
         namePwdWA.setSize(120,40);
         add(namePwdWA);
 
         JLabel signUpLink = new JLabel("<html><u>还没有账号？点击注册</u></html>");
-        signUpLink.setLocation(userNameTipX - 10, userNameTipY + 180);
+        signUpLink.setHorizontalAlignment(SwingConstants.CENTER);
+        signUpLink.setLocation((windowWidth-150)/2, userNameTipY + 120);
         signUpLink.setSize(150, 40);
         add(signUpLink);
         signUpLink.addMouseListener(new MouseAdapter() {
@@ -113,30 +117,51 @@ public class LoginPage extends JFrame{
     private void switchToSignUp(){
         SignUpPage signUpPage = new SignUpPage();
         signUpPage.setVisible(true);
+        KeyAdapter enterKeyAdapterForUserName = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    signUpPage.getPassWord().requestFocusInWindow();
+                }
+            }
+        };
+        KeyAdapter enterKeyAdapterForPwd = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    handleSignup(signUpPage);
+                }
+            }
+        };
+        signUpPage.getUserName().addKeyListener(enterKeyAdapterForUserName);
+        signUpPage.getPassWord().addKeyListener(enterKeyAdapterForPwd);
         signUpPage.getSignUpButton().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                signUpPage.getUserNameOccupied().setVisible(false);
-                signUpPage.getUserNameInvalid().setVisible(false);
-                signUpPage.getPasswordInvalid().setVisible(false);
-                try{
-                    if(DBOperationUser.getUserByName(signUpPage.getUserName().getText())!=null){
-                        signUpPage.getUserNameOccupied().setVisible(true);
-                        signUpPage.getUserName().setText("");
-                        signUpPage.getPassWord().setText("");
-                    }else if(signUpPage.getUserName().getText().equals("")){
-                        signUpPage.getUserNameInvalid().setVisible(true);
-                    }else if(new String(signUpPage.getPassWord().getPassword()).equals("")){
-                        signUpPage.getPasswordInvalid().setVisible(true);
-                    }else{
-                        DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), signUpPage.getUserName().getText(), new String(signUpPage.getPassWord().getPassword()), 1));
-                        signUpPage.dispose();
-                    }
-                }catch(SQLException e2){
-                    e2.printStackTrace();
-                }
+                handleSignup(signUpPage);
             }
         });
+    }
+    private void handleSignup(SignUpPage signUpPage){
+        signUpPage.getUserNameOccupied().setVisible(false);
+        signUpPage.getUserNameInvalid().setVisible(false);
+        signUpPage.getPasswordInvalid().setVisible(false);
+        try{
+            if(DBOperationUser.getUserByName(signUpPage.getUserName().getText())!=null){
+                signUpPage.getUserNameOccupied().setVisible(true);
+                signUpPage.getUserName().setText("");
+                signUpPage.getPassWord().setText("");
+            }else if(signUpPage.getUserName().getText().equals("")){
+                signUpPage.getUserNameInvalid().setVisible(true);
+            }else if(new String(signUpPage.getPassWord().getPassword()).equals("")){
+                signUpPage.getPasswordInvalid().setVisible(true);
+            }else{
+                DBOperationUser.insertUser(new User(DBOperationUser.getUserCount(), signUpPage.getUserName().getText(), new String(signUpPage.getPassWord().getPassword()), 1));
+                signUpPage.dispose();
+            }
+        }catch(SQLException e2){
+            e2.printStackTrace();
+        }
     }
 
     public JButton getLoginButton(){

@@ -6,14 +6,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
-import java.util.List;
 
 public class ControlPanel extends JPanel{
 
     private ChessBoardModel model;
     private ChessBoard board;
-
-    private WelcomePage welcomePage;
 
     private JButton reset, playBack, backToArchive, musicOn, surrender;
 
@@ -42,7 +39,7 @@ public class ControlPanel extends JPanel{
         reset.setAlignmentX(Component.CENTER_ALIGNMENT);
         reset.setSize(180, 40);
         add(reset);
-        if(model.getAllSteps().isEmpty())reset.setEnabled(false);
+        if((model.getType()&8)==0)reset.setEnabled(false);
         if((model.getType()&2)!=0)reset.setEnabled(false);
 
         playBack = new JRoundButton("复盘");
@@ -216,13 +213,13 @@ public class ControlPanel extends JPanel{
     private void handleSurrender() {
         // 1. 判定胜负（当前回合方投降，对方胜利）
         model.setType((model.getType()|8));
-        System.out.println(model.getType());
         try{
             DBOperationBoard.updateBoardType(model.getId(), model.getType());
         }catch(SQLException e){
             e.printStackTrace();
         }
         board.getStatusPanel().updateDisplay();
+        updateControlPanel();
         revalidate();repaint();
         board.getChessBoardPanel().repaint();
     }

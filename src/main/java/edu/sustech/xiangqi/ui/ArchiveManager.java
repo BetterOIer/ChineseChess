@@ -37,7 +37,7 @@ public class ArchiveManager extends JFrame{
     
     public ArchiveManager(List<ChessBoardModel> archives) {
         // 保存首页实例
-        setTitle("中国象棋-本地存档");
+        setTitle("中国象棋-本地棋局");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(1366, 768);
         setLocationRelativeTo(null);
@@ -104,12 +104,114 @@ public class ArchiveManager extends JFrame{
                 if(!turn2Board)new WelcomePage(false).setVisible(true);
             }
         });
+
+        initKeyBindings();
+    }
+
+    private void initKeyBindings() {
+        JRootPane rootPane = this.getRootPane();
+        InputMap inputMap = rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = rootPane.getActionMap();
+
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "up");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "down");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enter");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "delete");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escape");
+
+        actionMap.put("up", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                moveSelection(1);
+            }
+        });
+
+        actionMap.put("down", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                moveSelection(-1);
+            }
+        });
+
+        actionMap.put("escape", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                archivePanel.setSelectedIdx(-1);
+                archivePanel.repaint();
+            }
+        });
+
+        actionMap.put("enter", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int idx = archivePanel.getSelectedIdx();
+                if (idx != -1 && idx < archives.size()) {
+                    ChessBoardModel model = archives.get(idx);
+                    ChessBoard chessBoard = new ChessBoard(model);
+                    archivePanel.setSelectedIdx(-1);
+                    chessBoard.setVisible(true);
+                    turn2Board=true;
+                    dispose();
+                }
+            }
+        });
+
+        actionMap.put("delete", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleMouseClickOnDelButton();
+            }
+        });
+    }
+
+    private void moveSelection(int direction) {
+        if (archives.isEmpty()) return;
+
+        int currentIdx = archivePanel.getSelectedIdx();
+        int newIdx;
+
+        if (currentIdx == -1) {
+            if (direction > 0) newIdx = 0;
+            else newIdx = archives.size() - 1;
+        } else {
+            newIdx = currentIdx + direction;
+        }
+
+        if (newIdx >= 0 && newIdx < archives.size()) {
+            archivePanel.setSelectedIdx(newIdx);
+            scrollToVisible(newIdx);
+            archivePanel.repaint();
+        }
+    }
+
+    private void scrollToVisible(int idx) {
+        if (scrollPane == null) return;
+        int y = archivePanel.getItemY(idx);
+        int h = archivePanel.getItemHeight(idx);
+        archivePanel.scrollRectToVisible(new Rectangle(0, y, archivePanel.getWidth(), h));
     }
 
     private void handleMouseClickOnDelButton(){
         int Idx = archivePanel.getSelectedIdx();
         if(Idx!=-1){
             DelArchive delArchive = new DelArchive(Idx);
+
+            JRootPane rootPane = delArchive.getRootPane();
+            rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "confirm");
+            rootPane.getActionMap().put("confirm", new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    delArchive.getSubmitMod().doClick();
+                }
+            });
+            rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
+            rootPane.getActionMap().put("cancel", new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    delArchive.getCancelMod().doClick();
+                }
+            });
+
             delArchive.setVisible(true);
             delArchive.getCancelMod().addActionListener(e1 -> {
                 delArchive.dispose();
@@ -136,6 +238,23 @@ public class ArchiveManager extends JFrame{
             /* System.out.println(Idx); */
             if(Idx!=-1){
                 NewArchive newArchive = new NewArchive();
+
+                JRootPane rootPane = newArchive.getRootPane();
+                rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "confirm");
+                rootPane.getActionMap().put("confirm", new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        newArchive.getSubmitMod().doClick();
+                    }
+                });
+                rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
+                rootPane.getActionMap().put("cancel", new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        newArchive.getCancelMod().doClick();
+                    }
+                });
+
                 newArchive.setVisible(true);
                 newArchive.getCancelMod().addActionListener(e1 -> {
                     newArchive.dispose();
@@ -161,6 +280,23 @@ public class ArchiveManager extends JFrame{
         int Idx = archivePanel.getSelectedIdx();
         if(Idx!=-1){
             ModifyArchive modifyArchive = new ModifyArchive(Idx);
+
+            JRootPane rootPane = modifyArchive.getRootPane();
+            rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "confirm");
+            rootPane.getActionMap().put("confirm", new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    modifyArchive.getSubmitMod().doClick();
+                }
+            });
+            rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
+            rootPane.getActionMap().put("cancel", new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    modifyArchive.getCancelMod().doClick();
+                }
+            });
+
             modifyArchive.setVisible(true);
             modifyArchive.getCancelMod().addActionListener(e1 -> {
                 modifyArchive.dispose();
@@ -193,7 +329,18 @@ public class ArchiveManager extends JFrame{
     }
     private void handleMouseClickOnPanel(int x, int y){
 
-        int Idx = archives.size()-1-y / archivePanel.getArchiveHeight();
+        int clickedIdx = -1;
+        int currentY = 0;
+        for (int i = archives.size() - 1; i >= 0; i--) {
+            int h = archivePanel.getItemHeight(i);
+            if (y >= currentY && y < currentY + h) {
+                clickedIdx = i;
+                break;
+            }
+            currentY += h;
+        }
+        
+        int Idx = clickedIdx;
         /* System.out.println(Idx); */
         boolean haveChosen = (Idx==archivePanel.getSelectedIdx());
         if ((!haveChosen) && Idx >= 0 && Idx < archives.size()) {
@@ -216,18 +363,40 @@ class ArchivePanel extends JPanel{
     private List<ChessBoardModel> archives;
     private int archiveHeight = 80;
     private int selectedIdx = -1;
+    private ChessBoardBirdView birdView;
 
     public ArchivePanel(List<ChessBoardModel> archives){
         this.archives = archives;
+        setLayout(null);
         setBackground(new Color(245, 222, 179));
-        setPreferredSize(new Dimension(400, archives.size() * archiveHeight));
+        updatePreferredSize();
     }
 
     public void setArchives(List<ChessBoardModel> archives){
         this.archives = archives;
-        setPreferredSize(new Dimension(400, Math.max(1, archives.size()) * archiveHeight));
+        updatePreferredSize();
         revalidate();
         repaint();
+    }
+
+    private void updatePreferredSize() {
+        int totalHeight = 0;
+        for (int i = 0; i < archives.size(); i++) {
+            totalHeight += getItemHeight(i);
+        }
+        setPreferredSize(new Dimension(400, Math.max(1, totalHeight)));
+    }
+
+    public int getItemHeight(int idx) {
+        return (idx == selectedIdx) ? 380 : 80;
+    }
+
+    public int getItemY(int idx) {
+        int y = 0;
+        for (int i = archives.size() - 1; i > idx; i--) {
+            y += getItemHeight(i);
+        }
+        return y;
     }
 
     @Override
@@ -248,12 +417,19 @@ class ArchivePanel extends JPanel{
         for(int archIdx=0;archIdx<archives.size();archIdx++){
             ChessBoardModel archNow = archives.get(archIdx);
             
-            int y = (archives.size()-1-archIdx)*archiveHeight;
-            if(archIdx == selectedIdx) g.setColor(new Color(228,255,237));
+            int h = getItemHeight(archIdx);
+            int y = getItemY(archIdx);
+            
+            if(archIdx == selectedIdx) {
+                g.setColor(new Color(228,255,237));
+                if (birdView != null) {
+                    birdView.setLocation((getWidth()-300)/2, y+80);
+                }
+            }
             else if (archIdx % 2 == 0) g.setColor(Color.WHITE);
             else g.setColor(new Color(245, 245, 245));
             
-            g.fillRect(0, y, getWidth(), archiveHeight);
+            g.fillRect(0, y, getWidth(), h);
             
             // 绘制边框
             g.setColor(Color.LIGHT_GRAY);
@@ -283,7 +459,7 @@ class ArchivePanel extends JPanel{
             //绘制描述
             g.setColor(Color.GRAY);
             g.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 13));
-            String[] typeString = {"本地棋盘", "网络对弈", "AI", "已结束"};
+            String[] typeString = {"本地棋局", "网络对弈", "AI", "已结束"};
             int rightEdge=getWidth()-20;
             for(int i = 1,j=0;i<=8;i<<=1,j++){
                 if((archNow.getType()&i)!=0){
@@ -298,13 +474,13 @@ class ArchivePanel extends JPanel{
             // 绘制选中指示器
             if(archIdx == selectedIdx){
                 g.setColor(new Color(104,184,142));
-                g.fillRect(0, y, 5, archiveHeight);
+                g.fillRect(0, y, 5, h);
             }
+            
+            // 绘制底部边框
+            g.setColor(Color.LIGHT_GRAY);
+            g.drawLine(0, y + h, getWidth(), y + h);
         }
-        
-        // 绘制底部边框
-        g.setColor(Color.LIGHT_GRAY);
-        g.drawLine(0, archives.size()*archiveHeight, getWidth(), archives.size() * archiveHeight);
     }
 
     public int getArchiveHeight(){
@@ -315,6 +491,17 @@ class ArchivePanel extends JPanel{
     }
     public void setSelectedIdx(int selectedIdx){
         this.selectedIdx = selectedIdx;
+        if (birdView != null) {
+            remove(birdView);
+            birdView = null;
+        }
+        if (selectedIdx != -1 && selectedIdx < archives.size()) {
+            birdView = new ChessBoardBirdView(archives.get(selectedIdx), 400, 300);
+            add(birdView);
+        }
+        updatePreferredSize();
+        revalidate();
+        repaint();
     }
 }
 

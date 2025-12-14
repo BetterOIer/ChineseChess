@@ -67,42 +67,63 @@ public class ChangePwd extends JFrame {
     private void initListeners() {
         cancelButton.addActionListener(e -> dispose());
 
-        submitButton.addActionListener(e -> {
-            try {
-                User currentUser = DBOperationUser.getUserInUse();
-                if (currentUser == null) {
-                    errorLabel.setText("未登录用户无法修改密码");
-                    return;
+        submitButton.addActionListener(e -> handleSubmit());
+
+        oldPwdField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    newPwdField.requestFocusInWindow();
                 }
-
-                String oldPwd = new String(oldPwdField.getPassword());
-                String newPwd = new String(newPwdField.getPassword());
-
-                if (oldPwd.isEmpty() || newPwd.isEmpty()) {
-                    errorLabel.setText("密码不能为空");
-                    return;
-                }
-
-                String oldPwdHash = DBOperationUser.calHash(oldPwd);
-                // Check if current user has a password (might be null for some users?)
-                // Assuming normal users have passwords.
-                if (currentUser.getPswordHash() != null && !currentUser.getPswordHash().equals(oldPwdHash)) {
-                    errorLabel.setText("旧密码错误");
-                    return;
-                }
-
-                String newPwdHash = DBOperationUser.calHash(newPwd);
-                if (DBOperationUser.updateUserPasswordHash(currentUser.getId(), newPwdHash)) {
-                    /* JOptionPane.showMessageDialog(this, "密码修改成功"); */
-                    dispose();
-                } else {
-                    errorLabel.setText("密码修改失败");
-                }
-
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                errorLabel.setText("数据库错误");
             }
         });
+
+        newPwdField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    handleSubmit();
+                }
+            }
+        });
+    }
+
+    private void handleSubmit() {
+        try {
+            User currentUser = DBOperationUser.getUserInUse();
+            if (currentUser == null) {
+                errorLabel.setText("未登录用户无法修改密码");
+                return;
+            }
+
+            String oldPwd = new String(oldPwdField.getPassword());
+            String newPwd = new String(newPwdField.getPassword());
+
+            if (oldPwd.isEmpty() || newPwd.isEmpty()) {
+                errorLabel.setText("密码不能为空");
+                return;
+            }
+
+            String oldPwdHash = DBOperationUser.calHash(oldPwd);
+            if (currentUser.getPswordHash() != null && !currentUser.getPswordHash().equals(oldPwdHash)) {
+                errorLabel.setText("旧密码错误");
+                oldPwdField.requestFocusInWindow();
+                return;
+            }
+
+            String newPwdHash = DBOperationUser.calHash(newPwd);
+            if (DBOperationUser.updateUserPasswordHash(currentUser.getId(), newPwdHash)) {
+                errorLabel.setText("");
+                oldPwdField.setText("");
+                newPwdField.setText("");
+                dispose();
+            } else {
+                errorLabel.setText("密码修改失败");
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            errorLabel.setText("数据库错误");
+        }
     }
 }

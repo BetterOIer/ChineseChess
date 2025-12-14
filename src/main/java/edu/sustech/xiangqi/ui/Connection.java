@@ -193,13 +193,29 @@ public class Connection extends JFrame {
                 peerAddress = address;
                 peerPort = port;
 
-                // 简单的握手逻辑：用户名大的作为红方（发起方）
+                // 用户名大的进行随机分配
                 if (localUserName.compareTo(remoteUser) > 0) {
-                    sendStart(localUserName, remoteUser);
-                    initGame(localUserName, remoteUser);
+                    boolean localIsRed = new java.util.Random().nextBoolean();
+                    if (localIsRed) {
+                        sendStart(localUserName, remoteUser);
+                        initGame(localUserName, remoteUser);
+                    } else {
+                        sendAssignRoles(remoteUser, localUserName);
+                    }
                 }
-                // 如果用户名小，则等待对方发送START
                 
+            } else if ("ASSIGN_ROLES".equals(type)) {
+                if (connected) return;
+                String redName = json.optString("red");
+                String blackName = json.optString("black");
+                
+                if (localUserName.equals(redName)) {
+                    peerAddress = address;
+                    peerPort = port;
+                    sendStart(redName, blackName);
+                    initGame(redName, blackName);
+                }
+
             } else if ("START".equals(type)) {
                 if (connected) return;
                 String redName = json.optString("red");
@@ -223,6 +239,18 @@ public class Connection extends JFrame {
                     }
                 });
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendAssignRoles(String redName, String blackName) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("type", "ASSIGN_ROLES");
+            json.put("red", redName);
+            json.put("black", blackName);
+            sendPacket(json.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -83,12 +83,32 @@ class ChessBoardPanel extends JPanel {
         int col = Math.round((float)(x - MARGINX) / CELL_SIZE);
         int row = Math.round((float)(y - MARGINY) / CELL_SIZE);
 
+        if (isFlipped()) {
+            col = 8 - col;
+            row = 9 - row;
+        }
+
         if (model.isValidPosition(row, col)) {
             if (onLocalMove != null) {
                 onLocalMove.accept(row, col);
             }
             handleGridClick(row, col);
         }
+    }
+
+    private boolean isFlipped() {
+        if ((model.getType() & 2) == 0) return false;
+        User owner = model.getUserOwner();
+        User black = model.getUserBlack();
+        return owner != null && black != null && owner.getName().equals(black.getName());
+    }
+
+    private int getX(int col) {
+        return MARGINX + (isFlipped() ? (8 - col) : col) * CELL_SIZE;
+    }
+
+    private int getY(int row) {
+        return MARGINY + (isFlipped() ? (9 - row) : row) * CELL_SIZE;
     }
 
     public void handleGridClick(int row, int col) {
@@ -131,7 +151,7 @@ class ChessBoardPanel extends JPanel {
     private void drawBoard(Graphics2D g) {
         g.setColor(Color.BLACK);
         // 设置棋盘外框线条粗细
-        g.setStroke(new BasicStroke(board.getWindowHeight()/378));
+        g.setStroke(new BasicStroke(Math.max(board.getWindowHeight()/378,2)));
         // 绘制棋盘外框（粗线）
         int boardWidth = (ChessBoardModel.getCols() - 1) * CELL_SIZE;
         int boardHeight = (ChessBoardModel.getRows() - 1) * CELL_SIZE;
@@ -145,7 +165,7 @@ class ChessBoardPanel extends JPanel {
 
         g.drawRect(borderX, borderY, borderWidth, borderHeight);
         // 设置内部线条粗细
-        g.setStroke(new BasicStroke(board.getWindowHeight()/756));
+        g.setStroke(new BasicStroke(Math.max(board.getWindowHeight()/756,1)));
 
         // 绘制横线
         for (int i = 0; i < ChessBoardModel.getRows(); i++) {
@@ -164,6 +184,19 @@ class ChessBoardPanel extends JPanel {
                 g.drawLine(x, MARGINY, x, MARGINY + 4 * CELL_SIZE);
                 g.drawLine(x, MARGINY + 5 * CELL_SIZE, x, MARGINY + (ChessBoardModel.getRows() - 1) * CELL_SIZE);
             }
+        }
+
+        if((model.getType()&2)!=0){
+            g.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 17));
+            g.setColor(new Color(200,0,0));
+            int textWidth = g.getFontMetrics().stringWidth("红方："+model.getUserRed().getName());
+            int textHeight = g.getFontMetrics().getAscent();
+            if(model.getUserOwner().getName().equals(model.getUserRed().getName())) g.drawString("红方："+model.getUserRed().getName(), MARGINX, board.getWindowHeight()/13*12-MARGINY/2+textHeight);
+            else g.drawString("红方："+model.getUserRed().getName(), board.getWindowHeight()/13*12-MARGINX-textWidth, (MARGINY-textHeight)/2);
+            textWidth = g.getFontMetrics().stringWidth("黑方："+model.getUserBlack().getName());
+            g.setColor(Color.BLACK);
+            if(model.getUserOwner().getName().equals(model.getUserBlack().getName())) g.drawString("黑方："+model.getUserBlack().getName(), MARGINX, board.getWindowHeight()/13*12-MARGINY/2+textHeight);
+            else g.drawString("黑方："+model.getUserBlack().getName(), board.getWindowHeight()/13*12-MARGINX-textWidth, (MARGINY-textHeight)/2);
         }
 
         // 绘制斜线
@@ -253,8 +286,8 @@ class ChessBoardPanel extends JPanel {
      * 绘制炮位的特殊L形标记（四个方向的L形）
      */
     private void drawCannonMarks(Graphics2D g, int row, int col, int length) {
-        int x = MARGINX + col * CELL_SIZE;
-        int y = MARGINY + row * CELL_SIZE;
+        int x = getX(col);
+        int y = getY(row);
         int gap = (int)(board.getWindowHeight()/189); // 标记与交叉点的间距
 
         // 左上角L形
@@ -278,8 +311,8 @@ class ChessBoardPanel extends JPanel {
      * 绘制兵/卒位的L形标记
      */
     private void drawSoldierMarks(Graphics2D g, int row, int col, int length) {
-        int x = MARGINX + col * CELL_SIZE;
-        int y = MARGINY + row * CELL_SIZE;
+        int x = getX(col);
+        int y = getY(row);
         int gap = (int)(board.getWindowHeight()/189); // 标记与交叉点的间距
 
         // 兵/卒位标记逻辑：除了最左和最右列只有两个角外，其余位置四个角都有标记
@@ -318,8 +351,8 @@ class ChessBoardPanel extends JPanel {
         int redEaten=0,blackEaten=0;
         for (AbstractPiece piece : model.getPieces()) {
             // 计算每一个棋子的坐标
-            int x = MARGINX + piece.getCol() * CELL_SIZE;
-            int y = MARGINY + piece.getRow() * CELL_SIZE;
+            int x = getX(piece.getCol());
+            int y = getY(piece.getRow());
 
             if(!piece.getStatus()){
                 if(piece.isRed()){
@@ -347,7 +380,6 @@ class ChessBoardPanel extends JPanel {
             g.setStroke(new BasicStroke(1.5f));
             g.drawOval(x - PIECE_RADIUS + (int)(board.getWindowHeight()/151.2), y - PIECE_RADIUS + (int)(board.getWindowHeight()/151.2), PIECE_RADIUS * 2 - (int)(board.getWindowHeight()/75.6), PIECE_RADIUS * 2 - (int)(board.getWindowHeight()/75.6));
             // 绘制circle的黑色边框
-            g.setColor(Color.BLACK);
             g.setStroke(new BasicStroke(1.8f));
             g.drawOval(x - PIECE_RADIUS, y - PIECE_RADIUS, PIECE_RADIUS * 2, PIECE_RADIUS * 2);
 
@@ -410,30 +442,30 @@ class ChessBoardPanel extends JPanel {
         g.setColor(new Color(104,184,142,150));
         int r = (int)(board.getWindowHeight()/75.6);
         for(Coordinate coordinate:model.getMoveRange()){
-            int centerY = MARGINY + coordinate.getRow()* CELL_SIZE;
-            int centerX = MARGINX + coordinate.getCol()* CELL_SIZE;
+            int centerY = getY(coordinate.getRow());
+            int centerX = getX(coordinate.getCol());
             g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
         }
         g.setColor(new Color(104,184,142));
         r=(int)(board.getWindowHeight()/21);
         for(Coordinate coordinate:model.getEatRange()){
-            int centerY = MARGINY + coordinate.getRow()* CELL_SIZE;
-            int centerX = MARGINX + coordinate.getCol()* CELL_SIZE;
+            int centerY = getY(coordinate.getRow());
+            int centerX = getX(coordinate.getCol());
             g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
         }
     }
 
     private void drawPrePos(Graphics2D g, Step step){
         g.setStroke(new BasicStroke(4));
-        g.setColor(new Color(0, 0, 0,200));
-        int r = (int)(board.getWindowHeight()/75.6);
-        int centerY = MARGINY + step.getFromRow()* CELL_SIZE;
-        int centerX = MARGINX + step.getFromCol()* CELL_SIZE;
+        g.setColor(new Color(120, 120, 120,200));
+        int r = (int)(board.getWindowHeight()/50);
+        int centerY = getY(step.getFromRow());
+        int centerX = getX(step.getFromCol());
         g.drawOval(centerX - r, centerY - r, r * 2, r * 2);
         g.setColor(new Color(120, 120, 120,200));
         r =(int)(board.getWindowHeight()/21);
-        centerY = MARGINY + step.getToRow()* CELL_SIZE;
-        centerX = MARGINX + step.getToCol()* CELL_SIZE;
+        centerY = getY(step.getToRow());
+        centerX = getX(step.getToCol());
         g.drawOval(centerX - r, centerY - r, r * 2, r * 2);
     }
 }

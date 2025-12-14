@@ -10,9 +10,11 @@ import edu.sustech.xiangqi.model.*;
 
 public class WelcomePage extends JFrame{
 
+    private LogoutPage logoutPage;
+    private ChangePwd changePwdPage;
     private Image backgroundImage;
-    private JButton archiveButton, pvpButton, aiButton;
-    private JLabel loginButton, logoutButton, userInUse, changePwd;
+    private JButton loginButton, archiveButton, pvpButton, aiButton;
+    private JLabel logoutButton, userInUse, changePwd;
 
     private boolean back2Login=false;
 
@@ -61,10 +63,31 @@ public class WelcomePage extends JFrame{
             e.printStackTrace();
         }
 
-        loginButton = new JLabel("登录");
-        loginButton.setLocation(squareSize - 120, 10);
-        loginButton.setSize(100, 40);
-        loginButton.setFont(new Font("隶书", Font.PLAIN, 20));
+        logoutPage = new LogoutPage();
+        changePwdPage = new ChangePwd();
+        logoutPage.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "confirm");
+        logoutPage.getRootPane().getActionMap().put("confirm", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleLogout();
+            }
+        });
+        logoutPage.getSubmitLogout().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleLogout();
+            }
+        });
+        logoutPage.getCancelLogout().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                logoutPage.dispose();
+            }
+        });
+
+        loginButton = createTransparentButton("登录", 90, 40);
+        loginButton.setLocation(squareSize - 110, 20);
+        loginButton.setSize(90, 40);
         loginButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -164,78 +187,94 @@ public class WelcomePage extends JFrame{
                 e.printStackTrace();
             }
         }
+    }
 
+    private void handleLogout(){
+        try{
+            User tmp = DBOperationUser.getUserInUse();
+            tmp.setType((tmp.getType()^4));
+            DBOperationUser.updateUserType(tmp.getId(),tmp.getType());
+        }catch(SQLException e2){
+            e2.printStackTrace();
+        }
+        logoutButton.setVisible(false);
+        changePwd.setVisible(false);
+        userInUse.setVisible(false);
+        loginButton.setVisible(true);
+        logoutPage.setVisible(false);
+        switchToTourWarning();
     }
 
     public void switchToLoginPage(boolean force){
+        setVisible(false);
         LoginPage loginPage = new LoginPage(force);
         loginPage.setVisible(true);
         loginPage.getLoginButton().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e){
-                try{
-                    User userTmp = DBOperationUser.getUserByName(loginPage.getUserName().getText());
-                    String inputPwd = new String(loginPage.getPassword().getPassword());
-                    if(userTmp==null || (!DBOperationUser.calHash(inputPwd).equals(userTmp.getPswordHash()))){
-                        loginPage.getNamePwdWA().setVisible(true);
-                    }else if(DBOperationUser.calHash(inputPwd).equals(userTmp.getPswordHash())){
-                        loginPage.getNamePwdWA().setVisible(false);
-                        DBOperationUser.logoutAll();
-                        userTmp.setType((userTmp.getType()|4));
-                        DBOperationUser.updateUserType(userTmp.getId(), userTmp.getType());
-                        userInUse.setText("当前用户："+userTmp.getName());
-
-                        userInUse.setVisible(true);
-                        loginPage.dispose();
-                        loginButton.setVisible(false);
-                        setVisible(true);
-                    }
-                }catch(SQLException e2){
-                    e2.printStackTrace();
-                }
+                handleLogin(loginPage);
             }
         });
+        KeyAdapter enterKeyAdapterForUserName = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    loginPage.getPassword().requestFocusInWindow();
+                }
+            }
+        };
+        KeyAdapter enterKeyAdapterForPwd = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    handleLogin(loginPage);
+                }
+            }
+        };
+        loginPage.getUserName().addKeyListener(enterKeyAdapterForUserName);
+        loginPage.getPassword().addKeyListener(enterKeyAdapterForPwd);
         loginPage.getTourLoginButton().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e){
                 loginPage.dispose();
-                switchToTourWarning();
+            }
+        });
+        loginPage.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e){
+                if(!userInUse.isVisible())switchToTourWarning();
             }
         });
     }
+    private void handleLogin(LoginPage loginPage){
+        try{
+            User userTmp = DBOperationUser.getUserByName(loginPage.getUserName().getText());
+            String inputPwd = new String(loginPage.getPassword().getPassword());
+            if(userTmp==null || (!DBOperationUser.calHash(inputPwd).equals(userTmp.getPswordHash()))){
+                loginPage.getNamePwdWA().setVisible(true);
+            }else if(DBOperationUser.calHash(inputPwd).equals(userTmp.getPswordHash())){
+                loginPage.getNamePwdWA().setVisible(false);
+                DBOperationUser.logoutAll();
+                userTmp.setType((userTmp.getType()|4));
+                DBOperationUser.updateUserType(userTmp.getId(), userTmp.getType());
+                userInUse.setText("当前用户："+userTmp.getName());
+
+                userInUse.setVisible(true);
+                loginPage.dispose();
+                loginButton.setVisible(false);
+                setVisible(true);
+            }
+        }catch(SQLException e2){
+            e2.printStackTrace();
+        }
+    }
 
     private void switchToChangePwdPage() {
-        ChangePwd changePwdPage = new ChangePwd();
         changePwdPage.setVisible(true);
     }
 
     private void switchToLogoutPage(){
-        LogoutPage logoutPage = new LogoutPage();
         logoutPage.setVisible(true);
-        logoutPage.getSubmitLogout().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                try{
-                    User tmp = DBOperationUser.getUserInUse();
-                    tmp.setType((tmp.getType()^4));
-                    DBOperationUser.updateUserType(tmp.getId(),tmp.getType());
-                }catch(SQLException e2){
-                    e2.printStackTrace();
-                }
-                logoutButton.setVisible(false);
-                changePwd.setVisible(false);
-                userInUse.setVisible(false);
-                loginButton.setVisible(true);
-                logoutPage.dispose();
-                switchToTourWarning();
-            }
-        });
-        logoutPage.getCancelLogout().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                logoutPage.dispose();
-            }
-        });
     }
 
     private void switchToTourWarning(){
@@ -248,6 +287,14 @@ public class WelcomePage extends JFrame{
                 back2Login=true;
                 tourWarning.dispose();
                 switchToLoginPage(true);
+            }
+        });
+        tourWarning.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "confirm");
+        tourWarning.getRootPane().getActionMap().put("confirm", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(true);
+                tourWarning.dispose();
             }
         });
         tourWarning.getSubmitAcknow().addMouseListener(new MouseAdapter() {
@@ -275,7 +322,7 @@ public class WelcomePage extends JFrame{
 
     private void switchToConnection(){
         try{
-            if(DBOperationUser.getUserInUse()==null || DBOperationUser.getUserInUse().getName()=="null"){
+            if(DBOperationUser.getUserInUse()==null || DBOperationUser.getUserInUse().getName().equals("null")){
                 switchToTourWarning();
             }else{
                 Connection connection = new Connection();
@@ -297,10 +344,10 @@ public class WelcomePage extends JFrame{
         int windowHeight = getHeight();
 
         // 存档按钮 - 对应图片上的"存档"文字位置
-        archiveButton = createTransparentButton("存档", 150, 40);
-        int archiveButtonX = squareSize / 2 - 80; // 水平居中
+        archiveButton = createTransparentButton("本地棋局", 150, 45);
+        int archiveButtonX = (squareSize-150)/2; // 水平居中
         int archiveButtonY = squareSize * 2 / 3 - 60;
-        archiveButton.setBounds(archiveButtonX, archiveButtonY, 150, 40);
+        archiveButton.setBounds(archiveButtonX, archiveButtonY, 150, 45);
         archiveButton.addActionListener(e1->{
             try {
                 if(DBOperationUser.getUserInUse()==null){
@@ -319,7 +366,7 @@ public class WelcomePage extends JFrame{
 
         // 双人对弈按钮 - 对应图片上的"双人对弈"文字位置
         pvpButton = createTransparentButton("双人对弈", 150, 45);
-        int pvpButtonX = squareSize / 2 - 80;
+        int pvpButtonX = (squareSize-150)/2; 
         int pvpButtonY = archiveButtonY + 70; // 在存档按钮下方60像素（对应"双人对弈"文字位置）
         pvpButton.setBounds(pvpButtonX, pvpButtonY, 150, 45);
         pvpButton.addActionListener(e1->{
@@ -334,7 +381,7 @@ public class WelcomePage extends JFrame{
 
         // 人机对战按钮 - 对应图片上的"人机对战"文字位置
         aiButton = createTransparentButton("人机对战", 150, 45);
-        int aiButtonX = windowWidth / 2 - 80;
+        int aiButtonX = (squareSize-150)/2; 
         int aiButtonY = pvpButtonY + 70; // 在双人对弈按钮下方60像素（对应"人机对战"文字位置）
         aiButton.setBounds(aiButtonX, aiButtonY, 150, 45);
         aiButton.addActionListener(e1->{

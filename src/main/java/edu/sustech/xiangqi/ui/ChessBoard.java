@@ -83,6 +83,10 @@ public class ChessBoard extends JFrame {
             @Override
             public void windowClosed(WindowEvent e){
                 try{
+                    if((model.getType()&2)!=0){
+                        model.setType((model.getType()|8));
+                        DBOperationBoard.updateBoardType(model.getId(), model.getType());
+                    }
                     new ArchiveManager(DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse())).setVisible(true);
                 }catch(SQLException ex){
                     ex.printStackTrace();
