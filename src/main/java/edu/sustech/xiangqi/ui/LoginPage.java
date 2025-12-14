@@ -23,11 +23,11 @@ public class LoginPage extends JFrame{
     int windowHeight = (int)(Style.screenSize.height*0.7);
 
     public LoginPage(boolean force){
-        System.out.println(windowHeight);
+        /* System.out.println(windowHeight); */
         setTitle("中国象棋-登录");
         setLayout(null);
         setSize(windowWidth,windowHeight);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
         // 加载背景图片

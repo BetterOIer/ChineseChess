@@ -33,6 +33,17 @@ public class JRoundPasswordField extends JPasswordField {
         setBackground(new Color(230, 230, 230));
         // 无边框，但设置内边距防止文字贴边
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        
+        addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                repaint();
+            }
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                repaint();
+            }
+        });
     }
 
     @Override
@@ -45,9 +56,15 @@ public class JRoundPasswordField extends JPasswordField {
 
         g2.setColor(getBackground());
         g2.fill(new RoundRectangle2D.Float(0, 0, width, height, radius, radius));
-
         g2.dispose();
         
         super.paintComponent(g);
+
+        if (hasFocus()) {
+            Graphics2D g3 = (Graphics2D) g.create();
+            g3.setColor(new Color(104, 184, 142));
+            g3.fillRoundRect(5, height - height / 10, width-10, height / 10,3,3);
+            g3.dispose();
+        }
     }
 }

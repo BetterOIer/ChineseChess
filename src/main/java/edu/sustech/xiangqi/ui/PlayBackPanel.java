@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-class PlayBackPanel extends JScrollPane {
+class PlayBackPanel extends JRoundScrollPane {
 
     private ChessBoardModel model;
     private ChessBoard board;
@@ -16,6 +16,7 @@ class PlayBackPanel extends JScrollPane {
     private JPanel contentPanel;
 
     public PlayBackPanel(ChessBoardModel model, ChessBoard board) {
+        super(null);
         this.model = model;
         this.board = board;
 
@@ -52,8 +53,8 @@ class PlayBackPanel extends JScrollPane {
         setViewportView(contentPanel);
         
         // 设置滚动条策略
-        setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        setVerticalScrollBarPolicy(JRoundScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        setHorizontalScrollBarPolicy(JRoundScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         getVerticalScrollBar().setUnitIncrement(16);
     }
 
@@ -71,7 +72,7 @@ class PlayBackPanel extends JScrollPane {
             Step stepNow = model.getTrueSteps().get(stepIdx);
 
             int y = stepIdx * stepHeight;
-            if (stepIdx == model.getSelectedIdx()) g.setColor(new Color(200, 220, 255));
+            if (stepIdx == model.getSelectedIdx()) g.setColor(new Color(228,255,237));
             else if (stepIdx % 2 == 0) g.setColor(Color.WHITE);
             else g.setColor(new Color(245, 245, 245));
 
@@ -89,7 +90,7 @@ class PlayBackPanel extends JScrollPane {
 
             // 绘制选中指示器
             if (stepIdx ==  model.getSelectedIdx()) {
-                g.setColor(new Color(0, 120, 215));
+                g.setColor(new Color(104,184,142));
                 g.fillRect(0, y, 5, stepHeight);
             }
         }

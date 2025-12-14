@@ -30,7 +30,7 @@ public class SignUpPage extends JFrame{
 
         setSize(squareSize, squareSize);
 
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
         // 加载背景图片

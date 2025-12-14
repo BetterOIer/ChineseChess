@@ -58,8 +58,8 @@ public class ChessBoardModel {
     public ChessBoardModel(int id, int boardType, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
         this.boardType = boardType;
-        this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        this.lastModTime = this.name;
+        this.name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.pieces = new ArrayList<>();
         initPieces();
         this.steps = new ArrayList<>();
@@ -92,8 +92,8 @@ public class ChessBoardModel {
         this.id=id;
         this.description = description;
         this.boardType = boardType;
-        this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        this.lastModTime = this.name;
+        this.name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.pieces = new ArrayList<>();
         initPieces();
         this.steps = new ArrayList<>();
@@ -125,8 +125,8 @@ public class ChessBoardModel {
     public ChessBoardModel(int id, int boardType, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
         this.id=id;
         this.boardType = boardType;
-        this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        this.lastModTime = this.name;
+        this.name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.pieces = pieces;
         this.steps = steps;
         initBoardStatus(pieces);
@@ -156,8 +156,8 @@ public class ChessBoardModel {
         this.id=id;
         this.description = description;
         this.boardType = boardType;
-        this.name = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        this.lastModTime = this.name;
+        this.name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         this.pieces = pieces;
         this.steps = steps;
         initBoardStatus(pieces);
