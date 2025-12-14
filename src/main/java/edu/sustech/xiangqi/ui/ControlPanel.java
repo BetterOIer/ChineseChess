@@ -18,11 +18,10 @@ public class ControlPanel extends JPanel{
     private JButton reset, playBack, backToArchive, musicOn, surrender;
 
 
-    public ControlPanel(ChessBoardModel model,ChessBoard board, WelcomePage welcomePage){
+    public ControlPanel(ChessBoardModel model,ChessBoard board){
 
         this.model=model;
         this.board=board;
-        this.welcomePage = welcomePage;
 
         setSize(board.getWindowWidth()/10, board.getWindowHeight()/13*12);
         setLocation(0,board.getWindowHeight()/13);
@@ -211,16 +210,7 @@ public class ControlPanel extends JPanel{
     }
 
     private void returnToArchiveManager(){
-        try {
-            // 获取当前用户的存档列表
-            User currentUser = DBOperationUser.getUserInUse();
-            List<ChessBoardModel> archives = DBOperationBoard.getBoardsByUser(currentUser);
-            ArchiveManager archiveManager = new ArchiveManager(archives, welcomePage);
-            archiveManager.setVisible(true);
-            board.dispose(); 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        board.dispose();
     }
 
     private void handleSurrender() {
@@ -235,17 +225,6 @@ public class ControlPanel extends JPanel{
         board.getStatusPanel().updateDisplay();
         revalidate();repaint();
         board.getChessBoardPanel().repaint();
-    }
-    // 新增：投降后更新控制面板状态（隐藏不必要按钮）
-    private void updateControlPanelAfterSurrender() {
-        surrender.setVisible(false); // 隐藏投降按钮
-        reset.setVisible(false); // 隐藏重置按钮
-        playBack.setVisible(false); // 隐藏复盘按钮（如果需要可保留）
-        // 只保留返回存档和音乐按钮
-        backToArchive.setVisible(true);
-        musicOn.setVisible(true);
-        revalidate();
-        repaint();
     }
 
     private JButton createTransparentButton(String text, int width, int height) {

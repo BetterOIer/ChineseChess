@@ -8,7 +8,6 @@ public class XiangqiApplication {
     public static void main(String[] args) {
         WelcomePage newWelcomePage = new WelcomePage();
         SwingUtilities.invokeLater(() -> {
-            newWelcomePage.setVisible(true);
             newWelcomePage.switchToLoginPage(false);
         });
     }

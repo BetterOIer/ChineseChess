@@ -1,12 +1,9 @@
 package edu.sustech.xiangqi.ui;
 
 import javax.swing.*;
-import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.sql.SQLException;
-import java.util.Enumeration;
 import java.util.List;
 
 import edu.sustech.xiangqi.model.*;
@@ -17,9 +14,7 @@ public class WelcomePage extends JFrame{
     private JButton archiveButton, pvpButton, aiButton;
     private JLabel loginButton, logoutButton, userInUse, changePwd;
 
-    // 新增：缓存ArchiveManager实例（避免重复创建）
-    private ArchiveManager archiveManager;
-
+    private boolean back2Login=false;
 
     // 获取屏幕尺寸，设置一个不铺满屏幕的正方形窗口
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -160,7 +155,7 @@ public class WelcomePage extends JFrame{
         if (!shouldLogout) {
             try {
                 User currentUser = DBOperationUser.getUserInUse();
-                if (currentUser != null) {
+                if (!currentUser.getName().equals("null")) {
                     userInUse.setText("当前用户：" + currentUser.getName());
                     userInUse.setVisible(true);
                     loginButton.setVisible(false);
@@ -168,8 +163,6 @@ public class WelcomePage extends JFrame{
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (Exception e) {
-            System.out.println("字体加载失败: " + e.getMessage());
         }
 
     }
@@ -195,7 +188,7 @@ public class WelcomePage extends JFrame{
                         userInUse.setVisible(true);
                         loginPage.dispose();
                         loginButton.setVisible(false);
-                        logoutButton.setVisible(true);
+                        setVisible(true);
                     }
                 }catch(SQLException e2){
                     e2.printStackTrace();
@@ -247,10 +240,12 @@ public class WelcomePage extends JFrame{
 
     private void switchToTourWarning(){
         TourWarning tourWarning = new TourWarning();
+        back2Login=false;
         tourWarning.setVisible(true);
         tourWarning.getCancelAcknow().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                back2Login=true;
                 tourWarning.dispose();
                 switchToLoginPage(true);
             }
@@ -258,6 +253,14 @@ public class WelcomePage extends JFrame{
         tourWarning.getSubmitAcknow().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                setVisible(true);
+                tourWarning.dispose();
+            }
+        });
+        tourWarning.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e){
+                if(!back2Login)setVisible(true);
                 tourWarning.dispose();
             }
         });
@@ -265,21 +268,9 @@ public class WelcomePage extends JFrame{
 
     private void switchToArchMgr() throws SQLException{
         List<ChessBoardModel> archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
-        // 复用ArchiveManager实例（避免重复创建）
-        if (archiveManager == null) {
-            archiveManager = new ArchiveManager(archives, this); // 传递当前WelcomePage实例
-        } else {
-            // 更新存档列表（避免存档修改后列表不刷新）
-            archiveManager.archives = archives;
-            archiveManager.archivePanel.setArchives(archives);
-            archiveManager.archivePanel.revalidate();
-            archiveManager.archivePanel.repaint();
-        }
-        // 隐藏首页（不销毁，保留登录状态）
-        this.setVisible(false);
-        // 显示存档页
+        ArchiveManager archiveManager = new ArchiveManager(archives);
+        dispose();
         archiveManager.setVisible(true);
-        archiveManager.toFront(); // 置顶显示存档页
     }
 
     private void switchToConnection(){
@@ -418,10 +409,4 @@ public class WelcomePage extends JFrame{
         });
         return button;
     }
-
-    /* public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            WelcomePage welcomePage = new WelcomePage();
-            welcomePage.setVisible(true);});
-    } */
 }
