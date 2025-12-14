@@ -71,6 +71,7 @@ public class StatusPanel extends JPanel{
         if(false){//TODO:和棋判定
             add(bothWinLabel, BorderLayout.CENTER);
         }else if((model.getType()&8)!=0){
+            System.out.println("here");
             if(model.getAllSteps().getLast().getIsRed()){
                 add(redWinLabel, BorderLayout.CENTER);
             }else{

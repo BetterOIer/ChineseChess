@@ -18,6 +18,9 @@ public class WelcomePage extends JFrame{
     private JRoundButton loginButton, logoutButton;
     private JLabel userInUse;
 
+    // 新增：缓存ArchiveManager实例（避免重复创建）
+    private ArchiveManager archiveManager;
+
 
     // 获取屏幕尺寸，设置一个不铺满屏幕的正方形窗口
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -25,7 +28,7 @@ public class WelcomePage extends JFrame{
     int screenHeight = screenSize.height;
 
     // 设置窗口大小为屏幕较小边长的70%，确保不铺满屏幕
-    int squareSize = (int) (Math.min(screenWidth, screenHeight) * 0.9);
+    int squareSize = (int) (Math.min(screenWidth, screenHeight) * 0.7);
 
     public WelcomePage(){
         initGlobalFont();
@@ -39,7 +42,7 @@ public class WelcomePage extends JFrame{
 
         // 加载背景图片
         try {
-            ImageIcon icon = new ImageIcon("src/main/java/edu/sustech/xiangqi/assets/images/WelcomePageBackground.png");
+            ImageIcon icon = new ImageIcon("src/main/java/edu/sustech/xiangqi/assets/images/WelcomePageBackground2.png");
             backgroundImage = icon.getImage();
         }
         catch (Exception e) {
@@ -59,7 +62,7 @@ public class WelcomePage extends JFrame{
         }
 
         loginButton = new JRoundButton("登录");
-        loginButton.setLocation(650, 10);
+        loginButton.setLocation(480, 30);
         loginButton.setSize(100, 40);
         loginButton.addMouseListener(new MouseAdapter() {
             @Override
@@ -74,7 +77,7 @@ public class WelcomePage extends JFrame{
         userInUse.setVisible(false);
 
         logoutButton = new JRoundButton("登出");
-        logoutButton.setLocation(650, 10);
+        logoutButton.setLocation(480, 30);
         logoutButton.setSize(100, 40);
         logoutButton.setVisible(false);
         logoutButton.addMouseListener(new MouseAdapter() {
@@ -211,9 +214,21 @@ public class WelcomePage extends JFrame{
 
     private void switchToArchMgr() throws SQLException{
         List<ChessBoardModel> archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
-        ArchiveManager archiveManager = new ArchiveManager(archives);
-        setVisible(false);
+        // 复用ArchiveManager实例（避免重复创建）
+        if (archiveManager == null) {
+            archiveManager = new ArchiveManager(archives, this); // 传递当前WelcomePage实例
+        } else {
+            // 更新存档列表（避免存档修改后列表不刷新）
+            archiveManager.archives = archives;
+            archiveManager.archivePanel.setArchives(archives);
+            archiveManager.archivePanel.revalidate();
+            archiveManager.archivePanel.repaint();
+        }
+        // 隐藏首页（不销毁，保留登录状态）
+        this.setVisible(false);
+        // 显示存档页
         archiveManager.setVisible(true);
+        archiveManager.toFront(); // 置顶显示存档页
     }
 
     private void switchToConnection(){
@@ -240,8 +255,8 @@ public class WelcomePage extends JFrame{
         int windowHeight = getHeight();
 
         // 存档按钮 - 对应图片上的"存档"文字位置
-        archiveButton = createTransparentButton("", 150, 40);
-        int archiveButtonX = squareSize / 2 - 75; // 水平居中
+        archiveButton = createTransparentButton("存档", 150, 40);
+        int archiveButtonX = squareSize / 2 - 80; // 水平居中
         int archiveButtonY = squareSize * 2 / 3 - 60;
         archiveButton.setBounds(archiveButtonX, archiveButtonY, 150, 40);
         archiveButton.addActionListener(e1->{
@@ -261,10 +276,10 @@ public class WelcomePage extends JFrame{
         });
 
         // 双人对弈按钮 - 对应图片上的"双人对弈"文字位置
-        pvpButton = createTransparentButton("", 150, 40);
-        int pvpButtonX = squareSize / 2 - 75;
+        pvpButton = createTransparentButton("双人对弈", 150, 45);
+        int pvpButtonX = squareSize / 2 - 80;
         int pvpButtonY = archiveButtonY + 70; // 在存档按钮下方60像素（对应"双人对弈"文字位置）
-        pvpButton.setBounds(pvpButtonX, pvpButtonY, 150, 40);
+        pvpButton.setBounds(pvpButtonX, pvpButtonY, 150, 45);
         pvpButton.addActionListener(e1->{
             try {
                 switchToConnection();
@@ -276,10 +291,10 @@ public class WelcomePage extends JFrame{
         });
 
         // 人机对战按钮 - 对应图片上的"人机对战"文字位置
-        aiButton = createTransparentButton("", 150, 40);
-        int aiButtonX = windowWidth / 2 - 75;
+        aiButton = createTransparentButton("人机对战", 150, 45);
+        int aiButtonX = windowWidth / 2 - 80;
         int aiButtonY = pvpButtonY + 70; // 在双人对弈按钮下方60像素（对应"人机对战"文字位置）
-        aiButton.setBounds(aiButtonX, aiButtonY, 150, 40);
+        aiButton.setBounds(aiButtonX, aiButtonY, 150, 45);
         aiButton.addActionListener(e1->{
             try {
                 switchToAIPage();
@@ -305,6 +320,26 @@ public class WelcomePage extends JFrame{
             protected void paintComponent(Graphics g) {
                 // 完全透明背景，只响应点击，不显示任何内容
                 // 因为图片上已经有文字，所以按钮不需要显示文字
+
+                // 定义棕色线段的颜色和厚度
+                final Color LINE_COLOR = new Color(185, 145, 110); // 咖啡色/棕色
+                final int LINE_THICKNESS = 2; // 线段厚度
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // 2. 绘制顶部棕色线段（y坐标为0，厚度LINE_THICKNESS）
+                g2.setColor(LINE_COLOR);
+                g2.setStroke(new BasicStroke(LINE_THICKNESS)); // 设置线段厚度
+                // 线段起点(x1=0, y1=0)，终点(x2=width, y2=0)，覆盖按钮宽度
+                g2.drawLine(0, 0, width, 0);
+
+                // 3. 绘制底部棕色线段（y坐标为height-1，避免超出按钮边界）
+                // 线段起点(x1=0, y1=height-1)，终点(x2=width, y2=height-1)
+                g2.drawLine(0, height - 1, width, height - 1);
+
+                // 绘制按钮文字（必须保留，否则文字不显示）
+                g.setFont(new Font("隶书", Font.BOLD, 22));
+                g.setColor(new Color(111, 78, 55));
+                super.paintComponent(g);
             }
         };
 
