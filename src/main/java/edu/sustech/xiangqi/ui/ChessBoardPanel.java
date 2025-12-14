@@ -424,15 +424,16 @@ class ChessBoardPanel extends JPanel {
     }
 
     private void drawPrePos(Graphics2D g, Step step){
+        g.setStroke(new BasicStroke(4));
         g.setColor(new Color(0, 0, 0,200));
         int r = (int)(board.getWindowHeight()/75.6);
         int centerY = MARGINY + step.getFromRow()* CELL_SIZE;
         int centerX = MARGINX + step.getFromCol()* CELL_SIZE;
-        g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
+        g.drawOval(centerX - r, centerY - r, r * 2, r * 2);
         g.setColor(new Color(120, 120, 120,200));
         r =(int)(board.getWindowHeight()/21);
         centerY = MARGINY + step.getToRow()* CELL_SIZE;
         centerX = MARGINX + step.getToCol()* CELL_SIZE;
-        g.fillOval(centerX - r, centerY - r, r * 2, r * 2);
+        g.drawOval(centerX - r, centerY - r, r * 2, r * 2);
     }
 }
