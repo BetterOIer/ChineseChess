@@ -11,7 +11,7 @@ import edu.sustech.xiangqi.model.User;
 
 public class LoginPage extends JFrame{
 
-    JRoundButton loginButton,tourLoginButton;
+    JButton loginButton,tourLoginButton;
     JRoundTextField userName;
     JRoundPasswordField password;
     JLabel namePwdWA;
@@ -32,7 +32,7 @@ public class LoginPage extends JFrame{
 
         // 加载背景图片
         try {
-            ImageIcon icon = new ImageIcon("src/main/java/edu/sustech/iangqi/assets/images/LoginPage.png");
+            ImageIcon icon = new ImageIcon("src/main/java/edu/sustech/xiangqi/assets/images/LoginSignUpOutPage.png");
             backgroundImage = icon.getImage();
 
         }
@@ -58,49 +58,48 @@ public class LoginPage extends JFrame{
         setContentPane(backgroundPanel);
         setResizable(false);
 
-        /*JLabel userNameTip = new JLabel("用户名：");
-        userNameTip.setLocation(145, 360);
-        userNameTip.setSize(100,40);
+        JLabel userNameTip = createTextField("用户名：", 100, 40);
+        int userNameTipX = windowWidth / 4;
+        int userNameTipY = windowHeight * 2 / 3 - 60;
+        userNameTip.setBounds(userNameTipX, userNameTipY, 150, 45);
+        userNameTip.setSize(150,40);
         add(userNameTip);
 
-         */
         userName = new JRoundTextField();
-        userName.setSize((int)(windowWidth/4.5), (int)(windowHeight/15.5));
-        userName.setLocation((int)(windowWidth/2), (int)(windowHeight/5*3));
+        userName.setLocation(userNameTipX + 120, userNameTipY);
+        userName.setSize(160, 42);
         add(userName);
 
-        /*JLabel passwordTip = new JLabel("密码：");
-        passwordTip.setLocation(150, 430);
-        passwordTip.setSize(120,40);
+        JLabel passwordTip = createTextField("密码：", 100, 40);
+        passwordTip.setBounds(userNameTipX, userNameTipY + 70, 150, 45);
+        passwordTip.setSize(150,40);
         add(passwordTip);
 
-         */
-
         password = new JRoundPasswordField();
-        password.setSize((int)(windowWidth/4.5), (int)(windowHeight/15.5));
-        password.setLocation((int)(windowWidth/2), (int)(windowHeight/5*3.5));
+        password.setLocation(userNameTipX + 120, userNameTipY + 70);
+        password.setSize(160, 42);
         add(password);
 
-        loginButton = new JRoundButton("登录");
-        loginButton.setLocation((int)(windowHeight/1.89), (int)(windowHeight/5*4));
-        loginButton.setSize((int)(windowWidth/7.3), (int)(windowWidth/18));
+        loginButton = createTransparentButton("登录", 155, 40);
+        loginButton.setLocation(userNameTipX - 30, userNameTipY + 140);
+        loginButton.setSize(155, 40);
         add(loginButton);
 
-        tourLoginButton = new JRoundButton("仅游客登录");
-        tourLoginButton.setLocation((int)(windowHeight/4.725),(int)(windowHeight/5*4));
-        tourLoginButton.setSize((int)(windowWidth/7.3), (int)(windowWidth/18));
+        tourLoginButton = createTransparentButton("仅游客登录", 155, 40);
+        tourLoginButton.setLocation(userNameTipX + 180, userNameTipY + 140);
+        tourLoginButton.setSize(155, 40);
         tourLoginButton.setVisible(!force);
         add(tourLoginButton);
 
         namePwdWA = new JLabel("用户名或密码不正确！");
         namePwdWA.setForeground(java.awt.Color.RED);
         namePwdWA.setVisible(false);
-        namePwdWA.setLocation(180, 60);
+        namePwdWA.setLocation(userNameTipX + 300, userNameTipY);
         namePwdWA.setSize(120,40);
         add(namePwdWA);
 
         JLabel signUpLink = new JLabel("<html><u>还没有账号？点击注册</u></html>");
-        signUpLink.setLocation(145, 540);
+        signUpLink.setLocation(userNameTipX - 10, userNameTipY + 180);
         signUpLink.setSize(150, 40);
         add(signUpLink);
         signUpLink.addMouseListener(new MouseAdapter() {
@@ -159,6 +158,25 @@ public class LoginPage extends JFrame{
             protected void paintComponent(Graphics g) {
                 // 完全透明背景，只响应点击，不显示任何内容
                 // 因为图片上已经有文字，所以按钮不需要显示文字
+                // 定义棕色线段的颜色和厚度
+                final Color LINE_COLOR = new Color(185, 145, 110); // 咖啡色/棕色
+                final int LINE_THICKNESS = 2; // 线段厚度
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // 2. 绘制顶部棕色线段（y坐标为0，厚度LINE_THICKNESS）
+                g2.setColor(LINE_COLOR);
+                g2.setStroke(new BasicStroke(LINE_THICKNESS)); // 设置线段厚度
+                // 线段起点(x1=0, y1=0)，终点(x2=width, y2=0)，覆盖按钮宽度
+                g2.drawLine(0, 0, width, 0);
+
+                // 3. 绘制底部棕色线段（y坐标为height-1，避免超出按钮边界）
+                // 线段起点(x1=0, y1=height-1)，终点(x2=width, y2=height-1)
+                g2.drawLine(0, height - 1, width, height - 1);
+
+                // 绘制按钮文字（必须保留，否则文字不显示）
+                g.setFont(new Font("隶书", Font.BOLD, 22));
+                g.setColor(new Color(111, 78, 55));
+                super.paintComponent(g);
             }
         };
 
@@ -185,6 +203,48 @@ public class LoginPage extends JFrame{
             }
         });
         return button;
+    }
+
+    public static JLabel createTextField(String text, int width, int height) {
+        JLabel label = new JLabel(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // 完全透明背景，只响应点击，不显示任何内容
+                // 因为图片上已经有文字，所以按钮不需要显示文字
+                // 定义棕色线段的颜色和厚度
+                final Color LINE_COLOR = new Color(185, 145, 110); // 咖啡色/棕色
+                final int LINE_THICKNESS = 2; // 线段厚度
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // 2. 绘制顶部棕色线段（y坐标为0，厚度LINE_THICKNESS）
+                g2.setColor(LINE_COLOR);
+                g2.setStroke(new BasicStroke(LINE_THICKNESS)); // 设置线段厚度
+                // 线段起点(x1=0, y1=0)，终点(x2=width, y2=0)，覆盖按钮宽度
+                g2.drawLine(0, 0, width, 0);
+
+                // 3. 绘制底部棕色线段（y坐标为height-1，避免超出按钮边界）
+                // 线段起点(x1=0, y1=height-1)，终点(x2=width, y2=height-1)
+                g2.drawLine(0, height - 1, width, height - 1);
+
+                final Color textColor = Color.BLACK;
+                g2.setFont(new Font("隶书", Font.PLAIN, 22));
+                g2.setColor(textColor);
+                // 获取字体度量信息，用于计算文字居中坐标
+                FontMetrics fm = g2.getFontMetrics();
+                // 计算文字水平居中：(标签宽度 - 文字宽度) / 2
+                int textX = (width - fm.stringWidth(getText())) / 2;
+                // 计算文字垂直居中：(标签高度 + 字体上升高度) / 2（上升高度是文字基线到顶部的距离）
+                int textY = (height + fm.getAscent()) / 2 - fm.getDescent();
+
+                // 绘制居中的文字（替代原有的super.paintComponent(g)）
+                // 绘制按钮文字（必须保留，否则文字不显示）
+
+                g2.drawString(getText(), textX, textY);
+
+                g2.dispose(); // 释放资源
+            }
+        };
+        return label;
     }
     public JLabel getNamePwdWA(){
         return this.namePwdWA;

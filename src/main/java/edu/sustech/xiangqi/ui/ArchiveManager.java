@@ -19,6 +19,7 @@ public class ArchiveManager extends JFrame{
     private ArchivePanel archivePanel;
     private JRoundScrollPane scrollPane;
     private NoArchivePanel noArchivePanel;
+    private WelcomePage welcomePage;
 
     private void updateCenterPanel() {
         if (scrollPane != null) remove(scrollPane);
@@ -33,10 +34,11 @@ public class ArchiveManager extends JFrame{
         repaint();
     }
     
-    public ArchiveManager(List<ChessBoardModel> archives) {
+    public ArchiveManager(List<ChessBoardModel> archives, WelcomePage welcomePage) {
+        // 保存首页实例
+        this.welcomePage = welcomePage;
         setTitle("中国象棋-本地存档");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1366, 768);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);        setSize(1366, 768);
         setLocationRelativeTo(null);
         this.archives = archives;
         // 创建自定义列表面板
@@ -83,6 +85,13 @@ public class ArchiveManager extends JFrame{
             @Override
             public void mouseClicked(MouseEvent e) {
                 handleMouseClickOnDelButton();
+            }
+        });
+
+        bottomplaceholder.getBackButton().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleMouseClickOnBackButton();
             }
         });
     }
@@ -169,6 +178,19 @@ public class ArchiveManager extends JFrame{
             });
         }
     }
+    private void handleMouseClickOnBackButton(){
+        try {
+            // 1. 隐藏当前存档页（不销毁，保留状态）
+            this.setVisible(false);
+            // 2. 显示复用的、已登录的WelcomePage实例
+            if (welcomePage != null) {
+                welcomePage.setVisible(true);
+                welcomePage.toFront(); // 置顶显示首页
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     private void handleMouseClickOnPanel(int x, int y){
 
         int Idx = archives.size()-1-y / archivePanel.getArchiveHeight();
@@ -180,7 +202,7 @@ public class ArchiveManager extends JFrame{
         }
         else if(haveChosen && Idx >= 0 && Idx < archives.size()){
             ChessBoardModel model = this.archives.get(Idx);
-            ChessBoard chessBoard = new ChessBoard(model);
+            ChessBoard chessBoard = new ChessBoard(model, welcomePage);
             archivePanel.setSelectedIdx(-1);
             chessBoard.setVisible(true);
             dispose();
@@ -255,7 +277,7 @@ class ArchivePanel extends JPanel{
                 descWidth = g.getFontMetrics().stringWidth(description);
                 g.drawString(description, getWidth() - descWidth - 20, y + 30);
             }
-            
+
 
             //绘制描述
             g.setColor(Color.GRAY);
@@ -300,6 +322,7 @@ class bottomPlaceHolderPanel extends JPanel{
     private JRoundButton modifyButton;
     private JRoundButton newButton;
     private JRoundButton delButton;
+    private JRoundButton backButton;
 
     public bottomPlaceHolderPanel(){
 
@@ -321,6 +344,11 @@ class bottomPlaceHolderPanel extends JPanel{
         delButton.setSize(60, 30);
         delButton.setFont(new Font("隶书", Font.PLAIN, 20));
         add(delButton);
+
+        backButton = new JRoundButton("返回");
+        backButton.setSize(60, 30);
+        backButton.setLocation(1096,15);
+        add(backButton);
     }
 
     @Override
@@ -331,7 +359,7 @@ class bottomPlaceHolderPanel extends JPanel{
         int gap = 5;
         int marginR = 15;
         int y = 15;
-        
+
         if (delButton != null) delButton.setLocation(w - marginR - btnW, y);
         if (modifyButton != null) modifyButton.setLocation(w - marginR - 2*btnW - gap, y);
         if (newButton != null) newButton.setLocation(w - marginR - 3*btnW - 2*gap, y);
@@ -346,6 +374,7 @@ class bottomPlaceHolderPanel extends JPanel{
     public JButton getDelButton(){
         return delButton;
     }
+    public JButton getBackButton() { return backButton; }
 }
 
 class NoArchivePanel extends JPanel {

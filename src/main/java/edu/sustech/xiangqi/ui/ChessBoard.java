@@ -21,7 +21,7 @@ public class ChessBoard extends JFrame {
     private int windowHeight = (int)(Style.screenSize.height*0.7);
     private int windowHeightOffset = 37;
 
-    public ChessBoard(ChessBoardModel model){
+    public ChessBoard(ChessBoardModel model, WelcomePage welcomePage){
 
         //加载模型
         this.model=model;
@@ -54,7 +54,7 @@ public class ChessBoard extends JFrame {
         mainPanel.add(chessBoardPanel);
 
         // 创建左侧控制面板
-        controlPanel = new ControlPanel(model, this);
+        controlPanel = new ControlPanel(model, this, welcomePage);
         mainPanel.add(controlPanel);
 
         //创建右侧复盘面板

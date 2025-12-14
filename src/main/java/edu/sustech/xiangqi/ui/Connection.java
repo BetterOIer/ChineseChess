@@ -30,6 +30,7 @@ public class Connection extends JFrame {
 
     private ChessBoard chessBoard;
     private ChessBoardModel model;
+    private WelcomePage welcomePage;
 
     public Connection() {
         setTitle("联机对战");
@@ -294,7 +295,7 @@ public class Connection extends JFrame {
                 
                 DBOperationBoard.insertBoard(model);
                 
-                chessBoard = new ChessBoard(model);
+                chessBoard = new ChessBoard(model, welcomePage );
                 // 设置本地移动监听，发送给对方
                 chessBoard.getChessBoardPanel().setOnLocalMove(this::sendMove);
                 chessBoard.setVisible(true);
