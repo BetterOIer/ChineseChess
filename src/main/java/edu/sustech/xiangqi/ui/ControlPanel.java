@@ -179,6 +179,17 @@ public class ControlPanel extends JPanel{
             else reset.setEnabled(true);
             playBack.setEnabled(false);
             surrender.setEnabled(true);
+            if((model.getType()&2)!=0){
+                if(model.getWhoseTurn()){
+                    if(!model.getUserRed().getName().equals(model.getUserOwner().getName())){
+                        surrender.setVisible(false);
+                    }
+                }else{
+                    if(!model.getUserBlack().getName().equals(model.getUserOwner().getName())){
+                        surrender.setVisible(false);
+                    }
+                }
+            }
         }
         if((model.getType()&2)!=0)reset.setEnabled(false);
         revalidate();
