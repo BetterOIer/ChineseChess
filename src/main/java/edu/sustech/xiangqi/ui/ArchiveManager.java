@@ -221,6 +221,7 @@ public class ArchiveManager extends JFrame{
                     DBOperationBoard.deleteBoardById(DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse()).get(Idx).getId());
                     archives = DBOperationBoard.getBoardsByUser(DBOperationUser.getUserInUse());
                     archivePanel.setArchives(archives);
+                    archivePanel.setSelectedIdx(-1);
                     updateCenterPanel();
                 }catch(SQLException e){
                     e.printStackTrace();
