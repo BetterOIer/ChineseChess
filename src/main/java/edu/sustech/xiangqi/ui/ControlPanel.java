@@ -55,7 +55,7 @@ public class ControlPanel extends JPanel{
         backToArchive.setFocusPainted(false);
         backToArchive.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        musicOn = transparentButton.createTransparentButton("音乐开", Math.max(150,board.getWindowWidth()/8),(int)(board.getWindowHeight()/20));
+        musicOn = transparentButton.createTransparentButton("音效开", Math.max(150,board.getWindowWidth()/8),(int)(board.getWindowHeight()/20));
         musicOn.setPreferredSize(buttonSize);
         musicOn.setMaximumSize(buttonSize);
         musicOn.setMinimumSize(buttonSize);
@@ -116,9 +116,9 @@ public class ControlPanel extends JPanel{
             @Override
             public void mouseClicked(MouseEvent e) {
                 if(model.getMusicOn()){
-                    musicOn.setText("音乐关");
+                    musicOn.setText("音效关");
                 }else{
-                    musicOn.setText("音乐开");
+                    musicOn.setText("音效开");
                 }
                 model.setMusicOn(!model.getMusicOn());
                 updateControlPanel();
