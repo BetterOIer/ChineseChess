@@ -240,6 +240,11 @@ public class ControlPanel extends JPanel{
         updateControlPanel();
         revalidate();repaint();
         board.getChessBoardPanel().repaint();
+
+        // 如果是联机模式，发送投降指令
+        if ((model.getType()&2) != 0 && board.getChessBoardPanel().getOnSurrender() != null) {
+            board.getChessBoardPanel().getOnSurrender().run();
+        }
     }
 
 }

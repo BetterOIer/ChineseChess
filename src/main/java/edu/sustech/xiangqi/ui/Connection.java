@@ -81,6 +81,28 @@ public class Connection extends JFrame {
         statusLabel.setForeground(Color.GRAY);
         add(statusLabel);
 
+        JRootPane rootPane = this.getRootPane();
+        InputMap inputMap = rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = rootPane.getActionMap();
+
+        roomField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER && confirmButton.isEnabled()) {
+                    startConnection();
+                }
+            }
+        });
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
+        actionMap.put("cancel", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (cancelButton.isEnabled()) {
+                    stopConnection();
+                }
+            }
+        });
+
         confirmButton.addActionListener(e -> startConnection());
         cancelButton.addActionListener(e -> stopConnection());
     }
@@ -238,6 +260,22 @@ public class Connection extends JFrame {
                         chessBoard.getChessBoardPanel().handleGridClick(row, col);
                     }
                 });
+            } else if ("SURRENDER".equals(type)) {
+                if (!connected) return;
+                SwingUtilities.invokeLater(() -> {
+                    if (chessBoard != null) {
+                        // 对方投降，更新本地状态
+                        model.setType((model.getType() | 8));
+                        try {
+                            DBOperationBoard.updateBoardType(model.getId(), model.getType());
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        chessBoard.getStatusPanel().updateDisplay();
+                        chessBoard.getControlPanel().updateControlPanel();
+                        chessBoard.getChessBoardPanel().repaint();
+                    }
+                });
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -274,6 +312,16 @@ public class Connection extends JFrame {
             json.put("type", "MOVE");
             json.put("row", row);
             json.put("col", col);
+            sendPacket(json.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendSurrender() {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("type", "SURRENDER");
             sendPacket(json.toString());
         } catch (Exception e) {
             e.printStackTrace();
@@ -325,6 +373,8 @@ public class Connection extends JFrame {
                 chessBoard = new ChessBoard(model);
                 // 设置本地移动监听，发送给对方
                 chessBoard.getChessBoardPanel().setOnLocalMove(this::sendMove);
+                // 设置投降监听
+                chessBoard.getChessBoardPanel().setOnSurrender(this::sendSurrender);
                 chessBoard.setVisible(true);
                 
                 // 关闭连接窗口

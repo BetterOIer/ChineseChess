@@ -17,9 +17,18 @@ class ChessBoardPanel extends JPanel {
 
     private AbstractPiece selectedPiece = null;
     private java.util.function.BiConsumer<Integer, Integer> onLocalMove;
+    private Runnable onSurrender;
 
     public void setOnLocalMove(java.util.function.BiConsumer<Integer, Integer> onLocalMove) {
         this.onLocalMove = onLocalMove;
+    }
+
+    public void setOnSurrender(Runnable onSurrender) {
+        this.onSurrender = onSurrender;
+    }
+
+    public Runnable getOnSurrender() {
+        return onSurrender;
     }
 
     public ChessBoardPanel(ChessBoardModel model,ChessBoard board) {
