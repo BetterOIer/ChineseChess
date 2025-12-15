@@ -85,15 +85,17 @@ public class LoginPage extends JFrame{
         password.setSize(windowWidth/4*2-120, 40);
         add(password);
 
-        loginButton = transparentButton.createTransparentButton("登录", 155, 40);
+        loginButton = transparentButton.createTransparentButton("登录", 130, 40);
+        loginButton.setMargin(new Insets(0, 0, 0, 0));
         if(force) loginButton.setLocation((windowWidth-155)/2, userNameTipY + 170);
         else loginButton.setLocation(windowWidth/4, userNameTipY + 170);
-        loginButton.setSize(155, 40);
+        loginButton.setSize(130, 40);
         add(loginButton);
 
-        tourLoginButton = transparentButton.createTransparentButton("仅游客登录", 155, 40);
+        tourLoginButton = transparentButton.createTransparentButton("游客", 130, 40);
+        tourLoginButton.setMargin(new Insets(0, 0, 0, 0));
         tourLoginButton.setLocation(windowWidth/4*3-155, userNameTipY + 170);
-        tourLoginButton.setSize(155, 40);
+        tourLoginButton.setSize(130, 40);
         tourLoginButton.setVisible(!force);
         add(tourLoginButton);
 
