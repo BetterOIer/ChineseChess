@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class CreateTransparentButton {
+public class CreateTransparentButton extends JButton{
     private JButton createTransparentButton(String text, int width, int height) {
         JButton button = new JButton(text) {
             @Override

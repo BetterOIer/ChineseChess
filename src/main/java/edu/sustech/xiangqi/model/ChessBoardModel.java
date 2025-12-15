@@ -1,4 +1,6 @@
 package edu.sustech.xiangqi.model;
+import edu.sustech.xiangqi.ui.SoundPlayer;
+
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -387,14 +389,14 @@ public class ChessBoardModel {
         eatRange = new ArrayList<>();
         for(int i = 0;i<ROWS;i++){
             for(int j = 0;j<COLS;j++){
-                if(selectedPiece.canMove(this, i, j)) moveRange.add(new Coordinate(i, j));
-                if(selectedPiece.canEat(this, i,j)) eatRange.add(new Coordinate(i, j));
+                if(selectedPiece.canMove(this, i, j) && !willCauseFacing(selectedPiece, i, j)) moveRange.add(new Coordinate(i, j));
+                if(selectedPiece.canEat(this, i,j) && !willCauseFacing(selectedPiece, i, j)) eatRange.add(new Coordinate(i, j));
             }
         }
         /* System.out.println("Can move:"+this.moveRange);
         System.out.println("Can eat:"+this.eatRange); */
     }
-    public void caneclSelection(){
+    public void cancelSelection(){
         this.selectedPiece = null;
     }
     public boolean tryMovePiece(int row, int col){
@@ -414,6 +416,9 @@ public class ChessBoardModel {
             }catch(SQLException e){
                 e.printStackTrace();
             }
+
+            SoundPlayer.playMoveSound();
+
             return true;
         }
         return false;
@@ -457,6 +462,9 @@ public class ChessBoardModel {
                     e.printStackTrace();
                 }
             }
+
+            SoundPlayer.playMoveSound();
+
             return true;
         }
         return false;
@@ -500,42 +508,58 @@ public class ChessBoardModel {
         }
     }
 
-    /*public void surrender() {
-        // 设置游戏结束标志
-        this.boardType |= 8;  // 设置已终结标志
-
-        // 设置游戏结果
-        this.gameState = GameState.BLACK_WIN;  // 红方投降，黑方胜利
-
-        // 记录最后修改时间
-        this.lastModTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-
-        // 保存到数据库
-        try {
-            DBOperationBoard.updateBoardById(
-                    this.id, this
-            );
-        } catch
-        (SQLException e) {
-            e.printStackTrace();
+    private boolean isGeneralsFacing() {
+        // 1. 找到红方帅和黑方将的位置
+        AbstractPiece redGeneral = null;
+        AbstractPiece blackGeneral = null;
+        for (AbstractPiece piece : pieces) {
+            if (piece.getType() == 7) {
+                if (piece.isRed()) {
+                    redGeneral = piece;
+                } else {
+                    blackGeneral = piece;
+                }
+            }
         }
-        System.out.println("红方已投降，黑方胜利");
-    }
 
-     */
-
-    public String getGameResult() {
-        switch (gameState) {
-            case RED_WIN: return "RED_WIN";
-            case BLACK_WIN: return "BLACK_WIN";
-            case DRAW: return "DRAW";
-            default: return null;
+        // 2. 检查是否在同一列
+        int redCol = redGeneral.getCol();
+        int blackCol = blackGeneral.getCol();
+        if (redCol != blackCol) {
+            return false; // 不在同一列，不违规
         }
+
+        // 3. 检查同一列中间是否有棋子遮挡
+        int redRow = redGeneral.getRow();
+        int blackRow = blackGeneral.getRow();
+        // 确定行数范围
+        int minRow = Math.min(redRow, blackRow);
+        int maxRow = Math.max(redRow, blackRow);
+
+        // 遍历中间行，若有棋子则不违规
+        for (int row = minRow + 1; row < maxRow; row++) {
+            if (getPieceAt(row, redCol) != null) {
+                return false; // 有棋子遮挡，不违规
+            }
+        }
+
+        // 4. 同一列且中间无遮挡 → 违规
+        return true;
     }
+    private boolean willCauseFacing(AbstractPiece piece, int targetRow, int targetCol) {
+        // 棋子原始位置
+        int originalRow = piece.getRow();
+        int originalCol = piece.getCol();
 
-    public String getCurrentPlayer() {
-        return whoseTurn ? "RED" : "BLACK";
+        // 模拟移动：将棋子临时移到目标位置
+        piece.moveTo(targetRow, targetCol);
+
+        // 检查移动后是否出现将帅对面
+        boolean isFacing = isGeneralsFacing();
+
+        // 恢复棋子原始位置
+        piece.moveTo(originalRow, originalCol);
+
+        return isFacing;
     }
-
-
 }

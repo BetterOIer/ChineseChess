@@ -104,7 +104,7 @@ class ChessBoardPanel extends JPanel {
                 moveSuccess = model.tryEatPiece(row, col);
             }
             selectedPiece=null;
-            model.caneclSelection();
+            model.cancelSelection();
             if(moveSuccess){
                 board.getStatusPanel().updateDisplay();
                 board.getControlPanel().updateControlPanel();

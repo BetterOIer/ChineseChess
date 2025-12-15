@@ -149,7 +149,7 @@ public class WelcomePage extends JFrame{
         getContentPane().add(logoutButton);
         getContentPane().add(changePwd);
         getContentPane().add(userInUse);
-        // 根据图片上文字的位置创建透明按钮
+        // 创建透明按钮
         createTransparentButtons();
 
         if (!shouldLogout) {
