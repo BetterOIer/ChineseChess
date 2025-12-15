@@ -22,23 +22,23 @@ public class ControlPanel extends JPanel{
         this.model=model;
         this.board=board;
 
-        setSize(Math.max(140,board.getWindowWidth()/8), board.getWindowHeight()/13*12);
+        setSize(Math.max(150,board.getWindowWidth()/8), board.getWindowHeight()/13*12);
         setLocation(0,board.getWindowHeight()/13);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setOpaque(false);
         setBackground(Style.defaultColor);
         setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
-        Dimension buttonSize = new Dimension(Math.max(140,board.getWindowWidth()/8), (int)(board.getWindowHeight()/20));
+        Dimension buttonSize = new Dimension(Math.max(150,board.getWindowWidth()/8), (int)(board.getWindowHeight()/20));
 
-        reset = transparentButton.createTransparentButton("重置棋盘", Math.max(140,board.getWindowWidth()/8),(int)(board.getWindowHeight()/20));
+        reset = transparentButton.createTransparentButton("重置棋盘", Math.max(150,board.getWindowWidth()/8),(int)(board.getWindowHeight()/20));
         reset.setAlignmentX(Component.CENTER_ALIGNMENT);
         reset.setPreferredSize(buttonSize);
         add(reset);
         if((model.getType()&8)==0)reset.setEnabled(false);
         if((model.getType()&2)!=0)reset.setEnabled(false);
 
-        playBack = transparentButton.createTransparentButton("复盘", Math.max(140,board.getWindowWidth()/8),(int)(board.getWindowHeight()/20));
+        playBack = transparentButton.createTransparentButton("复盘", Math.max(150,board.getWindowWidth()/8),(int)(board.getWindowHeight()/20));
         playBack.setPreferredSize(buttonSize);
         playBack.setMaximumSize(buttonSize);
         playBack.setMinimumSize(buttonSize);
@@ -47,7 +47,7 @@ public class ControlPanel extends JPanel{
         playBack.setAlignmentX(Component.CENTER_ALIGNMENT);
         if((model.getType()&(1<<3))==0)playBack.setEnabled(false);
 
-        backToArchive = transparentButton.createTransparentButton("返回存档", Math.max(140,board.getWindowWidth()/8),(int)(board.getWindowHeight()/20));
+        backToArchive = transparentButton.createTransparentButton("返回存档", Math.max(150,board.getWindowWidth()/8),(int)(board.getWindowHeight()/20));
         backToArchive.setPreferredSize(buttonSize);
         backToArchive.setMaximumSize(buttonSize);
         backToArchive.setMinimumSize(buttonSize);
@@ -55,7 +55,7 @@ public class ControlPanel extends JPanel{
         backToArchive.setFocusPainted(false);
         backToArchive.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        musicOn = transparentButton.createTransparentButton("音乐开", Math.max(140,board.getWindowWidth()/8),(int)(board.getWindowHeight()/20));
+        musicOn = transparentButton.createTransparentButton("音乐开", Math.max(150,board.getWindowWidth()/8),(int)(board.getWindowHeight()/20));
         musicOn.setPreferredSize(buttonSize);
         musicOn.setMaximumSize(buttonSize);
         musicOn.setMinimumSize(buttonSize);
@@ -63,7 +63,7 @@ public class ControlPanel extends JPanel{
         musicOn.setFocusPainted(false);
         musicOn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        surrender = transparentButton.createTransparentButton("投降", Math.max(140,board.getWindowWidth()/8),(int)(board.getWindowHeight()/20));
+        surrender = transparentButton.createTransparentButton("投降", Math.max(150,board.getWindowWidth()/8),(int)(board.getWindowHeight()/20));
         surrender.setPreferredSize(buttonSize);
         surrender.setMaximumSize(buttonSize);
         surrender.setMinimumSize(buttonSize);
@@ -134,10 +134,10 @@ public class ControlPanel extends JPanel{
     }
 
     public void resizeComponents() {
-        setSize(Math.max(140,board.getWindowWidth()/8), board.getWindowHeight()/13*12);
+        setSize(Math.max(150,board.getWindowWidth()/8), board.getWindowHeight()/13*12);
         setLocation(0,board.getWindowHeight()/13);
         
-        Dimension buttonSize = new Dimension(Math.max(140,board.getWindowWidth()/8), (int)(board.getWindowHeight()/(int)(board.getWindowHeight()/37.8)));
+        Dimension buttonSize = new Dimension(Math.max(150,board.getWindowWidth()/8), (int)(board.getWindowHeight()/(int)(board.getWindowHeight()/37.8)));
         
         JButton[] buttons = {reset, playBack, backToArchive, musicOn, surrender};
         for (JButton btn : buttons) {
@@ -180,6 +180,7 @@ public class ControlPanel extends JPanel{
             playBack.setEnabled(false);
             surrender.setEnabled(true);
         }
+        if((model.getType()&2)!=0)reset.setEnabled(false);
         revalidate();
         repaint();
     }
