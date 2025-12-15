@@ -74,49 +74,51 @@ public class SignUpPage extends JFrame{
         JLabel userNameTip = text.createText("用户名：", 100, 40);
         int userNameTipX = squareSize / 4;
         int userNameTipY = squareSize * 2 / 3 - 60;
-        userNameTip.setBounds(userNameTipX, userNameTipY, 150, 45);
-        userNameTip.setSize(150,40);
+        userNameTip.setBounds(userNameTipX, userNameTipY, 100, 40);
+        userNameTip.setSize(100,40);
         add(userNameTip);
 
         userName = new JRoundTextField();
+        userName.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 20));
         userName.setLocation(userNameTipX + 120, userNameTipY);
-        userName.setSize(160, 42);
+        userName.setSize(squareSize/4*2-120, 40);
         add(userName);
 
         userNameOccupied = new JLabel("用户已存在！");
         userNameOccupied.setForeground(java.awt.Color.RED);
         userNameOccupied.setVisible(false);
-        userNameOccupied.setLocation(userNameTipX + 300, userNameTipY);
+        userNameOccupied.setLocation(userNameTipX + 120, userNameTipY+30);
         userNameOccupied.setSize(120,40);
         add(userNameOccupied);
 
         userNameInvalid = new JLabel("用户名为空！");
         userNameInvalid.setForeground(java.awt.Color.RED);
         userNameInvalid.setVisible(false);
-        userNameInvalid.setLocation(userNameTipX + 300, userNameTipY);
+        userNameInvalid.setLocation(userNameTipX + 120, userNameTipY+30);
         userNameInvalid.setSize(120,40);
         add(userNameInvalid);
 
         passwordInvalid = new JLabel("密码为空！");
         passwordInvalid.setForeground(java.awt.Color.RED);
         passwordInvalid.setVisible(false);
-        passwordInvalid.setLocation(userNameTipX + 300, userNameTipY + 70);
+        passwordInvalid.setLocation(userNameTipX + 120, userNameTipY + 100);
         passwordInvalid.setSize(120,40);
         add(passwordInvalid);
 
         JLabel passwordTip = text.createText("密码：", 100, 40);
-        passwordTip.setBounds(userNameTipX, userNameTipY + 70, 150, 45);
-        passwordTip.setSize(150,40);
+        passwordTip.setBounds(userNameTipX, userNameTipY + 70, 100,40);
+        passwordTip.setSize(100,40);
         add(passwordTip);
 
         password = new JRoundPasswordField();
+        password.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 20));
         password.setLocation(userNameTipX + 120, userNameTipY + 70);
-        password.setSize(160, 42);
+        password.setSize(squareSize/4*2-120, 40);
         add(password);
 
         signUp = transparentButton.createTransparentButton("注册", 150, 40);
-        signUp.setLocation(userNameTipX + 100, userNameTipY + 140);
-        signUp.setSize(100, 40);
+        signUp.setLocation((squareSize-150)/2, userNameTipY + 140);
+        signUp.setSize(150, 40);
         add(signUp);
     }
     public JTextField getUserName(){
