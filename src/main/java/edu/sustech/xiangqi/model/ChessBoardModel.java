@@ -14,6 +14,7 @@ public class ChessBoardModel {
     private static final int COLS = 9;
     private int id;
     private boolean playBackOn= false;
+    private boolean musicOn=true;
     private int boardType;
     //采用位运算叠加
     //xxx 仅棋盘1 远程2 AI4 已终结8
@@ -70,6 +71,7 @@ public class ChessBoardModel {
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
         this.playBackOn=false;
+        this.musicOn=true;
         this.selectedIdx = getTrueSteps().size()-1;
         this.gameResult = null;
     }
@@ -87,6 +89,7 @@ public class ChessBoardModel {
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
         this.playBackOn=false;
+        this.musicOn=true;
         this.selectedIdx = getTrueSteps().size()-1;
     }
     public ChessBoardModel(int id, int boardType, String description, User userRed, User userBlack, User owner, boolean whoseTurn) {
@@ -104,6 +107,7 @@ public class ChessBoardModel {
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
         this.playBackOn=false;
+        this.musicOn=true;
         this.selectedIdx = getTrueSteps().size()-1;
     }
     public ChessBoardModel(int id, String name, int boardType, String description, User userRed, User userBlack, User owner, boolean whoseTurn) {
@@ -121,6 +125,7 @@ public class ChessBoardModel {
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
         this.playBackOn=false;
+        this.musicOn=true;
         this.selectedIdx = getTrueSteps().size()-1;
     }
     public ChessBoardModel(int id, int boardType, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
@@ -136,6 +141,7 @@ public class ChessBoardModel {
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
         this.playBackOn=false;
+        this.musicOn=true;
         this.selectedIdx = getTrueSteps().size()-1;
     }
     public ChessBoardModel(int id, String name, int boardType, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
@@ -151,6 +157,7 @@ public class ChessBoardModel {
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
         this.playBackOn=false;
+        this.musicOn=true;
         this.selectedIdx = getTrueSteps().size()-1;
     }
     public ChessBoardModel(int id, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
@@ -167,6 +174,7 @@ public class ChessBoardModel {
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
         this.playBackOn=false;
+        this.musicOn=true;
         this.selectedIdx = getTrueSteps().size()-1;
     }
     public ChessBoardModel(int id, String name, int boardType, String description, List<AbstractPiece> pieces, List<Step> steps, User userRed, User userBlack, User owner, boolean whoseTurn) {
@@ -183,6 +191,7 @@ public class ChessBoardModel {
         this.userOwner=owner;
         this.whoseTurn = whoseTurn;
         this.playBackOn=false;
+        this.musicOn=true;
         this.selectedIdx = getTrueSteps().size()-1;
     }
     
@@ -253,6 +262,12 @@ public class ChessBoardModel {
     }
     public void setPlayBackOn(boolean playBackOn){
         this.playBackOn=playBackOn;
+    }
+    public boolean getMusicOn(){
+        return this.musicOn;
+    }
+    public void setMusicOn(boolean musicOn){
+        this.musicOn=musicOn;
     }
 
     //历史
@@ -416,7 +431,7 @@ public class ChessBoardModel {
                 e.printStackTrace();
             }
 
-            SoundPlayer.playMoveSound();
+            if(musicOn)SoundPlayer.playMoveSound();
 
             return true;
         }
@@ -462,7 +477,7 @@ public class ChessBoardModel {
                 }
             }
 
-            SoundPlayer.playMoveSound();
+            if(musicOn)SoundPlayer.playMoveSound();
 
             return true;
         }

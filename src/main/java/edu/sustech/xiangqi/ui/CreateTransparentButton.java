@@ -21,11 +21,11 @@ public class CreateTransparentButton extends JButton{
                 g2.setColor(LINE_COLOR);
                 g2.setStroke(new BasicStroke(LINE_THICKNESS)); // 设置线段厚度
                 // 线段起点(x1=0, y1=0)，终点(x2=width, y2=0)，覆盖按钮宽度
-                g2.drawLine(0, 0, width, 0);
+                g2.drawLine(0, 0, getWidth(), 0);
 
                 // 3. 绘制底部棕色线段（y坐标为height-1，避免超出按钮边界）
                 // 线段起点(x1=0, y1=height-1)，终点(x2=width, y2=height-1)
-                g2.drawLine(0, height - 1, width, height - 1);
+                g2.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
 
                 // 绘制按钮文字（必须保留，否则文字不显示）
                 g.setFont(new Font("隶书", Font.BOLD, 22));
