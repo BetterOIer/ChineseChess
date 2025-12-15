@@ -1,4 +1,4 @@
-package edu.sustech.xiangqi.ui;
+package edu.sustech.xiangqi.model;
 
 import javax.sound.sampled.*;
 import java.io.File;

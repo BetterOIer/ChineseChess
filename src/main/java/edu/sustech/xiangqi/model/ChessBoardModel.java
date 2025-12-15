@@ -1,5 +1,4 @@
 package edu.sustech.xiangqi.model;
-import edu.sustech.xiangqi.ui.SoundPlayer;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
