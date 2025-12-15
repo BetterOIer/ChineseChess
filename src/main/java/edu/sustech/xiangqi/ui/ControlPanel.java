@@ -131,6 +131,7 @@ public class ControlPanel extends JPanel{
                 handleSurrender(); // 调用投降处理方法
             }
         });
+        updateControlPanel();
     }
 
     public void resizeComponents() {
@@ -182,11 +183,11 @@ public class ControlPanel extends JPanel{
             if((model.getType()&2)!=0){
                 if(model.getWhoseTurn()){
                     if(!model.getUserRed().getName().equals(model.getUserOwner().getName())){
-                        surrender.setVisible(false);
+                        surrender.setEnabled(false);
                     }
                 }else{
                     if(!model.getUserBlack().getName().equals(model.getUserOwner().getName())){
-                        surrender.setVisible(false);
+                        surrender.setEnabled(false);
                     }
                 }
             }
