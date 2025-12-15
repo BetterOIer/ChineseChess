@@ -22,18 +22,14 @@ public class JRoundScrollPane extends JScrollPane {
     }
 
     private void init() {
-        // 去掉边框
         setBorder(null);
-        
-        // 设置背景透明
+
         setOpaque(false);
         getViewport().setOpaque(false);
         
-        // 应用自定义UI
         getVerticalScrollBar().setUI(new RoundScrollBarUI());
         getHorizontalScrollBar().setUI(new RoundScrollBarUI());
-        
-        // 设置滚动条单位增量，提升滚动体验
+
         getVerticalScrollBar().setUnitIncrement(16);
         getHorizontalScrollBar().setUnitIncrement(16);
     }
@@ -42,7 +38,7 @@ public class JRoundScrollPane extends JScrollPane {
         
         @Override
         protected void configureScrollBarColors() {
-            // 可以在这里配置颜色，但主要绘制逻辑在 paintThumb
+
         }
 
         @Override
@@ -74,7 +70,6 @@ public class JRoundScrollPane extends JScrollPane {
 
             // 绘制灰色圆角矩形
             g2.setColor(Color.GRAY);
-            // 留出一点边距，使滚动条看起来悬浮
             g2.fillRoundRect(thumbBounds.x + 2, thumbBounds.y + 2, 
                              thumbBounds.width - 4, thumbBounds.height - 4, 
                              10, 10);

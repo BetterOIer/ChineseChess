@@ -3,7 +3,6 @@ package edu.sustech.xiangqi.ui;
 import javax.swing.*;
 import java.awt.*;
 
-// 背景图片的面板
 class BackgroundPanel extends JPanel {
     
     private Image backgroundImage;

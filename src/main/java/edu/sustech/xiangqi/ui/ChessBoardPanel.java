@@ -43,16 +43,6 @@ class ChessBoardPanel extends JPanel {
         });
     }
 
-    /* chessBoardPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if((model.getType()&(1<<3))!=0){
-                    reset.setVisible(true);
-                    if(!playBackOn)playBack.setVisible(true);
-                }
-            }
-        }); */
-
     public void resizeComponents() {
         CELL_SIZE = board.getWindowHeight()/12;
         MARGINX = (board.getWindowHeight()/13*12-(ChessBoardModel.getCols() - 1) * CELL_SIZE)/2;
@@ -138,9 +128,6 @@ class ChessBoardPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        // Demo的GUI都是由Swing中基本的组件组成的，比如背景的格子是用许多个line组合起来实现的，棋子是先绘制一个circle再在上面绘制一个text实现的
-        // 因此绘制GUI的过程中需要自己手动计算每个组件的位置（坐标）
         drawBoard(g2d);
         drawPieces(g2d);
     }
@@ -225,19 +212,16 @@ class ChessBoardPanel extends JPanel {
         g.setColor(Color.BLACK);
         g.setStroke(new BasicStroke(1));
 
-        // 绘制红方九宫格斜线（上方）
-        // 左上到右下的斜线
+        // 红方九宫格左上到右下的斜线
         g.drawLine(MARGINX + 3 * CELL_SIZE, MARGINY, MARGINX + 5 * CELL_SIZE, MARGINY + 2 * CELL_SIZE);
         // 右上到左下的斜线
         g.drawLine(MARGINX + 5 * CELL_SIZE, MARGINY, MARGINX + 3 * CELL_SIZE, MARGINY + 2 * CELL_SIZE);
 
-        // 绘制黑方九宫格斜线（下方）
-        // 左上到右下的斜线
+        // 黑方九宫格斜线左上到右下的斜线
         g.drawLine(MARGINX + 3 * CELL_SIZE, MARGINY + 7 * CELL_SIZE, MARGINX + 5 * CELL_SIZE, MARGINY + 9 * CELL_SIZE);
         // 右上到左下的斜线
         g.drawLine(MARGINX + 5 * CELL_SIZE, MARGINY + 7 * CELL_SIZE, MARGINX + 3 * CELL_SIZE, MARGINY + 9 * CELL_SIZE);
 
-        // 绘制九宫格内部的交叉斜线（根据图2的详细样式）
         // 红方九宫格内部交叉线
         g.drawLine(MARGINX + 3 * CELL_SIZE, MARGINY + 1 * CELL_SIZE, MARGINX + 5 * CELL_SIZE, MARGINY + 1 * CELL_SIZE);
         g.drawLine(MARGINX + 4 * CELL_SIZE, MARGINY, MARGINX + 4 * CELL_SIZE, MARGINY + 2 * CELL_SIZE);
@@ -255,19 +239,19 @@ class ChessBoardPanel extends JPanel {
         g.setStroke(new BasicStroke(1));
         int markLength = 6; // L形标记的长度
 
-        // 炮位标记（双方各2个炮位）
+        // 炮位标记位置
         int[][] cannonPositions = {
-                {2, 1}, {2, 7},  // 红方炮位（第3行，第2列和第8列）
-                {7, 1}, {7, 7}   // 黑方炮位（第8行，第2列和第8列）
+                {2, 1}, {2, 7},
+                {7, 1}, {7, 7}
         };
 
-        // 兵/卒位标记（双方各5个兵/卒位）
+        // 兵/卒位标记位置
         int[][] soldierPositions = {
-                {3, 0}, {3, 2}, {3, 4}, {3, 6}, {3, 8},  // 红方兵位（第4行）
-                {6, 0}, {6, 2}, {6, 4}, {6, 6}, {6, 8}   // 黑方卒位（第7行）
+                {3, 0}, {3, 2}, {3, 4}, {3, 6}, {3, 8},
+                {6, 0}, {6, 2}, {6, 4}, {6, 6}, {6, 8}
         };
 
-        // 绘制炮位标记（特殊的L形标记）
+        // 绘制炮位标记
         for (int[] pos : cannonPositions) {
             int row = pos[0];
             int col = pos[1];
@@ -283,7 +267,7 @@ class ChessBoardPanel extends JPanel {
     }
 
     /**
-     * 绘制炮位的特殊L形标记（四个方向的L形）
+     * 绘制炮位标记
      */
     private void drawCannonMarks(Graphics2D g, int row, int col, int length) {
         int x = getX(col);
@@ -314,8 +298,6 @@ class ChessBoardPanel extends JPanel {
         int x = getX(col);
         int y = getY(row);
         int gap = (int)(board.getWindowHeight()/189); // 标记与交叉点的间距
-
-        // 兵/卒位标记逻辑：除了最左和最右列只有两个角外，其余位置四个角都有标记
 
         if (col != 0) {
             // 绘制左边的标记
@@ -402,7 +384,7 @@ class ChessBoardPanel extends JPanel {
     }
 
     /**
-     * 绘制选中棋子时的蓝色外边框效果
+     * 绘制选中棋子时的外边框效果
      */
     private void drawCornerBorders(Graphics2D g, int centerX, int centerY) {
         g.setColor(new Color(104,184,142));
@@ -412,7 +394,6 @@ class ChessBoardPanel extends JPanel {
         int lineLength = (int)(board.getWindowHeight()/63.75);
 
         // 选中效果的边框实际上是8条line，每两个line组成一个角落的边框
-
         // 左上角的边框
         g.drawLine(centerX - cornerSize, centerY - cornerSize,
                 centerX - cornerSize + lineLength, centerY - cornerSize);

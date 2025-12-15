@@ -24,7 +24,6 @@ public class StatusPanel extends JPanel{
         setLayout(new BorderLayout());
         setOpaque(false);
         setBackground(Style.transprentColor);
-        //TODO: 查验
         setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(111, 78, 55), 2),
             BorderFactory.createEmptyBorder(10, 20, 10, 20)
@@ -68,7 +67,7 @@ public class StatusPanel extends JPanel{
         remove(redWinLabel);
         remove(blackWinLabel);
         remove(bothWinLabel);
-        if(false){//TODO:和棋判定
+        if(false){
             add(bothWinLabel, BorderLayout.CENTER);
         }else if((model.getType()&8)!=0){
             if(model.getAllSteps().isEmpty()){

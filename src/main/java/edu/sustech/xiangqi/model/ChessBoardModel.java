@@ -407,8 +407,6 @@ public class ChessBoardModel {
                 if(selectedPiece.canEat(this, i,j) && !willCauseFacing(selectedPiece, i, j)) eatRange.add(new Coordinate(i, j));
             }
         }
-        /* System.out.println("Can move:"+this.moveRange);
-        System.out.println("Can eat:"+this.eatRange); */
     }
     public void cancelSelection(){
         this.selectedPiece = null;
@@ -523,7 +521,7 @@ public class ChessBoardModel {
     }
 
     private boolean isGeneralsFacing() {
-        // 1. 找到红方帅和黑方将的位置
+        //找到红方帅和黑方将的位置
         AbstractPiece redGeneral = null;
         AbstractPiece blackGeneral = null;
         for (AbstractPiece piece : pieces) {
@@ -536,42 +534,35 @@ public class ChessBoardModel {
             }
         }
 
-        // 2. 检查是否在同一列
+        // 是否在同一列
         int redCol = redGeneral.getCol();
         int blackCol = blackGeneral.getCol();
         if (redCol != blackCol) {
             return false; // 不在同一列，不违规
         }
 
-        // 3. 检查同一列中间是否有棋子遮挡
+        // 检查同一列中间是否有棋子遮挡
         int redRow = redGeneral.getRow();
         int blackRow = blackGeneral.getRow();
-        // 确定行数范围
         int minRow = Math.min(redRow, blackRow);
         int maxRow = Math.max(redRow, blackRow);
 
-        // 遍历中间行，若有棋子则不违规
+        // 遍历中间行，有棋子则不违规
         for (int row = minRow + 1; row < maxRow; row++) {
             if (getPieceAt(row, redCol) != null) {
-                return false; // 有棋子遮挡，不违规
+                return false;
             }
         }
-
-        // 4. 同一列且中间无遮挡 → 违规
         return true;
     }
     private boolean willCauseFacing(AbstractPiece piece, int targetRow, int targetCol) {
         // 棋子原始位置
         int originalRow = piece.getRow();
         int originalCol = piece.getCol();
-
-        // 模拟移动：将棋子临时移到目标位置
         piece.moveTo(targetRow, targetCol);
 
         // 检查移动后是否出现将帅对面
         boolean isFacing = isGeneralsFacing();
-
-        // 恢复棋子原始位置
         piece.moveTo(originalRow, originalCol);
 
         return isFacing;

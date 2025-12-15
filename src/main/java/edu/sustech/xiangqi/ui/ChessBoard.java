@@ -23,7 +23,6 @@ public class ChessBoard extends JFrame {
 
     public ChessBoard(ChessBoardModel model){
 
-        //加载模型
         this.model=model;
 
         //设置窗口
@@ -33,11 +32,11 @@ public class ChessBoard extends JFrame {
         setSize(windowWidth,windowHeight+windowHeightOffset);
         setLocationRelativeTo(null);
 
-        // 创建背景面板并设置为主容器
+        // 背景
         backgroundPanel = new BackgroundPanel(this);
         setContentPane(backgroundPanel);
 
-        // 创建主面板
+        // 主面板
         mainPanel = new JPanel();
         mainPanel.setLayout(null);
         mainPanel.setOpaque(false);
@@ -45,23 +44,23 @@ public class ChessBoard extends JFrame {
         mainPanel.setSize(windowWidth,windowHeight);
         mainPanel.setLocation(0,0);
 
-        // 创建顶部状态栏
+        // 顶部状态栏
         statusPanel = new StatusPanel(model,this);
         mainPanel.add(statusPanel);
 
-        // 创建棋盘面板
+        // 棋盘
         chessBoardPanel = new ChessBoardPanel(model,this);
         mainPanel.add(chessBoardPanel);
 
-        // 创建左侧控制面板
+        // 左侧控制面板
         controlPanel = new ControlPanel(model, this);
         mainPanel.add(controlPanel);
 
-        //创建右侧复盘面板
+        // 右侧复盘面板
         playBackPanel = new PlayBackPanel(model, this);
         mainPanel.add(playBackPanel);
 
-        //背景板加上主面板
+        //背景加上主面板
         backgroundPanel.add(mainPanel);
 
         addComponentListener(new ComponentAdapter() {

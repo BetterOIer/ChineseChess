@@ -101,35 +101,5 @@ public abstract class AbstractPiece {
 
     public abstract boolean canEat(ChessBoardModel model, int row, int col);
     public abstract boolean canMove(ChessBoardModel model, int row, int col);
-    /* //Judge
-    public boolean canMoveTo(int targetRow, int targetCol, ChessBoardModel model){
-        int currentRow = getRow();
-        int currentCol = getCol();
-
-        // 能否移动
-        if (!canBasicMove(currentRow, currentCol, targetRow, targetCol, model)) {
-            return false;
-        }
-
-        return model.getPieceAt(targetRow, targetCol) != null
-                && model.getPieceAt(targetRow, targetCol).isRed() != this.isRed();
-    }
-
-    //判断目标位置的棋子是否会被吃
-    public boolean canEat(int targetRow, int targetCol, ChessBoardModel model){
-        int currentRow = getRow();
-        int currentCol = getCol();
-
-        // 能否移动
-        if (!canBasicMove(currentRow, currentCol, targetRow, targetCol, model)) {
-            return false;
-        }
-
-        // 能否吃子：目标是敌方棋子
-        return model.getPieceAt(targetRow, targetCol) != null
-                && model.getPieceAt(targetRow, targetCol).isRed() != this.isRed();
-    }
-
-    public abstract boolean canBasicMove(int currentRow, int currentCol, int targetRow, int targetCol, ChessBoardModel model); */
 }
 

@@ -4,7 +4,6 @@ public class User {
     
     private int id;
     private int type;
-    /* 1 normal account 2 unloginable account 4 in use or not*/
     private String username;
     private String pswordHash;
     private String description;

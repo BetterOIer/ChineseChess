@@ -2,8 +2,6 @@ package edu.sustech.xiangqi.ui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class SignUpPage extends JFrame{
 
@@ -16,12 +14,12 @@ public class SignUpPage extends JFrame{
 
     private Image backgroundImage;
 
-    // 获取屏幕尺寸，设置一个不铺满屏幕的正方形窗口
+    // 获取屏幕尺寸
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     int screenWidth = screenSize.width;
     int screenHeight = screenSize.height;
 
-    // 设置窗口大小为屏幕较小边长的70%，确保不铺满屏幕
+    // 设置窗口大小为屏幕较小边长的70%
     int squareSize = (int) (Math.min(screenWidth, screenHeight) * 0.7);
 
     public SignUpPage(){
@@ -60,7 +58,6 @@ public class SignUpPage extends JFrame{
         backgroundPanel.setLayout(null);
         setContentPane(backgroundPanel);
 
-        // 设置组件位置和大小（使用相对定位）
         setupComponents(backgroundPanel);
 
         setResizable(false);

@@ -29,9 +29,9 @@ public class JRoundPasswordField extends JPasswordField {
 
     private void init() {
         setOpaque(false);
-        // 浅灰色背景
+
         setBackground(new Color(230, 230, 230));
-        // 无边框，但设置内边距防止文字贴边
+
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         
         addFocusListener(new java.awt.event.FocusAdapter() {

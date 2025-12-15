@@ -48,9 +48,6 @@ public class ChessBoardBirdView extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        // Demo的GUI都是由Swing中基本的组件组成的，比如背景的格子是用许多个line组合起来实现的，棋子是先绘制一个circle再在上面绘制一个text实现的
-        // 因此绘制GUI的过程中需要自己手动计算每个组件的位置（坐标）
         drawBoard(g2d);
         drawPieces(g2d);
     }

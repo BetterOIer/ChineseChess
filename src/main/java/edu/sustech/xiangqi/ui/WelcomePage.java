@@ -20,12 +20,12 @@ public class WelcomePage extends JFrame{
 
     CreateTransparentButton transparentButton = new CreateTransparentButton();
 
-    // 获取屏幕尺寸，设置一个不铺满屏幕的正方形窗口
+    // 获取屏幕尺寸7
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     int screenWidth = screenSize.width;
     int screenHeight = screenSize.height;
 
-    // 设置窗口大小为屏幕较小边长的70%，确保不铺满屏幕
+    // 设置窗口大小为屏幕较小边长的70%7
     int squareSize = (int) (Math.min(screenWidth, screenHeight) * 0.7);
 
     public WelcomePage() {
@@ -337,7 +337,6 @@ public class WelcomePage extends JFrame{
     }
 
     private void switchToAIPage() {
-        // 人机对战页面跳转到人机对战页面
         JOptionPane.showMessageDialog(this, "人机对战功能开发中...", "提示", JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -345,8 +344,6 @@ public class WelcomePage extends JFrame{
         int windowWidth = getWidth();
         int windowHeight = getHeight();
 
-
-        // 存档按钮 - 对应图片上的"存档"文字位置
         archiveButton = transparentButton.createTransparentButton("本地棋局", 150, 45);
         int archiveButtonX = (squareSize-150)/2; // 水平居中
         int archiveButtonY = squareSize * 2 / 3 - 60;
@@ -367,7 +364,6 @@ public class WelcomePage extends JFrame{
             }
         });
 
-        // 双人对弈按钮 - 对应图片上的"双人对弈"文字位置
         pvpButton = transparentButton.createTransparentButton("双人对弈", 150, 45);
         int pvpButtonX = (squareSize-150)/2;
         int pvpButtonY = archiveButtonY + 70; // 在存档按钮下方60像素（对应"双人对弈"文字位置）
@@ -382,7 +378,6 @@ public class WelcomePage extends JFrame{
             }
         });
 
-        // 人机对战按钮 - 对应图片上的"人机对战"文字位置
         aiButton = transparentButton.createTransparentButton("人机对战", 150, 45);
         int aiButtonX = (squareSize-150)/2;
         int aiButtonY = pvpButtonY + 70; // 在双人对弈按钮下方60像素（对应"人机对战"文字位置）

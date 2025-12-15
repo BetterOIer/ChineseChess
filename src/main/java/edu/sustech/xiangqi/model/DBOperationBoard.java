@@ -30,13 +30,11 @@ public class DBOperationBoard {
         try (Connection conn = DriverManager.getConnection(URL);
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
-            /* System.out.println("表创建成功"); */
         }
     }
 
     public static boolean createDatabaseFolder(String path) {
         try {
-            // 方法1: 使用java.nio.file (推荐)
             File directory = new File(path);
             if(directory.exists()) return true;
             Path directoryPath = Paths.get(path);
@@ -302,7 +300,7 @@ public class DBOperationBoard {
         }
         return s;
     }
-    // 需要添加的辅助方法，用于将字符串转换回棋子列表和状态
+    // 辅助方法，将字符串转换回棋子列表和状态
     private static List<AbstractPiece> str2Piece(String piecesStr) {
         Scanner in = new Scanner(piecesStr);
         List<AbstractPiece> pieces = new ArrayList<>();

@@ -24,7 +24,6 @@ class PlayBackPanel extends JRoundScrollPane {
         setLocation(board.getWindowWidth()/5*4,board.getWindowHeight()/13);
         setOpaque(false);
         setBackground(Style.transprentColor);
-        //TODO: 查验
         setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(111, 78, 55), 2),
             BorderFactory.createEmptyBorder(5, 5, 5, 5)
@@ -48,11 +47,9 @@ class PlayBackPanel extends JRoundScrollPane {
         };
         
         contentPanel.setBackground(new Color(245, 222, 179));
-        
-        // 将内容面板设置为视口视图
         setViewportView(contentPanel);
         
-        // 设置滚动条策略
+        // 设置滚动条
         setVerticalScrollBarPolicy(JRoundScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         setHorizontalScrollBarPolicy(JRoundScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         getVerticalScrollBar().setUnitIncrement(16);
@@ -78,17 +75,14 @@ class PlayBackPanel extends JRoundScrollPane {
 
             g.fillRect(0, y, width, stepHeight);
 
-            // 绘制边框
             g.setColor(Color.LIGHT_GRAY);
             g.drawLine(0, y, width, y);
 
-            // 绘制标题
             g.setColor(Color.BLACK);
             g.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 20));
-            // 调整文字y坐标使其居中 (y是顶部，加上偏移量)
             g.drawString((stepIdx+1)+" "+stepNow.getStepNameInCh(), 20, y + 28);
 
-            // 绘制选中指示器
+            // 绘制选中
             if (stepIdx ==  model.getSelectedIdx()) {
                 g.setColor(new Color(104,184,142));
                 g.fillRect(0, y, 5, stepHeight);
